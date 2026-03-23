@@ -1,0 +1,16 @@
+{
+  "name": "list",
+  "slug": "list",
+  "title": "List",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable List element for the WICMS drag-and-drop module builder.",
+  "icon": "Icons8-Windows-8-Data-List.ico",
+  "image": "Icons8-Windows-8-Data-List.ico",
+  "class_file": "list.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

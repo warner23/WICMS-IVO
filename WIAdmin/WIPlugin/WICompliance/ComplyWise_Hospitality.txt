@@ -1,0 +1,296 @@
+COMPLYWISE HOSPITALITY
+Hospitality Compliance Plugin for WICMS
+
+A structured, scalable compliance management system for catering & hospitality businesses
+
+
+------------------------------------------------------------
+1. PRODUCT OVERVIEW
+------------------------------------------------------------
+
+ComplyWise Hospitality is a compliance management system designed for the catering and hospitality sector.
+
+It helps businesses to:
+- Set up legally
+- Operate safely
+- Maintain compliance
+- Provide evidence when required
+- Stay audit/inspection ready
+
+NOTE:
+This system does NOT guarantee compliance. It is a management and support system.
+
+
+------------------------------------------------------------
+2. CORE PRODUCT PROMISE
+------------------------------------------------------------
+
+“A hospitality compliance operating system that helps businesses set up, run, evidence, review, and maintain legal and best-practice compliance.”
+
+
+------------------------------------------------------------
+3. KEY DESIGN PRINCIPLES
+------------------------------------------------------------
+
+- Modular and scalable
+- Business-type aware
+- Evidence-driven
+- Legally structured
+- GDPR compliant by design
+- Add-on ready
+- Multi-site capable
+- Audit-ready
+
+
+------------------------------------------------------------
+4. CORE SYSTEM MODULES
+------------------------------------------------------------
+
+4.1 DASHBOARD
+- Compliance overview
+- Priority alerts
+- Overdue actions
+- Upcoming tasks
+- Inspection readiness indicator
+
+
+4.2 SETUP WIZARD
+Captures:
+- Business type
+- Number of sites
+- Food type / risk level
+- Alcohol sales
+- Accommodation
+- Staff count
+- Allergen handling
+- Gas appliances
+- Fryer usage
+- Customer data usage
+- CCTV usage
+- Marketing usage
+
+Outputs:
+- Tailored compliance setup
+- Preloaded checklists
+- Legal register
+- Required logs
+- Reminder schedule
+
+
+4.3 LEGAL REGISTER
+- Laws, regulations, standards, guidance
+- Required actions
+- Review dates
+- Mandatory vs recommended
+
+Coverage:
+- Food safety (HACCP / SFBB)
+- Allergens
+- Health & safety
+- Fire safety
+- Gas safety
+- COSHH
+- Licensing
+- GDPR
+- Waste
+- Pest control
+
+
+4.4 CHECKLIST ENGINE
+Examples:
+- Opening/closing checks
+- Temperature checks
+- Cleaning schedules
+- Delivery checks
+- Equipment checks
+
+Features:
+- Required/optional
+- Time triggers
+- Priority levels
+- Photo upload
+- Pass/fail
+- Corrective actions
+- Manager review
+- Overdue escalation
+
+
+4.5 LOGS & RECORDS
+Includes:
+- Temperature logs
+- Cooking logs
+- Cleaning logs
+- Pest logs
+- Supplier records
+- Complaints
+- Training
+- Accident book
+- Maintenance logs
+- Fire checks
+- Gas inspections
+- Audits
+
+
+4.6 DOCUMENTS & POLICIES
+Includes:
+- Food safety policy
+- HACCP/SFBB
+- Allergen policy
+- Cleaning policy
+- Staff handbook
+- GDPR policies
+- Certificates
+
+Features:
+- Version control
+- Review dates
+- Ownership
+- Read-and-sign
+- Archive state
+
+
+4.7 GDPR MODULE
+- Lawful basis register
+- Privacy notices
+- Consent tracking
+- Data requests
+- Breach logs
+- Data mapping
+- Retention schedule
+- Access control
+- Data export/delete
+
+
+4.8 REMINDERS SYSTEM
+Priority levels:
+- Critical
+- High
+- Medium
+- Low
+- Advisory
+
+Examples:
+- Missing logs
+- Expired certificates
+- Overdue checks
+- Inspection prep
+- GDPR actions
+
+
+4.9 ARCHIVE SYSTEM
+- Retention-based (NOT fixed duration)
+- Auto archive
+- ZIP export
+- Restore capability
+- Anonymisation
+- Controlled deletion
+
+
+4.10 EQUIPMENT PLANNER
+- Equipment lists
+- Legal vs recommended
+- Cost estimates
+- Maintenance schedules
+- Supplier suggestions
+
+
+4.11 HELP & GUIDANCE
+- Startup guidance
+- Timeline planning
+- Compliance basics
+- Inspection preparation
+- Common mistakes
+
+
+4.12 ADD-ONS
+Examples:
+- Alcohol licensing
+- Hotel/guest house
+- Food truck
+- School/care catering
+- Multi-site
+- HR compliance
+- Supplier management
+- Audit scoring
+
+
+------------------------------------------------------------
+5. MENU STRUCTURE
+------------------------------------------------------------
+
+- Dashboard
+- Setup Wizard
+- Legal Register
+- Checklists
+- Logs & Records
+- Audits & Inspections
+- Documents & Policies
+- Training
+- GDPR & Data
+- Equipment Planner
+- Reminders
+- Archive
+- Help & Guides
+- Add-ons
+- Settings
+
+
+------------------------------------------------------------
+6. SMART FEATURES (RECOMMENDED)
+------------------------------------------------------------
+
+- Compliance score
+- Trend detection
+- Recurring issue alerts
+- Inspection mode
+- Evidence completeness score
+- Role-based tasks
+- Auditor access
+- QR sign-off
+- Mobile/offline support
+
+
+------------------------------------------------------------
+7. PRODUCT STRUCTURE
+------------------------------------------------------------
+
+Family:
+- ComplyWise Hospitality
+- ComplyWise Healthcare (future)
+- ComplyWise Retail (future)
+
+Editions:
+- Starter
+- Standard
+- Multi-site
+- Add-ons
+
+
+------------------------------------------------------------
+8. PHASE 1 (MVP)
+------------------------------------------------------------
+
+1. Setup Wizard
+2. Legal Register
+3. Checklist Engine
+4. Logs & Records
+5. Reminders
+6. Archive system
+
+
+------------------------------------------------------------
+9. FINAL NOTES
+------------------------------------------------------------
+
+- Must support multiple business types
+- Must not hardcode legal assumptions
+- Must prioritise usability
+- Must scale from small to enterprise
+
+
+------------------------------------------------------------
+10. POSITIONING
+------------------------------------------------------------
+
+ComplyWise Hospitality
+“Compliance, food safety, records, and readiness — all in one system.”

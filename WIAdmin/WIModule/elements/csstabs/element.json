@@ -1,0 +1,16 @@
+{
+  "name": "csstabs",
+  "slug": "csstabs",
+  "title": "Csstabs",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Csstabs element for the WICMS drag-and-drop module builder.",
+  "icon": "tabs.png",
+  "image": "tabs.png",
+  "class_file": "csstabs.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

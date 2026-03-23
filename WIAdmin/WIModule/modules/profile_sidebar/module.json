@@ -1,0 +1,16 @@
+{
+  "name": "profile_sidebar",
+  "slug": "profile_sidebar",
+  "title": "Profile Sidebar",
+  "author": "Warner Infinity",
+  "description": "Profile Sidebar module for WICMS.",
+  "category": "Navigation",
+  "icon": "",
+  "image": "",
+  "class_file": "profile_sidebar.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

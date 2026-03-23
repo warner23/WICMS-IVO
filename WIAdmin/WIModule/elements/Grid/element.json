@@ -1,0 +1,16 @@
+{
+  "name": "Grid",
+  "slug": "Grid",
+  "title": "Grid",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Grid element for the WICMS drag-and-drop module builder.",
+  "icon": "button.png",
+  "image": "button.png",
+  "class_file": "Grid.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Forms",
+  "slug": "Forms",
+  "title": "Forms",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Forms element for the WICMS drag-and-drop module builder.",
+  "icon": "button.png",
+  "image": "button.png",
+  "class_file": "Forms.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

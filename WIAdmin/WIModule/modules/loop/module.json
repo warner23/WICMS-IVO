@@ -1,0 +1,16 @@
+{
+  "name": "loop",
+  "slug": "loop",
+  "title": "Loop",
+  "author": "Warner Infinity",
+  "description": "Loop module for WICMS.",
+  "category": "Layout",
+  "icon": "",
+  "image": "",
+  "class_file": "loop.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

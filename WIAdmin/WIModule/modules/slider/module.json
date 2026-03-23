@@ -1,0 +1,16 @@
+{
+  "name": "slider",
+  "slug": "slider",
+  "title": "Slider",
+  "author": "Warner Infinity",
+  "description": "Slider module for WICMS.",
+  "category": "Layout",
+  "icon": "",
+  "image": "",
+  "class_file": "slider.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

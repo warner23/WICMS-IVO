@@ -1,0 +1,16 @@
+{
+  "name": "like",
+  "slug": "like",
+  "title": "Like",
+  "type": "Social",
+  "group": "Social",
+  "author": "Warner Infinity",
+  "description": "Reusable Like element for the WICMS drag-and-drop module builder.",
+  "icon": "like.jpg",
+  "image": "like.jpg",
+  "class_file": "like.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

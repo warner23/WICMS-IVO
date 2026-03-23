@@ -1,0 +1,16 @@
+{
+  "name": "textbox",
+  "slug": "textbox",
+  "title": "Textbox",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Textbox element for the WICMS drag-and-drop module builder.",
+  "icon": "button.png",
+  "image": "button.png",
+  "class_file": "textbox.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

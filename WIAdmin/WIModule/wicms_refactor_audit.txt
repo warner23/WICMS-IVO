@@ -1,0 +1,247 @@
+WICMS REFACTOR AUDIT INVENTORY
+===============================
+Important: percentages below are audit estimates only. They are based on folder/file/class/json consistency and likely refactor effort. They are not runtime test pass rates.
+
+Overall estimated completion across elements/modules/pages: 75.8%
+Elements average: 76.5%
+Modules average: 85.1%
+Pages average: 70.7%
+
+ELEMENTS
+--------
+- accordion: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- appearing_button: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- Base: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- button: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- call_to_action: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- carousel: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- columns: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- Components: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- content_box: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- csstabs: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- fb_like_widget: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- feature: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- folded_corner: 80% | Needs refactor | issues: main-file-mismatch | action: rename or add exact main php file
+- font: 30% | Needs refactor | issues: main-file-mismatch, no-detectable-class, no-php-file | action: rename or add exact main php file; add/repair primary class; create main php file
+- fonts: 30% | Needs refactor | issues: main-file-mismatch, no-detectable-class, no-php-file | action: rename or add exact main php file; add/repair primary class; create main php file
+- Forms: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- google_map: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- Grid: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- heading: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- image: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- image_hover: 75% | Needs refactor | issues: main-file-mismatch | action: rename or add exact main php file
+- image_mosaic: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- input: 75% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- Javascript: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- latest_fbfeeds: 55% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- like: 80% | Needs refactor | issues: class-folder-mismatch | action: align class name to folder
+- link: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- list: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- logo: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- loop: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- menu_button: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- notepad: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- notice: 70% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- paragraph: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- post_carousel: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- price_box: 70% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- progress_bar: 100% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- richtext: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- rows: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- search_engine: 55% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- separator: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- shortcode: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- slider: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- subpages: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- subscribe: 70% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- textbox: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- twitter_lock: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+- twitter_timeline: 50% | Needs refactor | issues: main-file-mismatch, no-detectable-class | action: rename or add exact main php file; add/repair primary class
+
+MODULES
+-------
+- 404: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- 404_annomated: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- About_Us: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- alogin: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- annoucement_board: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- App: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- blog: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- blog_media_youtube: 75% | Needs refactor | issues: class-folder-mismatch | action: align class name to folder
+- buttoning: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- cart: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- checkout: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- columns: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- Contact_Us: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- debate: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- flipcard: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- footer: 80% | Needs refactor | issues: class-folder-mismatch | action: align class name to folder
+- forum: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- fourzerofour: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- header: 65% | Needs refactor | issues: main-file-mismatch, class-folder-mismatch | action: rename or add exact main php file; align class name to folder
+- heading: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- info: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- installers: 25% | Needs refactor | issues: main-file-mismatch, no-detectable-class, no-php-file | action: rename or add exact main php file; add/repair primary class; create main php file
+- left_sidebar: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- listings: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- loop: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- menu: 25% | Needs refactor | issues: main-file-mismatch, no-detectable-class, no-php-file | action: rename or add exact main php file; add/repair primary class; create main php file
+- notfound: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- notfound_annomated: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- notice: 70% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- panel: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- platform: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- policy: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- privacy_policy: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- product: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_inbox: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_msg: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_outbox: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_page: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_sidebar: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- profile_tabs: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- shop: 70% | Needs refactor | issues: missing-module.json | action: add metadata json
+- sidebar: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- slider: 65% | Needs refactor | issues: no-detectable-class | action: add/repair primary class
+- team_showcase: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- testing: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- top_head: 90% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+- welcome_box: 95% | Mostly complete | issues: none obvious | action: Low priority: mostly naming/cleanup/passive testing.
+
+PAGES
+-----
+- 404: 35% | Needs refactor | issues: no-detectable-class, missing-page.json | action: add/repair primary class; add metadata json; optional but recommended: add page.json contract
+- 404_annomated: 35% | Needs refactor | issues: no-detectable-class, missing-page.json | action: add/repair primary class; add metadata json; optional but recommended: add page.json contract
+- about_me: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- about_us: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- account: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- admin_comp_login: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- admincompdash: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- admindash: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- alogin: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- annoucement_board: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- App: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- appointment: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- bar: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- BarBack: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- BareasyQuiz: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- BarmodQuiz: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- Bartests: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- BartimedQuiz: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- cart: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- cashierdash: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- cashposlogin: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- checklists: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- checkout: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- compdash: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- compliance: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- complogin: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- contact_us: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- create: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- custIndex: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- daily_cleaning: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- dailyBarClosing: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- dailyBarOpening: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- deep_cleaning: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- delivery_checklist: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- desserts: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- drinks: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- evening_checks: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- flipcard: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- food: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- forgotpass: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- homepage: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- index: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- indexc: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- indexu: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- info: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- kitceheasyQuiz: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- kitchen: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- kitchen21: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- kitchenmodQuiz: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- KitchenQuiz: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- kitchentimedQuiz: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- left_sidebar: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- listings: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- locator: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- login: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- membership: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- morning_checks: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- notfound: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- notfound_annomated: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- notice: 40% | Needs refactor | issues: no-detectable-class, missing-page.json | action: add/repair primary class; add metadata json; optional but recommended: add page.json contract
+- panel: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- platform: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- policy: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- post: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- posts: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- Prices: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- privacy_policy: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- product: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_inbox: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_msg: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_outbox: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_page: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_sidebar: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- profile_tabs: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- register: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- reservations: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- right_sidebar: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- safety_spot_checks: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- section: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- settings: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- specstest: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- staff: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- Support: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- team_showcase: 15% | Needs refactor | issues: main-file-mismatch, no-detectable-class, missing-page.json | action: rename or add exact main php file; add/repair primary class; add metadata json; optional but recommended: add page.json contract
+- testing: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- top_head: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- transactions: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- upgrade: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- video: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- view: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- warner: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- welcome_box: 75% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+- west: 70% | Needs refactor | issues: missing-page.json | action: add metadata json; optional but recommended: add page.json contract
+
+Highest-priority elements
+-------------------------
+- font (30%): rename or add exact main php file; add/repair primary class; create main php file
+- fonts (30%): rename or add exact main php file; add/repair primary class; create main php file
+- fb_like_widget (50%): rename or add exact main php file; add/repair primary class
+- image_mosaic (50%): rename or add exact main php file; add/repair primary class
+- menu_button (50%): rename or add exact main php file; add/repair primary class
+- post_carousel (50%): rename or add exact main php file; add/repair primary class
+- twitter_lock (50%): rename or add exact main php file; add/repair primary class
+- twitter_timeline (50%): rename or add exact main php file; add/repair primary class
+- latest_fbfeeds (55%): rename or add exact main php file; add/repair primary class
+- search_engine (55%): rename or add exact main php file; add/repair primary class
+- list (65%): add/repair primary class
+- logo (65%): add/repair primary class
+- loop (65%): add/repair primary class
+- notepad (65%): add/repair primary class
+- richtext (65%): add/repair primary class
+- separator (65%): add/repair primary class
+- shortcode (65%): add/repair primary class
+- slider (65%): add/repair primary class
+- subpages (65%): add/repair primary class
+
+Highest-priority modules
+------------------------
+- installers (25%): rename or add exact main php file; add/repair primary class; create main php file
+- menu (25%): rename or add exact main php file; add/repair primary class; create main php file
+- 404 (65%): add/repair primary class
+- 404_annomated (65%): add/repair primary class
+- header (65%): rename or add exact main php file; align class name to folder
+- loop (65%): add/repair primary class
+- slider (65%): add/repair primary class
+
+Highest-priority pages
+----------------------
+- team_showcase (15%): rename or add exact main php file; add/repair primary class; add metadata json
+- 404 (35%): add/repair primary class; add metadata json
+- 404_annomated (35%): add/repair primary class; add metadata json
+- notice (40%): add/repair primary class; add metadata json
+

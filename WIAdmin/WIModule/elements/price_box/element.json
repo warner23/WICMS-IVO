@@ -1,0 +1,16 @@
+{
+  "name": "price_box",
+  "slug": "price_box",
+  "title": "Price Box",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Price Box element for the WICMS drag-and-drop module builder.",
+  "icon": "price.png",
+  "image": "price.png",
+  "class_file": "price_box.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

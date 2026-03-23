@@ -1,0 +1,16 @@
+{
+  "name": "menu_button",
+  "slug": "menu_button",
+  "title": "Menu Button",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Menu Button element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "button.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

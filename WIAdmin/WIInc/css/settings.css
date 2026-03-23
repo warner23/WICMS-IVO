@@ -1,0 +1,1578 @@
+/* =========================================================
+   WICMS SETTINGS UI
+   Consolidated styling for:
+   - settings pages
+   - menu/header/footer/favicon settings
+   - users / roles / permissions / pages
+   - admin left sidebar accordion
+   - dark admin header override
+========================================================= */
+
+
+/* =========================================================
+   1. SHARED SETTINGS / ADMIN SHELL
+========================================================= */
+
+.wi-settings-shell,
+.wi-pages-shell,
+.wi-permissions-shell,
+.wi-roles-shell,
+.wi-users-shell {
+    padding: 20px;
+}
+
+.wi-admin-header {
+    padding: 20px 20px 0;
+}
+
+.wi-admin-header h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #101828;
+}
+
+.wi-admin-header p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #667085;
+}
+
+.wi-admin-panel {
+    margin: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.05);
+}
+
+.wi-section-head,
+.wi-role-matrix-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.wi-section-head h3,
+.wi-role-matrix-head h3,
+.wi-role-group h4 {
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: #101828;
+}
+
+.wi-section-head p,
+.wi-role-matrix-head p {
+    margin: 0;
+    line-height: 1.6;
+    color: #667085;
+}
+
+.wi-btn-primary {
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   2. SHARED TABS / CARDS / FORMS
+========================================================= */
+
+.wi-settings-tabs-wrap {
+    margin-top: 10px;
+}
+
+#wi-settings-tabs > ul,
+#wi-header-tabs > ul,
+#wi-menu-tabs > ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid #eaecf0;
+}
+
+#wi-settings-tabs > ul li,
+#wi-header-tabs > ul li,
+#wi-menu-tabs > ul li {
+    margin: 0;
+    padding: 0;
+}
+
+#wi-settings-tabs > ul li a,
+#wi-header-tabs > ul li a,
+#wi-menu-tabs > ul li a {
+    display: inline-block;
+    padding: 10px 14px;
+    border: 1px solid #d0d5dd;
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    background: #f8fafc;
+    color: #344054;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+#wi-settings-tabs > ul li.ui-tabs-active a,
+#wi-settings-tabs > ul li a:hover,
+#wi-header-tabs > ul li.ui-tabs-active a,
+#wi-header-tabs > ul li a:hover,
+#wi-menu-tabs > ul li.ui-tabs-active a,
+#wi-menu-tabs > ul li a:hover {
+    background: #ffffff;
+    color: #101828;
+    border-color: #98a2b3;
+}
+
+.wi-settings-tab-panel {
+    padding: 0;
+}
+
+.wi-settings-tab-card,
+.wi-header-settings-card,
+.wi-menu-tab-card {
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+}
+
+.wi-menu-tab-card {
+    padding: 24px;
+}
+
+.wi-header-tab-head,
+.wi-menu-tab-head {
+    margin-bottom: 20px;
+}
+
+.wi-settings-tab-card .well,
+.wi-settings-tab-card .modal-body,
+.wi-header-settings-card .well,
+.wi-header-settings-card .modal-body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.wi-settings-tab-card .form-group:last-child,
+.wi-header-settings-card .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.wi-header-settings-card form,
+.wi-header-settings-card .form-horizontal {
+    width: 100%;
+}
+
+.wi-header-settings-card .form-group {
+    margin-bottom: 18px;
+}
+
+.wi-header-settings-card .control-label,
+.wi-sidebar-editor-body label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.wi-header-settings-card .form-control,
+.wi-sidebar-editor-body .form-control {
+    min-height: 42px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+.wi-header-settings-card textarea.form-control {
+    min-height: 120px;
+}
+
+
+/* =========================================================
+   3. MENU SETTINGS
+========================================================= */
+
+.wi-menu-section {
+    display: block;
+}
+
+.wi-menu-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.wi-menu-toolbar h4 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #101828;
+}
+
+.wi-menu-toolbar p {
+    margin: 0;
+    color: #667085;
+}
+
+.wi-menu-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wi-menu-workspace {
+    display: block;
+}
+
+.wi-menu-preview-card {
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+}
+
+.wi-menu-card-head {
+    padding: 16px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.wi-menu-card-head h5 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #101828;
+}
+
+.wi-menu-card-head span {
+    display: block;
+    font-size: 13px;
+    color: #667085;
+}
+
+.wi-menu-card-body {
+    padding: 20px;
+}
+
+.wi-menu-results,
+.wi-menu-note {
+    margin-top: 16px;
+}
+
+.wi-menu-preview-card .menu,
+.wi-menu-preview-card .menusT,
+.wi-menu-preview-card #nav {
+    width: 100%;
+    float: none;
+}
+
+.wi-menu-preview-card .menu::before,
+.wi-menu-preview-card .menu::after,
+.wi-menu-preview-card .menusT::before,
+.wi-menu-preview-card .menusT::after {
+    content: "";
+    display: table;
+}
+
+.wi-menu-preview-card .menu::after,
+.wi-menu-preview-card .menusT::after {
+    clear: both;
+}
+
+.wi-menu-preview-card ul.mainMenu,
+.wi-admin-menu-preview ul.navbar-nav {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.wi-menu-preview-card ul.mainMenu li,
+.wi-admin-menu-preview ul.navbar-nav li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+    color: #101828;
+    font-weight: 600;
+}
+
+.wi-menu-preview-card ul.mainMenu li:last-child,
+.wi-admin-menu-preview ul.navbar-nav li:last-child {
+    margin-bottom: 0;
+}
+
+.wi-admin-menu-preview ul.navbar-nav li {
+    float: none;
+}
+
+.wi-admin-menu-preview ul.navbar-nav li a {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    color: #101828;
+    text-decoration: none;
+}
+
+.wi-admin-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wi-admin-menu-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+}
+
+.wi-admin-menu-item-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.wi-admin-menu-item-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #101828;
+}
+
+.wi-admin-menu-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    font-size: 13px;
+    color: #667085;
+}
+
+.wi-admin-menu-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   4. SIDEBAR MENU EDITOR INSIDE SETTINGS
+========================================================= */
+
+.wi-sidebar-editor-body .sidebar-editor-accordion h3 {
+    margin: 0 0 10px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #101828;
+    cursor: pointer;
+}
+
+.wi-sidebar-editor-body .sidebar-editor-accordion > div {
+    margin: 0 0 14px;
+    padding: 16px;
+    background: #fcfcfd;
+    border: 1px solid #eaecf0;
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+}
+
+.wi-sidebar-editor-body .sidebar-editor-item {
+    margin-bottom: 12px;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+}
+
+.wi-sidebar-editor-body .sidebar-editor-item:last-child,
+.wi-sidebar-editor-body .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.wi-sidebar-editor-body .form-group {
+    margin-bottom: 14px;
+}
+
+.wi-sidebar-editor-body .ui-accordion-content {
+    height: auto !important;
+}
+
+
+/* =========================================================
+   SIDEBAR ACCORDION HARD OVERRIDES
+   Use at the very bottom of settings.css
+========================================================= */
+
+#accordion,
+#accordion.admin-sidebar-groups {
+    background: transparent !important;
+}
+
+#accordion .ui-widget-content,
+#accordion .ui-widget-header,
+#accordion .ui-state-default,
+#accordion .ui-state-hover,
+#accordion .ui-state-focus,
+#accordion .ui-state-active {
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+}
+
+#accordion h3,
+#accordion .ui-accordion-header {
+    position: relative !important;
+    margin: 0 0 8px !important;
+    padding: 13px 44px 13px 14px !important;
+    background: #17212f !important;
+    border: 1px solid #223046 !important;
+    border-radius: 12px !important;
+    color: #e4e7ec !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+}
+
+#accordion h3:hover,
+#accordion .ui-accordion-header:hover {
+    background: #1b2636 !important;
+    border-color: #2e3b52 !important;
+    color: #ffffff !important;
+}
+
+#accordion h3.ui-state-active,
+#accordion .ui-accordion-header.ui-state-active,
+#accordion h3.ui-accordion-header-active,
+#accordion .ui-accordion-header.ui-accordion-header-active {
+    background: #1d4ed8 !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+}
+
+#accordion h3 .ui-accordion-header-icon,
+#accordion .ui-accordion-header .ui-accordion-header-icon {
+    display: none !important;
+}
+
+#accordion h3::after,
+#accordion .ui-accordion-header::after {
+    content: "\f078" !important;
+    position: absolute !important;
+    top: 50% !important;
+    right: 16px !important;
+    transform: translateY(-50%) !important;
+    font-family: FontAwesome !important;
+    font-size: 12px !important;
+    opacity: 0.85 !important;
+    transition: transform 0.2s ease !important;
+}
+
+#accordion h3.ui-state-active::after,
+#accordion .ui-accordion-header.ui-state-active::after,
+#accordion h3.ui-accordion-header-active::after,
+#accordion .ui-accordion-header.ui-accordion-header-active::after {
+    transform: translateY(-50%) rotate(180deg) !important;
+}
+
+#accordion .ui-accordion-content {
+    margin: -2px 0 10px !important;
+    padding: 8px !important;
+    overflow: hidden !important;
+    background: #0f1723 !important;
+    border: 1px solid #223046 !important;
+    border-radius: 0 0 12px 12px !important;
+    color: #d0d5dd !important;
+}
+
+.left-side .sidebar-sub-menu,
+#accordion .sidebar-sub-menu {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.left-side .sidebar-sub-menu > li + li,
+#accordion .sidebar-sub-menu > li + li {
+    margin-top: 4px !important;
+}
+
+.left-side .sidebar-sub-menu > li > a,
+#accordion .sidebar-sub-menu > li > a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-height: 40px !important;
+    padding: 10px 12px 10px 14px !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: #98a2b3 !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.left-side .sidebar-sub-menu > li > a::before,
+#accordion .sidebar-sub-menu > li > a::before {
+    content: "" !important;
+    flex: 0 0 6px !important;
+    width: 6px !important;
+    height: 6px !important;
+    background: #475467 !important;
+    border-radius: 999px !important;
+}
+
+.left-side .sidebar-sub-menu > li > a:hover,
+#accordion .sidebar-sub-menu > li > a:hover {
+    padding-left: 18px !important;
+    background: #17212f !important;
+    color: #ffffff !important;
+}
+
+.left-side .sidebar-sub-menu > li.active > a,
+.left-side .sidebar-sub-menu > li.current > a,
+#accordion .sidebar-sub-menu > li.active > a,
+#accordion .sidebar-sub-menu > li.current > a {
+    background: rgba(37, 99, 235, 0.16) !important;
+    color: #ffffff !important;
+}
+
+.left-side .sidebar-sub-menu > li.active > a::before,
+.left-side .sidebar-sub-menu > li.current > a::before,
+.left-side .sidebar-sub-menu > li > a:hover::before,
+#accordion .sidebar-sub-menu > li.active > a::before,
+#accordion .sidebar-sub-menu > li.current > a::before,
+#accordion .sidebar-sub-menu > li > a:hover::before {
+    background: #60a5fa !important;
+}
+
+
+/* =========================================================
+   5. USERS SETTINGS
+========================================================= */
+
+.wi-users-table th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+.wi-users-table td {
+    vertical-align: middle !important;
+}
+
+.user-role-select {
+    padding: 6px 10px;
+    border: 1px solid #dddddd;
+    border-radius: 6px;
+}
+
+
+/* =========================================================
+   6. PAGES SETTINGS
+========================================================= */
+
+.wi-pages-table-wrap {
+    overflow-x: auto;
+}
+
+.wi-pages-table th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+.wi-pages-table td,
+.wi-pages-table th {
+    vertical-align: middle !important;
+}
+
+.wi-page-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+#page-results .alert {
+    margin-top: 15px;
+}
+
+
+/* =========================================================
+   7. ROLES SETTINGS
+========================================================= */
+
+.wi-roles-table-wrap {
+    overflow-x: auto;
+}
+
+.wi-roles-table th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+.wi-roles-table td,
+.wi-roles-table th {
+    vertical-align: middle !important;
+}
+
+.wi-role-group + .wi-role-group {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid #eaecf0;
+}
+
+.wi-permission-checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.wi-permission-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+}
+
+.wi-permission-item input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+#role-results .alert,
+#role-permissions-results .alert {
+    margin-top: 15px;
+}
+
+
+/* =========================================================
+   8. PERMISSIONS SETTINGS
+========================================================= */
+
+.wi-permissions-table-wrap,
+.wi-role-group .table-responsive {
+    overflow-x: auto;
+}
+
+.wi-permissions-table th,
+.wi-role-matrix-table th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+.wi-permissions-table td,
+.wi-role-matrix-table td,
+.wi-permissions-table th,
+.wi-role-matrix-table th {
+    vertical-align: middle !important;
+}
+
+.wi-role-matrix {
+    margin-top: 35px;
+}
+
+.wi-role-group {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eaecf0;
+}
+
+.wi-role-matrix-table td.text-center,
+.wi-role-matrix-table th {
+    text-align: center;
+}
+
+.wi-role-matrix-table td:first-child,
+.wi-role-matrix-table th:first-child {
+    min-width: 240px;
+    text-align: left;
+}
+
+.wi-role-permission-toggle {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+#permission-results .alert {
+    margin-top: 15px;
+}
+
+
+/* =========================================================
+   9. BADGES / STATUS
+========================================================= */
+
+.wi-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.wi-badge-success {
+    background: #ecfdf3;
+    color: #027a48;
+}
+
+.wi-badge-muted {
+    background: #f2f4f7;
+    color: #667085;
+}
+
+.wi-roles-table .wi-badge {
+    margin-left: 8px;
+}
+
+
+/* =========================================================
+   10. SHARED MODAL STYLING
+========================================================= */
+
+.wi-page-modal,
+.wi-permission-modal,
+.wi-role-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.wi-page-modal.show,
+.wi-permission-modal.show,
+.wi-role-modal.show {
+    display: flex;
+}
+
+.wi-page-modal-dialog,
+.wi-permission-modal-dialog,
+.wi-role-modal-dialog {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
+}
+
+.wi-page-modal-dialog {
+    max-width: 760px;
+}
+
+.wi-permission-modal-dialog {
+    max-width: 680px;
+}
+
+.wi-role-modal-dialog {
+    max-width: 640px;
+}
+
+.wi-role-permissions-dialog {
+    max-width: 860px;
+}
+
+.wi-page-modal-header,
+.wi-page-modal-footer,
+.wi-permission-modal-header,
+.wi-permission-modal-footer,
+.wi-role-modal-header,
+.wi-role-modal-footer {
+    padding: 18px 20px;
+}
+
+.wi-page-modal-header,
+.wi-permission-modal-header,
+.wi-role-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.wi-page-modal-footer,
+.wi-permission-modal-footer,
+.wi-role-modal-footer {
+    text-align: right;
+    border-top: 1px solid #eaecf0;
+}
+
+.wi-page-modal-body,
+.wi-permission-modal-body,
+.wi-role-modal-body {
+    padding: 20px;
+}
+
+.wi-role-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.wi-modal-close {
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   11. HEADER / FOOTER / FAVICON SETTINGS
+========================================================= */
+
+.wi-header-preview-body,
+.wi-footer-preview-body,
+.wi-favicon-preview-body {
+    display: block;
+}
+
+.wi-header-preview-body .header,
+.wi-footer-preview-body .footer,
+.wi-favicon-preview-body .container {
+    margin: 0;
+    background: transparent;
+}
+
+.wi-header-preview-body .container,
+.wi-footer-preview-body .container,
+.wi-favicon-preview-body .container {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wi-header-preview-body .row,
+.wi-footer-preview-body .row,
+.wi-favicon-preview-body .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.wi-header-preview-body [class*="col-"],
+.wi-footer-preview-body [class*="col-"],
+.wi-favicon-preview-body [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wi-header-preview-body .navbar_brand,
+.wi-favicon-preview-body #favimg {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.wi-header-preview-body .mediaPic,
+.wi-favicon-preview-body .mediaPic {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.wi-header-preview-body .cp,
+.wi-favicon-preview-body .cp {
+    display: block;
+    max-width: 120px;
+    padding: 6px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+}
+
+.wi-footer-preview-body .footer_bottom {
+    padding: 0;
+    background: transparent;
+}
+
+.wi-footer-preview-body .copyright {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: #344054;
+    font-weight: 600;
+}
+
+.wi-footer-preview-body .copyright input[type="text"] {
+    min-height: 42px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    box-shadow: none;
+    color: #101828;
+}
+
+.wi-footer-preview-body #footer_year {
+    max-width: 110px;
+    background: #f8fafc;
+    color: #667085;
+}
+
+.wi-favicon-preview-body #message,
+.wi-favicon-preview-body #favresults_internal,
+.wi-favicon-preview-body .col-lg-offset-4,
+.wi-favicon-preview-body #favicon_settings {
+    display: none !important;
+}
+
+
+/* =========================================================
+   12. DARK ADMIN TOP HEADER
+   Keeps header black to match the sidebar theme
+========================================================= */
+
+.wi-topbar {
+    background: #101828 !important;
+    border-bottom: 1px solid #1d2939 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18) !important;
+}
+
+.wi-topbar__inner {
+    background: transparent;
+}
+
+.wi-topbar__brand,
+.wi-topbar__brand:hover,
+.wi-topbar__brand:focus {
+    color: #f8fafc !important;
+    text-decoration: none;
+}
+
+.wi-topbar__brand-icon {
+    background: #17212f !important;
+    border: 1px solid #223046;
+    color: #f8fafc !important;
+}
+
+.wi-topbar__brand-text {
+    color: #f8fafc !important;
+}
+
+.wi-topbar__visit-site {
+    background: #17212f !important;
+    border: 1px solid #223046 !important;
+    color: #d0d5dd !important;
+}
+
+.wi-topbar__visit-site:hover,
+.wi-topbar__visit-site:focus {
+    background: #1b2636 !important;
+    border-color: #2e3b52 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.wi-topbar__nav .navbar-nav > li > a {
+    background: transparent !important;
+    color: #cdd5df !important;
+}
+
+.wi-topbar__nav .navbar-nav > li > a:hover,
+.wi-topbar__nav .navbar-nav > li.active > a {
+    background: #17212f !important;
+    color: #ffffff !important;
+}
+
+.wi-topbar__icon-btn {
+    background: #17212f !important;
+    border: 1px solid #223046 !important;
+    color: #d0d5dd !important;
+}
+
+.wi-topbar__icon-btn:hover,
+.wi-topbar__icon-btn:focus {
+    background: #1b2636 !important;
+    border-color: #2e3b52 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.wi-topbar__badge {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.wi-topbar__badge--danger {
+    background: #dc2626 !important;
+}
+
+.wi-topbar__menu,
+.wi-topbar__user-menu {
+    background: #17212f !important;
+    border: 1px solid #223046 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28) !important;
+}
+
+.wi-topbar__menu-card {
+    background: #17212f !important;
+}
+
+.wi-topbar__menu-head {
+    background: #101828 !important;
+    border-bottom: 1px solid #223046 !important;
+    color: #f8fafc !important;
+}
+
+.wi-topbar__menu-body {
+    color: #d0d5dd;
+}
+
+.wi-topbar__menu-foot {
+    background: #101828 !important;
+    border-top: 1px solid #223046 !important;
+}
+
+.wi-topbar__menu-foot a {
+    color: #60a5fa !important;
+}
+
+.wi-topbar__user-toggle {
+    background: #17212f !important;
+    border: 1px solid #223046 !important;
+    color: #f8fafc !important;
+}
+
+.wi-topbar__user-toggle:hover,
+.wi-topbar__user-toggle:focus {
+    background: #1b2636 !important;
+    border-color: #2e3b52 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.wi-topbar__user-name {
+    color: #f8fafc !important;
+}
+
+.wi-topbar__user-role,
+.wi-topbar__user-caret {
+    color: #98a2b3 !important;
+}
+
+.wi-topbar__user-menu-header {
+    background: #101828 !important;
+    border-bottom: 1px solid #223046 !important;
+}
+
+.wi-topbar__user-menu-text strong {
+    color: #f8fafc !important;
+}
+
+.wi-topbar__user-menu-text span {
+    color: #98a2b3 !important;
+}
+
+.wi-topbar__user-menu > li > a {
+    background: transparent !important;
+    color: #d0d5dd !important;
+}
+
+.wi-topbar__user-menu > li > a:hover,
+.wi-topbar__user-menu > li > a:focus {
+    background: #1b2636 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   13. ADMIN LEFT SIDEBAR + ACCORDION
+   Merged from accordion.css
+========================================================= */
+
+.left-side {
+    background: #101828;
+    border-right: 1px solid #1d2939;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.left-side .sidebar {
+    min-height: 100%;
+    padding: 16px 0 24px;
+    background: #101828;
+}
+
+.left-side .user-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 16px 18px;
+    padding: 14px;
+    background: #17212f;
+    border: 1px solid #223046;
+    border-radius: 14px;
+}
+
+.left-side .user-panel::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.left-side .user-panel .image {
+    float: none;
+    width: 46px;
+    min-width: 46px;
+}
+
+.left-side .user-panel .image img {
+    display: block;
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border: 2px solid #2e3b52;
+    border-radius: 12px;
+}
+
+.left-side .user-panel .info {
+    float: none;
+    padding-left: 0;
+    color: #f8fafc;
+}
+
+.left-side .user-panel .info p {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.left-side .user-panel .info a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 12px;
+    color: #98a2b3;
+    text-decoration: none;
+}
+
+.left-side .user-panel .info a:hover {
+    color: #d0d5dd;
+}
+
+.left-side .user-panel .text-success {
+    color: #32d583 !important;
+}
+
+.left-side .sidebar-menu {
+    margin: 0;
+    padding: 0 12px;
+    list-style: none;
+}
+
+.left-side .sidebar-menu > li {
+    margin: 0 0 6px;
+}
+
+.left-side .sidebar-menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: transparent;
+    color: #cdd5df;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.left-side .sidebar-menu > li > a .fa,
+.left-side .sidebar-menu > li > a .glyphicon,
+.left-side .sidebar-menu > li > a .ion {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.left-side .sidebar-menu > li > a:hover {
+    background: #17212f;
+    color: #ffffff;
+}
+
+.left-side .sidebar-menu > li.active > a,
+.left-side .sidebar-menu > li.current > a {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+}
+
+#accordion.admin-sidebar-groups {
+    margin-top: 10px;
+    padding: 0 12px;
+}
+
+#accordion.ui-accordion,
+#accordion .ui-accordion-content,
+#accordion .ui-accordion-header {
+    background-image: none;
+    box-shadow: none;
+}
+
+#accordion .ui-widget-content,
+#accordion .ui-widget-header {
+    border: 0;
+}
+
+#accordion h3 {
+    position: relative;
+    margin: 0 0 8px;
+    padding: 13px 44px 13px 14px;
+    background: #17212f;
+    border: 1px solid #223046;
+    border-radius: 12px;
+    color: #e4e7ec;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+#accordion h3:hover {
+    background: #1b2636;
+    border-color: #2e3b52;
+    color: #ffffff;
+}
+
+#accordion h3.ui-state-active {
+    background: #1d4ed8;
+    border-color: #2563eb;
+    color: #ffffff;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+#accordion h3 .ui-accordion-header-icon {
+    display: none;
+}
+
+#accordion h3::after {
+    content: "\f078";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    font-family: FontAwesome;
+    font-size: 12px;
+    opacity: 0.85;
+    transition: transform 0.2s ease;
+}
+
+#accordion h3.ui-state-active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+#accordion .ui-accordion-content {
+    margin: -2px 0 10px;
+    padding: 8px;
+    overflow: hidden;
+    background: #0f1723;
+    border: 1px solid #223046;
+    border-radius: 0 0 12px 12px;
+}
+
+.left-side .sidebar-sub-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.left-side .sidebar-sub-menu > li {
+    margin: 0;
+}
+
+.left-side .sidebar-sub-menu > li + li {
+    margin-top: 4px;
+}
+
+.left-side .sidebar-sub-menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 10px 12px 10px 14px;
+    border-radius: 10px;
+    color: #98a2b3;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+}
+
+.left-side .sidebar-sub-menu > li > a::before {
+    content: "";
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    background: #475467;
+    border-radius: 999px;
+}
+
+.left-side .sidebar-sub-menu > li > a:hover {
+    padding-left: 18px;
+    background: #17212f;
+    color: #ffffff;
+}
+
+.left-side .sidebar-sub-menu > li.active > a,
+.left-side .sidebar-sub-menu > li.current > a {
+    background: rgba(37, 99, 235, 0.16);
+    color: #ffffff;
+}
+
+.left-side .sidebar-sub-menu > li.active > a::before,
+.left-side .sidebar-sub-menu > li.current > a::before,
+.left-side .sidebar-sub-menu > li > a:hover::before {
+    background: #60a5fa;
+}
+
+.left-side .sidebar::-webkit-scrollbar {
+    width: 10px;
+}
+
+.left-side .sidebar::-webkit-scrollbar-track {
+    background: #101828;
+}
+
+.left-side .sidebar::-webkit-scrollbar-thumb {
+    background: #223046;
+    border: 2px solid #101828;
+    border-radius: 999px;
+}
+
+.left-side .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #344054;
+}
+
+
+/* =========================================================
+   14. RESPONSIVE
+   Single grouped breakpoint section
+========================================================= */
+
+@media (max-width: 1024px) {
+    .wi-settings-shell,
+    .wi-pages-shell,
+    .wi-permissions-shell,
+    .wi-roles-shell,
+    .wi-users-shell {
+        padding: 16px;
+    }
+
+    .wi-admin-panel {
+        margin: 16px;
+        padding: 18px;
+    }
+}
+
+@media (max-width: 991px) {
+    .left-side .user-panel {
+        margin: 0 12px 16px;
+        padding: 12px;
+    }
+
+    .left-side .sidebar-menu,
+    #accordion.admin-sidebar-groups {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #accordion h3 {
+        padding: 12px 42px 12px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wi-settings-shell,
+    .wi-pages-shell,
+    .wi-permissions-shell,
+    .wi-roles-shell,
+    .wi-users-shell {
+        padding: 12px;
+    }
+
+    .wi-admin-header {
+        padding: 16px 16px 0;
+    }
+
+    .wi-admin-header h2 {
+        font-size: 24px;
+    }
+
+    .wi-admin-panel {
+        margin: 12px;
+        padding: 16px;
+    }
+
+    #wi-settings-tabs > ul,
+    #wi-header-tabs > ul,
+    #wi-menu-tabs > ul {
+        display: block;
+        border-bottom: 0;
+    }
+
+    #wi-settings-tabs > ul li,
+    #wi-header-tabs > ul li,
+    #wi-menu-tabs > ul li {
+        margin-bottom: 8px;
+    }
+
+    #wi-settings-tabs > ul li a,
+    #wi-header-tabs > ul li a,
+    #wi-menu-tabs > ul li a {
+        display: block;
+        border-bottom: 1px solid #d0d5dd;
+        border-radius: 10px;
+    }
+
+    .wi-settings-tab-card,
+    .wi-header-settings-card,
+    .wi-menu-tab-card {
+        padding: 16px;
+    }
+
+    .wi-menu-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wi-menu-toolbar-actions {
+        width: 100%;
+    }
+
+    .wi-menu-toolbar-actions .btn {
+        width: 100%;
+    }
+
+    .wi-menu-card-body {
+        padding: 16px;
+    }
+
+    .wi-admin-menu-item {
+        flex-direction: column;
+    }
+
+    .wi-admin-menu-item-actions {
+        width: 100%;
+    }
+
+    .wi-admin-menu-item-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .wi-page-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-footer-preview-body .copyright {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wi-header-preview-body .cp,
+    .wi-favicon-preview-body .cp {
+        max-width: 100px;
+    }
+
+    .wi-topbar__visit-site span,
+    .wi-topbar__brand-text,
+    .wi-topbar__user-role {
+        display: none;
+    }
+
+    .wi-topbar__menu,
+    .wi-topbar__user-menu {
+        min-width: 260px;
+        right: 0;
+        left: auto;
+    }
+}
+
+@media (min-width: 1600px) {
+    .wi-admin-header h2 {
+        font-size: 32px;
+    }
+
+    .wi-admin-panel,
+    .wi-settings-tab-card,
+    .wi-header-settings-card,
+    .wi-menu-tab-card {
+        padding: 24px;
+    }
+
+    .wi-menu-toolbar h4 {
+        font-size: 22px;
+    }
+
+    .wi-menu-card-head h5,
+    .wi-admin-menu-item-title {
+        font-size: 17px;
+    }
+
+    .wi-header-preview-body .cp,
+    .wi-favicon-preview-body .cp {
+        max-width: 140px;
+    }
+
+    .wi-topbar {
+        min-height: 76px;
+    }
+
+    .wi-topbar__brand-text {
+        font-size: 16px;
+    }
+
+    .left-side .sidebar-menu > li > a,
+    #accordion h3 {
+        font-size: 15px;
+    }
+}

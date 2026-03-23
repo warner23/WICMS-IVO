@@ -1,0 +1,16 @@
+{
+  "name": "sidebar",
+  "slug": "sidebar",
+  "title": "Sidebar",
+  "author": "Warner Infinity",
+  "description": "Sidebar module for WICMS.",
+  "category": "Navigation",
+  "icon": "",
+  "image": "",
+  "class_file": "sidebar.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

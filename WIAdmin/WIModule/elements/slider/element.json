@@ -1,0 +1,16 @@
+{
+  "name": "slider",
+  "slug": "slider",
+  "title": "Slider",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Slider element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "slider.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

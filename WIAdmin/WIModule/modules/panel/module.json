@@ -1,0 +1,16 @@
+{
+  "name": "panel",
+  "slug": "panel",
+  "title": "Panel",
+  "author": "Warner Infinity",
+  "description": "Panel module for WICMS.",
+  "category": "Navigation",
+  "icon": "panel.png",
+  "image": "panel.png",
+  "class_file": "panel.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "input",
+  "slug": "input",
+  "title": "Input",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Input element for the WICMS drag-and-drop module builder.",
+  "icon": "image.png",
+  "image": "image.png",
+  "class_file": "input.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "product",
+  "slug": "product",
+  "title": "Product",
+  "author": "Warner Infinity",
+  "description": "Product module for WICMS.",
+  "category": "Commerce",
+  "icon": "index.png",
+  "image": "index.png",
+  "class_file": "product.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [
+    "retail",
+    "ecommerce"
+  ],
+  "editable": true
+}

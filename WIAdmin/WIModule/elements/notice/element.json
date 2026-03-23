@@ -1,0 +1,16 @@
+{
+  "name": "notice",
+  "slug": "notice",
+  "title": "Notice",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Notice element for the WICMS drag-and-drop module builder.",
+  "icon": "info-256.png",
+  "image": "info-256.png",
+  "class_file": "notice.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

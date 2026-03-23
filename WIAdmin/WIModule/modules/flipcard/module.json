@@ -1,0 +1,16 @@
+{
+  "name": "flipcard",
+  "slug": "flipcard",
+  "title": "Flipcard",
+  "author": "Warner Infinity",
+  "description": "Flipcard module for WICMS.",
+  "category": "Layout",
+  "icon": "index.png",
+  "image": "index.png",
+  "class_file": "flipcard.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "twitter_lock",
+  "slug": "twitter_lock",
+  "title": "Twitter Lock",
+  "type": "Social",
+  "group": "Social",
+  "author": "Warner Infinity",
+  "description": "Reusable Twitter Lock element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "twitter-lock.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

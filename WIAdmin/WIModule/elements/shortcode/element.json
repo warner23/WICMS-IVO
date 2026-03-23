@@ -1,0 +1,16 @@
+{
+  "name": "shortcode",
+  "slug": "shortcode",
+  "title": "Shortcode",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Shortcode element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "shortcode.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

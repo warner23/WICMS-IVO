@@ -1,0 +1,16 @@
+{
+  "name": "404_annomated",
+  "slug": "404_annomated",
+  "title": "404 Annomated",
+  "author": "Warner Infinity",
+  "description": "404 Annomated module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "404_annomated.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

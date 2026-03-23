@@ -1,0 +1,16 @@
+{
+  "name": "buttoning",
+  "slug": "buttoning",
+  "title": "Buttoning",
+  "author": "Warner Infinity",
+  "description": "Buttoning module for WICMS.",
+  "category": "General",
+  "icon": "",
+  "image": "",
+  "class_file": "buttoning.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "search_engine",
+  "slug": "search_engine",
+  "title": "Search Engine",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Search Engine element for the WICMS drag-and-drop module builder.",
+  "icon": "search.png",
+  "image": "search.png",
+  "class_file": "index.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

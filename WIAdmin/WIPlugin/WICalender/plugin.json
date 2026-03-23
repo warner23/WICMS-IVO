@@ -1,0 +1,21 @@
+{
+  "name": "WICalender",
+  "slug": "WICalender",
+  "title": "Calender",
+  "description": "Adds a complete blog system with posts, categories, comments and front-end pages.",
+  "version": "1.0.0",
+  "author": "Warner Infinity",
+  "category": "Content",
+  "price": 0,
+  "currency": "GBP",
+  "is_paid": false,
+  "image": "preview.png",
+  "icon": "icon.png",
+  "payment_url": "",
+  "install_class": "WICalenderInstall",
+  "install_file": "Install/WICalender.php",
+  "min_php": "8.2",
+  "min_wicms": "1.0.0",
+  "business_types": ["blog", "news", "magazine"],
+  "dependencies": []
+}

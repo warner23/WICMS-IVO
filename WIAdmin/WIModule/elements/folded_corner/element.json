@@ -1,0 +1,16 @@
+{
+  "name": "folded_corner",
+  "slug": "folded_corner",
+  "title": "Folded Corner",
+  "type": "General",
+  "group": "General",
+  "author": "Warner Infinity",
+  "description": "Reusable Folded Corner element for the WICMS drag-and-drop module builder.",
+  "icon": "folded_corner.jpg",
+  "image": "folded_corner.jpg",
+  "class_file": "folded-corner.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

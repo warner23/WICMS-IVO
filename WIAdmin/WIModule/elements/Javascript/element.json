@@ -1,0 +1,16 @@
+{
+  "name": "Javascript",
+  "slug": "Javascript",
+  "title": "Javascript",
+  "type": "System",
+  "group": "System",
+  "author": "Warner Infinity",
+  "description": "Reusable Javascript element for the WICMS drag-and-drop module builder.",
+  "icon": "button.png",
+  "image": "button.png",
+  "class_file": "Javascript.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "privacy_policy",
+  "slug": "privacy_policy",
+  "title": "Privacy Policy",
+  "author": "Warner Infinity",
+  "description": "Privacy Policy module for WICMS.",
+  "category": "Content",
+  "icon": "privacy.png",
+  "image": "privacy.png",
+  "class_file": "privacy_policy.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

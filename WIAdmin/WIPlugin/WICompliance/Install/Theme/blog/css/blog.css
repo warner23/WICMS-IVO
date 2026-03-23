@@ -1,0 +1,31 @@
+.blog_type{
+    float: left;
+    width: 12%;
+    margin-left: 15px;
+        list-style: none;
+  }
+
+  .blogSelect{
+    width: 9%;
+    margin: 0px 0px 0px 450px;
+        cursor: pointer;
+  }
+
+  .admin_post{
+        width: 18%;
+    height: 44px;
+    margin-left: 401px;
+  }
+
+  .block{
+    display: block;
+  }
+
+  .hidden{
+    display: none;
+  }
+
+  #wivid{
+        width: 49%;
+    height: 137px;
+  }

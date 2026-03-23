@@ -1,0 +1,16 @@
+{
+  "name": "image_hover",
+  "slug": "image_hover",
+  "title": "Image Hover",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Image Hover element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "image-hover.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

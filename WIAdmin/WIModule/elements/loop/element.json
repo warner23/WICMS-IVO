@@ -1,0 +1,16 @@
+{
+  "name": "loop",
+  "slug": "loop",
+  "title": "Loop",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Loop element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "loop.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

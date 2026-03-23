@@ -1,0 +1,16 @@
+{
+  "name": "profile_tabs",
+  "slug": "profile_tabs",
+  "title": "Profile Tabs",
+  "author": "Warner Infinity",
+  "description": "Profile Tabs module for WICMS.",
+  "category": "Account",
+  "icon": "",
+  "image": "",
+  "class_file": "profile_tabs.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

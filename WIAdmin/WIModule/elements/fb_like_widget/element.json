@@ -1,0 +1,16 @@
+{
+  "name": "fb_like_widget",
+  "slug": "fb_like_widget",
+  "title": "FB Like Widget",
+  "type": "Social",
+  "group": "Social",
+  "author": "Warner Infinity",
+  "description": "Reusable FB Like Widget element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "fb-like-widget.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

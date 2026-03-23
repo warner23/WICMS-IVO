@@ -1,0 +1,16 @@
+{
+  "name": "latest_fbfeeds",
+  "slug": "latest_fbfeeds",
+  "title": "Latest Fbfeeds",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Latest Fbfeeds element for the WICMS drag-and-drop module builder.",
+  "icon": "app_type_newspaper_512px_GREY.png",
+  "image": "app_type_newspaper_512px_GREY.png",
+  "class_file": "latest-fbfeeds.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

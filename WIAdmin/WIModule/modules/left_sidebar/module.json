@@ -1,0 +1,16 @@
+{
+  "name": "left_sidebar",
+  "slug": "left_sidebar",
+  "title": "Left Sidebar",
+  "author": "Warner Infinity",
+  "description": "Left Sidebar module for WICMS.",
+  "category": "Navigation",
+  "icon": "lsidebar.png",
+  "image": "lsidebar.png",
+  "class_file": "left_sidebar.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

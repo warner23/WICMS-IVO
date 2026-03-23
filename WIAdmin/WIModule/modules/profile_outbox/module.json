@@ -1,0 +1,16 @@
+{
+  "name": "profile_outbox",
+  "slug": "profile_outbox",
+  "title": "Profile Outbox",
+  "author": "Warner Infinity",
+  "description": "Profile Outbox module for WICMS.",
+  "category": "Account",
+  "icon": "",
+  "image": "",
+  "class_file": "profile_outbox.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

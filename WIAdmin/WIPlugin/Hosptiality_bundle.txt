@@ -1,0 +1,1244 @@
+Hospitality Suite:
+What I am looking for over multiple chats to keep things flowing is
+A complete brainstorm ( to ensire nothing is missed or overlooked)
+file structure, so I can build it ( using WIBlog as a basic template
+I will need a sql file for the database
+Complete code
+I have already started the coding ( however I cannot show you the current code as too much and it would need to be refactored to php 8.2 but it does need to be inline with WICMS) and as you can probably see the database side of thing ( but I am open to change) for a more effective and efficent smooth system to ensure its highly desirable to all businesses and users
+However probably better if you was to recommend that most suitable structure for this again being in line with WICMS
+obviously it needs to be safe, secure, high UI and UX this is too ensure its easy to use ( friendly), desireable, and much less prone to being hacked, breaking or unstable, and of course important information within the database being encrypted
+
+
+
+
+
+Questions:
+Would WICMS be the correct type of System to build this type of plugin or would I need to build a new system for it ie CRM?
+I am aware an app would be highly useful for this type of plugin within something like google play, I assume the best wayh of doing that would be to have some type of link to it via the plugin?
+For companies that want a KDS( kichen display System) how would this work? as I assume this would require monitors being provided? or ticket machines being provided to work with the plugin
+Would any other systems be useful as part of the bundle
+What would be the best way of doing the bundle, all in one or seperate systems... compliance...POS
+Recommended ways of selling/subscribing/rent to buy schemes or pricing plans, as I dont really want to limit it, also I would prefer to be one of the only businesses that strive for longitivity rather than only being about money
+To be sold worldwide?
+Also I would prefer this to be as self sufficient as possible due to other commitments
+Also what is the best way of creating both a business and busienss model for WICMS which does not require me to have digital id?
+
+
+Compliance overview
+This plugin is for kitchen possible bar as well compliance
+this needs to be inline with english law, health and safety for kitchens
+be suitable for all types of kitchens, contain a full settings and setup pages
+to be able to configure prior to install, a pricing plan such as:
+subscription->monthly installements
+pay in full
+maybe even rent to buy type of thing, to give plenty of options so regardless of someones background there is an option available
+this must include checklists, have multiple user types as an example
+Owners section/area
+Users/workers sections/area
+Managers section/area
+
+each area/section needs to show an overview for eg
+users/workers will show an overview of what checklists needs to be completed
+and have been done
+
+all checklists should show a time or countdown timer, as morning checklists for eg needs to be completed before midday 12 noon, evening checklists needs at start after 4pm ( so therefore should not be available before that time) for eg and be completed
+before midnight
+
+owners section area should comprise of a dashboard showing as much as possible
+as an example, how many sites there are, and which checklists have been completed
+any possible problems such as fridge 4 temperature is either too low or too high for multiple days ( and therefore might need repairs or replacing)
+
+this needs to be done in high UI, modern, sleek, easy to read for all, the ability to be able to zoom in for users with bad eyes
+maybe a button so it can be read out to the user
+
+I am open to suggestions and ideas
+
+POS Overview
+This needs to be set up to the the options for all types of kitchens/bars for all types of busiensses
+including charities
+mulitple different types of users
+Owners
+Managers
+Hr
+Workers
+etc
+
+
+For the owners area needs:
+An overview of all sites, as well as a dropdown selectable sites( so you can select an individual site
+each needs to have dashboard showing an overview off all orders( card and cash)
+wastage, stock, as well as stats ( for example charts etc) for easy visualisation
+all deliveries both ordered( coming) and delievered plus anything that was missing ( so it can be chased up etc and preferably tracked if possible.
+
+For bar / Kitchen /Till workers
+This needs to be logged into via a portal:
+Needs a training area, so the user/worker can be trained(earn the right sort of qualifications to do their job correctly), also needs to have access to the specs weather it be bar or kitchen or both ( dual trained), also to improve work flow a quiz section, with 3 different types ( easy, medium and hard ( timed), this way its more fun or gamification), as well as rota access
+
+For the Manager: 
+The ability to see all staff rotas, add/delete or create shifts, depending on whats needed, and their position( permissions), so HR and a General manager would be able to add new staff and trherefore creating new payroll(etc), area maangers would have access to everything they need to do their job, including creating job postings for the sites under there control, for a kitchen manager
+
+I am very open to ideas recommendations and suggesations, so that its well though out before I proceed with any actions
+
+
+
+Thought for 21s
+
+Yes — this is buildable inside WICMS, but only if you treat it as a suite of tightly related plugins/modules, not as one giant plugin that does everything from day one.
+
+My honest recommendation:
+
+Use WICMS as the platform and admin framework.
+Do not start over with a brand-new CRM/POS system yet.
+
+WICMS is a good fit if your goals are:
+
+modular plugin architecture
+
+shared users / permissions / sites
+
+admin dashboards
+
+repeatable install structure
+
+faster delivery using an existing CMS-style core
+
+Where WICMS becomes the wrong tool is if you try to force version 1 into:
+
+enterprise-grade real-time POS at huge scale
+
+complex payroll/HR/finance
+
+hardware-heavy KDS integrations across many vendors
+
+deep multi-country legal compliance in one release
+
+So the right answer is:
+
+Phase 1: WICMS Hospitality Suite
+Phase 2: WICMS Hospitality Platform
+Phase 3: optional external services/microservices for POS, KDS, mobile sync, analytics
+
+The best product shape
+
+You should not sell this as “just a plugin”.
+
+You should shape it as:
+
+WICMS Hospitality Suite
+
+with 4 core products:
+
+Compliance
+
+POS
+
+Operations
+
+Training
+
+Then bundle them in tiers.
+
+That makes it easier to sell, easier to build, and easier to maintain.
+
+Best bundle structure
+
+Do not make one single giant all-in-one product first.
+
+Best structure:
+
+Core shared layer
+
+One shared foundation used by all hospitality modules:
+
+sites / branches
+
+users
+
+roles / permissions
+
+audit log
+
+notifications
+
+tasks / checklist engine
+
+file uploads
+
+training records
+
+device sessions
+
+settings
+
+reporting
+
+subscriptions / billing flags
+
+API / app tokens
+
+Separate installable modules
+
+WIHospitalityCompliance
+
+WIHospitalityPOS
+
+WIHospitalityOps
+
+WIHospitalityTraining
+
+Optional add-ons
+
+WIKDS
+
+WIStock
+
+WIRota
+
+WIHRLite
+
+WIDelivery
+
+WIMaintenance
+
+WIAppBridge
+
+That gives you:
+
+standalone sales
+
+bundle sales
+
+easier support
+
+easier upgrades
+
+less risk of one failure breaking the whole suite
+
+What I would recommend you build first
+
+In this order:
+
+1. Compliance first
+
+This is the strongest first product because:
+
+less hardware complexity
+
+easier recurring value
+
+easier to standardise
+
+easier to sell to multi-site kitchens
+
+easier to make sticky
+
+easier to expand into POS later
+
+2. Stock + wastage + temperature logging
+
+This turns compliance into operational value, not just box-ticking.
+
+3. Training + quizzes + specs
+
+This improves retention and makes the suite more desirable.
+
+4. POS
+
+POS is powerful, but it is harder:
+
+hardware
+
+payment flows
+
+offline resilience
+
+printers
+
+kitchen routing
+
+cashing up
+
+fraud controls
+
+refunds
+
+VAT rules
+
+support burden
+
+5. KDS
+
+KDS should come after POS or at least after order-routing exists.
+
+Complete brainstorm: what the suite should include
+A. Compliance module
+
+This should cover:
+
+Daily compliance
+
+opening checks
+
+mid-shift checks
+
+closing checks
+
+deep-clean checks
+
+delivery acceptance checks
+
+fridge / freezer temperature logs
+
+hot holding logs
+
+probe calibration logs
+
+allergen checks
+
+date label checks
+
+handwash / hygiene checks
+
+cleaning chemical checks
+
+pest sighting logs
+
+equipment fault logs
+
+waste oil / bin area checks
+
+fire exit / safety walk checks
+
+accident / near-miss logs
+
+Management compliance
+
+site compliance score
+
+overdue tasks
+
+recurring failures
+
+equipment at risk
+
+trend anomalies
+
+missing records
+
+staff non-completion
+
+branch comparison
+
+audit readiness
+
+exportable compliance pack
+
+Advanced features
+
+timed availability windows
+
+mandatory photo evidence
+
+signature / PIN confirmation
+
+supervisor verification
+
+geofence / branch lock
+
+missed-check escalation
+
+re-open failed checklist item
+
+incident investigation workflow
+
+CAPA workflow (corrective and preventive actions)
+
+maintenance ticket creation from failed checks
+
+B. POS module
+Sales flow
+
+dine in
+
+takeaway
+
+click and collect
+
+delivery
+
+bar tabs
+
+split bills
+
+table transfer
+
+seat-based ordering
+
+modifiers
+
+meal deals
+
+variable pricing
+
+timed pricing
+
+charity / discount modes
+
+refund controls
+
+void controls
+
+cash / card / mixed payments
+
+gift vouchers
+
+service charge
+
+tips / gratuities
+
+Operations
+
+till opening / closing
+
+cash declaration
+
+cash discrepancy reporting
+
+shift sales reports
+
+product mix
+
+staff sales
+
+refund reasons
+
+discount reasons
+
+wastage links
+
+stock depletion rules
+
+order routing to kitchen / bar / printer / KDS
+
+Owner reporting
+
+all sites dashboard
+
+per-site dashboard
+
+sales by hour/day/week
+
+top sellers
+
+low sellers
+
+wastage
+
+gross margin estimate
+
+staff performance
+
+stock risk
+
+void/refund abuse detection
+
+delivery performance
+
+missing delivery item tracking
+
+C. Training module
+Staff learning
+
+role-based onboarding
+
+SOP/spec library
+
+recipe cards
+
+bar specs
+
+cleaning standards
+
+allergen handling
+
+food safety basics
+
+equipment training
+
+health and safety
+
+manager sign-off
+
+Gamification
+
+easy / medium / hard quizzes
+
+timed quizzes
+
+streaks
+
+badges
+
+scoreboards by site
+
+mandatory pass mark
+
+refresher reminders
+
+certification expiry warnings
+
+Useful extras
+
+read-aloud mode
+
+translated content
+
+image-led instructions
+
+short video clips
+
+“show me how” quick guides
+
+D. Ops / management module
+Rota / workforce
+
+shift creation
+
+role-based staffing
+
+site rota
+
+availability
+
+holiday requests
+
+shift swap requests
+
+sickness log
+
+labour vs sales %
+
+HR-lite
+
+staff profiles
+
+training status
+
+disciplinary notes
+
+document expiry reminders
+
+starter checklist
+
+leaver workflow
+
+Maintenance
+
+create fault
+
+assign engineer / vendor
+
+mark severity
+
+photo upload
+
+track resolution
+
+link equipment to repeated failures
+
+Your role structure
+
+Your instinct is right. You need role-separated areas.
+
+Recommended role model:
+
+Global roles
+
+Super Admin
+
+Platform Owner
+
+Support Admin
+
+Business roles
+
+Business Owner
+
+Area Manager
+
+General Manager
+
+Kitchen Manager
+
+Bar Manager
+
+HR / Admin
+
+Supervisor
+
+Trainer
+
+Worker / Team Member
+
+Auditor
+
+Engineer / Maintenance
+
+Permission model
+
+Do not hardcode permissions by role only.
+
+Use:
+
+role templates
+
+plus granular permissions
+
+plus site scoping
+
+Example:
+
+Area Manager = view all assigned sites, edit rota, view compliance, create jobs
+
+Kitchen Manager = kitchen compliance, stock, specs, staff sign-off
+
+Worker = only assigned tasks, training, rota, personal dashboard
+
+Best UX approach
+
+You are also right to prioritise UI/UX. In hospitality, ugly software gets abandoned.
+
+UI principles
+
+very large touch targets
+
+high contrast mode
+
+zoom controls
+
+dyslexia-friendly font option
+
+read aloud / text to speech
+
+minimal typing
+
+large status icons
+
+traffic-light colour cues
+
+one-task-per-screen for workers
+
+dashboard summaries for managers
+
+offline-friendly actions where possible
+
+role-based home screens
+
+Worker home screen should show
+
+today’s tasks
+
+tasks due soon
+
+overdue tasks
+
+training due
+
+rota today
+
+alerts from manager
+
+Manager home screen should show
+
+site status
+
+incomplete checks
+
+recurring failures
+
+staff compliance
+
+deliveries
+
+maintenance issues
+
+training gaps
+
+rota gaps
+
+Owner home screen should show
+
+all sites score
+
+sales today
+
+compliance today
+
+wastage today
+
+incidents
+
+equipment risks
+
+top problem sites
+
+staffing risks
+
+Security and stability
+
+This part matters a lot more than flashy features.
+
+What to do
+
+strict RBAC permissions
+
+server-side validation only
+
+CSRF protection
+
+secure session handling
+
+prepared statements only
+
+password hashing with password_hash()
+
+MFA for owner/admin roles
+
+audit log for sensitive actions
+
+encrypted secrets
+
+minimal personal data collection
+
+soft deletes for records
+
+append-only logs for compliance history
+
+per-site data access checks
+
+file upload validation
+
+rate limiting
+
+backup / restore strategy
+
+tamper-evident logs for critical compliance records
+
+Encryption
+
+Do not try to encrypt everything in the database.
+
+Best practice:
+
+encrypt the most sensitive fields
+
+hash passwords
+
+encrypt API keys, tokens, reset tokens, device secrets
+
+optionally encrypt incident notes / sensitive HR notes / medical-contact-style emergency fields
+
+keep operational data queryable where needed
+
+The ICO says UK GDPR requires data protection by design and by default, and stresses embedding privacy and security into the system lifecycle. Their guidance also highlights information security controls rather than “encrypt everything” as a blanket rule.
+
+So for your suite:
+
+encrypt secrets and special sensitive fields
+
+avoid unnecessary personal data
+
+log access
+
+build retention / deletion rules
+
+support exports and subject access handling
+
+English law / compliance angle
+
+For the compliance module, do not market it as “guarantees legal compliance”.
+
+Market it as:
+
+helps businesses manage food safety procedures
+
+supports record keeping
+
+improves audit readiness
+
+helps enforce internal controls
+
+configurable to local policy and legal requirements
+
+For England-first rollout, your baseline should align with:
+
+food safety management procedures / HACCP-style workflows
+
+SFBB-style operational records for smaller catering businesses
+
+allergen handling
+
+health and safety tasking and risk controls
+
+traceable records and review processes
+
+The Food Standards Agency still provides Safer Food, Better Business for caterers as a core food safety management framework for smaller catering businesses, and it explicitly says businesses must review and update procedures.
+
+Food businesses in England also need to register premises at least 28 days before opening, and some businesses handling products of animal origin for supply to other businesses may need premises approval rather than simple registration.
+
+For allergens, food businesses must provide allergen information, and PPDS foods are subject to the stricter ingredient/allergen labelling rules often referred to as Natasha’s Law.
+
+So your system should include:
+
+allergen matrix
+
+recipe/spec ingredient records
+
+allergen change control
+
+labelled food support
+
+due-date / open-date controls
+
+cleaning and temperature logs
+
+delivery traceability
+
+incident and corrective-action records
+
+KDS: how it would work
+
+You do not need to provide custom monitors at first.
+
+A KDS can work as:
+
+a web-based kitchen screen
+
+Android tablet app / PWA
+
+dedicated touchscreen browser session
+
+optional receipt printer fallback
+
+Recommended version 1
+
+browser-based KDS
+
+full-screen kitchen mode
+
+station routing
+
+order bumping
+
+timers
+
+priority colouring
+
+recall last order
+
+expo screen
+
+printer fallback
+
+Hardware can be:
+
+standard monitor + mini PC
+
+touchscreen tablet
+
+Android TV/box in some cases
+
+existing kitchen display device if browser-capable
+
+Later, you can support:
+
+thermal printers
+
+bump bars
+
+customer-facing displays
+
+cash drawers
+
+barcode scanners
+
+So no, you do not need to supply hardware to start.
+But if you want a premium managed offering later, you can offer:
+
+approved hardware kits
+
+setup service
+
+replacement guarantee
+
+support contract
+
+Mobile app question
+
+Yes, an app is useful.
+
+But do not build native iOS/Android first unless you have the time and budget.
+
+Best route:
+
+Phase 1
+
+responsive web app / PWA
+
+home-screen install
+
+push notifications later
+
+camera uploads
+
+offline cache for selected actions
+
+Phase 2
+
+wrapper app for Play Store / App Store
+
+same core API
+
+maybe staff-only app first
+
+This is the most sensible path because:
+
+one codebase
+
+lower maintenance
+
+faster iteration
+
+still feels app-like
+
+Would other systems be useful in the bundle?
+
+Yes.
+
+Most useful additions:
+
+Essential
+
+Stock / inventory
+
+Wastage
+
+Rota
+
+Training
+
+Maintenance
+
+Very useful
+
+Delivery receiving
+
+Supplier management
+
+Recipe/spec management
+
+Incident management
+
+Document library
+
+Job postings / recruitment-lite
+
+Only later
+
+Payroll
+
+Full HR
+
+Accounting
+
+CRM / loyalty
+
+Booking/reservations
+
+BI warehouse
+
+Do not build payroll first. Integrate later if needed.
+
+Best commercial model
+
+You said you want longevity, accessibility, and not to be purely money-first.
+
+That points to this model:
+
+Best pricing structure
+1. Setup fee
+
+For onboarding, configuration, imports, branding, training.
+
+2. Monthly SaaS
+
+Per site, with included support and updates.
+
+3. Optional hardware bundle
+
+Only for POS/KDS customers who want it.
+
+4. Buyout option
+
+A premium “pay in full” option for customers who hate subscriptions.
+
+5. Rent-to-own hardware, not software
+
+This is the important distinction.
+
+I would not do rent-to-own on the software itself at first.
+I would do:
+
+subscription for software
+
+rent-to-own for tills/tablets/printers/displays
+
+annual discount for pay yearly
+
+Good tier structure
+
+Starter: Compliance only
+
+Growth: Compliance + Training + Stock
+
+Operations: Compliance + Training + Stock + Rota
+
+Complete: full bundle incl. POS/KDS
+
+Optional billing styles
+
+monthly
+
+annual (discounted)
+
+site-based
+
+enterprise / multi-site quote
+
+charity / community discount
+
+That keeps it flexible without becoming chaotic.
+
+Worldwide sales?
+
+Yes, but not version 1.
+
+Best approach
+
+build England-first
+
+support UK English, GBP, UK compliance defaults
+
+add localisation layer from the start
+
+make legal templates configurable
+
+expand country-by-country later
+
+Do not hardcode England-only assumptions into the database design.
+Do hardcode England-first defaults into initial module settings.
+
+Self-sufficient business model
+
+Since you want this to be as self-sufficient as possible, design the product and business around low-touch operations.
+
+Build for low maintenance
+
+guided setup wizard
+
+role templates
+
+site templates
+
+checklist templates
+
+recipe/spec templates
+
+automated reminders
+
+self-service billing portal
+
+in-app help
+
+knowledge base
+
+video onboarding
+
+admin diagnostics
+
+licence health dashboard
+
+remote update system
+
+backup automation
+
+Business model for low-touch support
+
+standard packages
+
+optional paid onboarding
+
+optional premium support
+
+agency/partner installers later
+
+templated deployments by venue type
+
+Example venue templates:
+
+pub
+
+restaurant
+
+cafe
+
+takeaway
+
+dark kitchen
+
+hotel kitchen
+
+care catering
+
+school catering
+
+charity kitchen
+
+Business setup without digital ID
+
+This part has changed in the UK.
+
+Companies House guidance says identity verification became a legal requirement from 18 November 2025, with a 12-month transition period for the new regime. That affects directors, PSCs, and certain Companies House filings.
+
+So if you mean a UK limited company filing through Companies House, digital identity verification is now part of the process.
+
+If you want to reduce friction, the practical options are:
+
+Option 1: Sole trader first
+
+You can start as a sole trader and register with HMRC for Self Assessment instead of incorporating immediately. HMRC’s current guidance covers registering as a sole trader, and Making Tax Digital for Income Tax starts applying from 6 April 2026 for sole traders/landlords over the relevant threshold.
+
+Option 2: Use an accountant / authorised service provider
+
+For incorporation/admin support, a professional intermediary may reduce the burden, though identity verification rules still apply where required.
+
+Option 3: Start commercially before going wide
+
+You can validate the product with:
+
+one flagship venue
+
+pilot sites
+
+consultancy + software hybrid
+
+then formalise the bigger structure once revenue is proven
+
+So: yes, you can start the business journey in a lower-friction way, but if you want a UK limited company route, identity verification is now part of the landscape.
+
+My strongest recommendation
+
+Build this as:
+
+WICMS Hospitality Suite
+Release 1
+
+Compliance
+
+Temperature logs
+
+Checklists
+
+Corrective actions
+
+Site dashboards
+
+User roles
+
+Notifications
+
+Audit trail
+
+Training basics
+
+Specs library
+
+Release 2
+
+Stock
+
+Wastage
+
+Deliveries
+
+Maintenance
+
+Rota
+
+Release 3
+
+POS
+
+KDS
+
+Order routing
+
+Printer integration
+
+Cashing up
+
+Refund controls
+
+That is the safest, most commercially sensible route.
+
+Final answer to your biggest question
+Should this be built in WICMS or as a new system?
+
+Build it in WICMS first, using a suite architecture.
+
+Not because WICMS is perfect for everything, but because:
+
+it gets you to market faster
+
+it lets you validate demand
+
+it keeps the system familiar
+
+it supports modular growth
+
+it avoids overbuilding too early
+
+If the POS/KDS side later outgrows WICMS, you can split that into a service layer later without throwing away the compliance and ops modules.
+
+What I suggest for the next chat
+
+We should do this in a clean order:
+
+next: define the full Hospitality Suite architecture
+including:
+
+module list
+
+shared core tables
+
+permission map
+
+site structure
+
+install/file structure in WICMS style
+
+dashboard map
+
+workflow map
+
+After that, we can move to:
+
+database schema
+
+file structure
+
+install SQL
+
+PHP 8.2 code skeleton
+
+first working module build

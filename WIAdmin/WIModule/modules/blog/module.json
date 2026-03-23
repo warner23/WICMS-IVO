@@ -1,0 +1,19 @@
+{
+  "name": "blog",
+  "slug": "blog",
+  "title": "Blog",
+  "author": "Warner Infinity",
+  "description": "Blog module for WICMS.",
+  "category": "Content",
+  "icon": "index.png",
+  "image": "index.png",
+  "class_file": "blog.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [
+    "content",
+    "community"
+  ],
+  "editable": true
+}

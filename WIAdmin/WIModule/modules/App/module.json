@@ -1,0 +1,16 @@
+{
+  "name": "App",
+  "slug": "App",
+  "title": "App",
+  "author": "Warner Infinity",
+  "description": "App module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "App.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

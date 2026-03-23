@@ -1,0 +1,16 @@
+{
+  "name": "policy",
+  "slug": "policy",
+  "title": "Policy",
+  "author": "Warner Infinity",
+  "description": "Policy module for WICMS.",
+  "category": "Content",
+  "icon": "",
+  "image": "",
+  "class_file": "policy.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

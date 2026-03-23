@@ -1,0 +1,16 @@
+{
+  "name": "About_Us",
+  "slug": "About_Us",
+  "title": "About Us",
+  "author": "Warner Infinity",
+  "description": "About Us module for WICMS.",
+  "category": "Content",
+  "icon": "about.png",
+  "image": "about.png",
+  "class_file": "About_Us.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

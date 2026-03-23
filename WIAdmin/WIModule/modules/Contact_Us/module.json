@@ -1,0 +1,16 @@
+{
+  "name": "Contact_Us",
+  "slug": "Contact_Us",
+  "title": "Contact Us",
+  "author": "Warner Infinity",
+  "description": "Contact Us module for WICMS.",
+  "category": "Contact",
+  "icon": "contact.png",
+  "image": "contact.png",
+  "class_file": "Contact_Us.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

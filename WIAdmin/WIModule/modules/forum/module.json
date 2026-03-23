@@ -1,0 +1,19 @@
+{
+  "name": "forum",
+  "slug": "forum",
+  "title": "Forum",
+  "author": "Warner Infinity",
+  "description": "Forum module for WICMS.",
+  "category": "Community",
+  "icon": "index.png",
+  "image": "index.png",
+  "class_file": "forum.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [
+    "content",
+    "community"
+  ],
+  "editable": true
+}

@@ -1,0 +1,31 @@
+<?php
+declare(strict_types=1);
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/WIClass/WI.php';
+
+$token = $register->socialToken();
+WISession::set('WI_social_token', $token);
+$register->botProtection();
+
+$admin       = new WIAdmin((int) WISession::get('user_id', 0));
+$adminInfo   = $admin->getInfo();
+$adminDetails = $admin->getDetails();
+
+$mod         = new WIModules();
+$page        = new WIPage();
+$plug        = new WIPlugin();
+$site        = new WISite();
+$img         = new WIImage();
+$vid         = new WIVideos();
+$dashboard   = new WIDashboard();
+$adminChat   = new WIAdminChat();
+$Info        = new WIUserInfo();
+$pagination  = new WIPagination();
+$perm        = new WIPermissions();
+$editor      = new WIEditor();
+$modal       = new WIModal();
+$calendar    = new WICalendar();
+$slide       = new WISlideshow();

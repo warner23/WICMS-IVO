@@ -1,0 +1,16 @@
+{
+  "name": "annoucement_board",
+  "slug": "annoucement_board",
+  "title": "Annoucement Board",
+  "author": "Warner Infinity",
+  "description": "Annoucement Board module for WICMS.",
+  "category": "General",
+  "icon": "about.png",
+  "image": "about.png",
+  "class_file": "annoucement_board.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

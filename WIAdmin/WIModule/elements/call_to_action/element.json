@@ -1,0 +1,16 @@
+{
+  "name": "call_to_action",
+  "slug": "call_to_action",
+  "title": "Call To Action",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Call To Action element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "call_to_action.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

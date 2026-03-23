@@ -1,0 +1,205 @@
+WICMS ELEMENTS / MODULES CATALOG, RECOMMENDATIONS, PRICING AND ATTRIBUTE GUIDE
+===============================================================
+
+
+RECOMMENDED CORE ELEMENTS FOR WICMS
+-----------------------------------
+Must-have free starter elements:
+- heading
+- paragraph
+- richtext
+- image
+- button
+- link
+- separator
+- spacer (recommended new)
+- rows
+- columns
+- notice / alert
+- list
+- icon (recommended new)
+- video embed (recommended new)
+- gallery (recommended new)
+- accordion
+- tabs / csstabs
+- call_to_action
+- price_box
+- progress_bar
+- google_map
+- slider / carousel
+- subscribe / form block
+- testimonial card (recommended new)
+- faq item (recommended new)
+- stat counter (recommended new)
+- team member card (recommended new)
+- timeline item (recommended new)
+- code block / shortcode
+
+Recommended future elements:
+- modal trigger
+- off-canvas panel
+- countdown timer
+- rating / stars
+- badge / chip
+- breadcrumbs
+- social icons
+- table / comparison table
+- audio player
+- before/after image
+- animated number counter
+- Lottie / animation wrapper
+
+
+SUGGESTED STORE PRICING MODEL
+-----------------------------
+Elements - free tier
+- heading, paragraph, image, button, link, separator, rows, columns, textbox, notice, list, logo
+Price: Free
+
+Elements - low-cost tier
+- accordion, tabs, progress_bar, call_to_action, content_box, feature, subscribe, image_hover
+Price: GBP 4.99 to 9.99 each
+
+Elements - premium tier
+- slider, carousel, post_carousel, google_map, search_engine, price_box, image_mosaic, video embed, gallery, advanced forms
+Price: GBP 9.99 to 24.99 each
+
+Modules - free tier
+- header, footer, menu, panel, top_head, sidebar, left_sidebar, welcome_box, heading, notice, columns
+Price: Free
+
+Modules - standard tier
+- team_showcase, slider, blog, listings, flipcard, profile_tabs, forum, product, loop
+Price: GBP 14.99 to 39.99 each
+
+Modules - premium / vertical tier
+- shop, cart, checkout, hospitality booking, compliance dashboard, menu management, reservation suite, healthcare bundles
+Price: GBP 39.99 to 149.99 each
+
+Page template packs
+- about us, contact, landing page, services, pricing, faq, blog home, product page, profile page, reservation page
+Price: Free to GBP 29.99 per pack
+
+Recommended bundle logic
+- Keep the basic builder toolbox free
+- Charge for advanced interaction, ecommerce and industry-specific packs
+- Offer subscription bundles for store updates and new releases
+
+ELEMENT ATTRIBUTE GUIDE
+-----------------------
+- accordion: content: items[{title,body,icon}] | behaviour: single_open, default_open, collapsible | style: classes, icon_position | Suggested store tier: Premium
+- appearing_button: content: label, url | behaviour: reveal_on_scroll/fixed | style: variant | Suggested store tier: Review / bundle dependent
+- Base: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- button: content: label, url, icon | layout: align, width | style: classes, size, variant | behaviour: target, modal trigger, scroll target, animation | Suggested store tier: Free
+- call_to_action: content: heading, text, button_label, button_url, media | layout: left/right/center | style: skin, background, padding | behaviour: animation | Suggested store tier: Premium
+- carousel: content: slides[] | behaviour: autoplay, speed, arrows, dots, loop | style: height, overlay, classes | Suggested store tier: Premium
+- columns: layout: column_count, widths, gap, vertical_align | behaviour: stack_on_mobile | Suggested store tier: Free
+- Components: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- content_box: content: title, text, icon/media, link | style: skin, shadow, radius | behaviour: hover effect | Suggested store tier: Premium
+- csstabs: content: tabs[{title,body}] | behaviour: default_tab, stacked/mobile | style: classes | Suggested store tier: Premium
+- fb_like_widget: content: page_url | behaviour: size, show_faces, share | Suggested store tier: Review / bundle dependent
+- feature: content: title, text, icon/media | layout: icon_position | style: classes | behaviour: reveal animation | Suggested store tier: Premium
+- folded_corner: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- font: style: family, weight, size | behaviour: apply target | Suggested store tier: Review / bundle dependent
+- fonts: style: font stack / uploaded font | behaviour: preload toggle | Suggested store tier: Review / bundle dependent
+- Forms: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- google_map: content: address/latlng, marker_text | layout: height, zoom | behaviour: draggable, controls, map type | Suggested store tier: Premium
+- Grid: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- heading: content: text, subtext, tag(h1-h6), align, max_width, anchor_id | style: classes, color, size, weight, spacing | behaviour: animation, delay | Suggested store tier: Free
+- image: content: media_id, alt, caption, link | layout: width, align, ratio | style: classes, border, shadow, radius | behaviour: lightbox, lazyload | Suggested store tier: Free
+- image_hover: content: media_id, overlay_text, link | style: effect, classes | behaviour: hover animation | Suggested store tier: Premium
+- image_mosaic: content: images[] | layout: columns, gap | behaviour: lightbox, shuffle | Suggested store tier: Premium
+- input: content: label, placeholder, name | validation: type, required | style: classes | Suggested store tier: Review / bundle dependent
+- Javascript: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- latest_fbfeeds: content: source page/account, count | behaviour: cache ttl | Suggested store tier: Review / bundle dependent
+- like: content: network/app_id/url | behaviour: count/share toggle | Suggested store tier: Review / bundle dependent
+- link: content: label, url, rel, target | style: classes | behaviour: tracking tag | Suggested store tier: Free
+- list: content: items[] | style: ordered/unordered/check/icon | behaviour: animation stagger | Suggested store tier: Free
+- logo: content: media_id, alt, url | layout: max_width, align | behaviour: retina option | Suggested store tier: Free
+- loop: Use the common schema: content fields, layout, style, behaviour, visibility, classes, animation, media selector, link selector, responsive rules. | Suggested store tier: Review / bundle dependent
+- menu_button: content: label/icon | behaviour: open target menu / offcanvas | Suggested store tier: Review / bundle dependent
+- notepad: content: text/notes | style: paper skin | behaviour: autosave optional | Suggested store tier: Review / bundle dependent
+- notice: content: title, text, icon | style: info/success/warning/error | behaviour: dismissible | Suggested store tier: Free
+- paragraph: content: text/html, align, max_width | style: classes, lead/body size, spacing | behaviour: animation | Suggested store tier: Free
+- post_carousel: content: source, count, category | behaviour: autoplay, speed | style: card skin | Suggested store tier: Premium
+- price_box: content: title, price, period, features[], button | style: featured/highlighted | behaviour: comparison badge | Suggested store tier: Premium
+- progress_bar: content: label, value, suffix | style: striped/solid, height | behaviour: animate on view | Suggested store tier: Premium
+- richtext: content: wysiwyg_html, allowed embeds, shortcode toggle | style: classes, spacing | behaviour: accordion/expand toggle optional | Suggested store tier: Premium
+- rows: layout: row_count, gap, container, full_width | behaviour: sortable, responsive stack | Suggested store tier: Free
+- search_engine: content: placeholder, source | behaviour: ajax/live search, result count | style: classes | Suggested store tier: Premium
+- separator: layout: margin, width, alignment | style: type, thickness, color, icon middle | Suggested store tier: Free
+- shortcode: content: shortcode_text | behaviour: validate shortcode | style: classes | Suggested store tier: Review / bundle dependent
+- slider: content: slides[] | behaviour: autoplay, speed, arrows, dots, pause_on_hover | style: height, overlay | Suggested store tier: Premium
+- subpages: content: source_page, depth, count | style: list/card | behaviour: auto refresh | Suggested store tier: Premium
+- subscribe: content: heading, text, provider/list id | validation: email only/double opt-in | style: classes | Suggested store tier: Premium
+- textbox: content: text, placeholder, label | validation: required, min, max | style: classes | Suggested store tier: Free
+- twitter_lock: content: tweet url / account | behaviour: unlock action rules | Suggested store tier: Review / bundle dependent
+- twitter_timeline: content: account, count | behaviour: theme, chrome options | Suggested store tier: Premium
+
+MODULE ATTRIBUTE GUIDE
+----------------------
+- 404: content: heading, text, button, image | behaviour: auto-suggest links | Suggested store tier: Review / bundle dependent
+- 404_annomated: content: heading, text, button, animation asset | behaviour: animation toggle | Suggested store tier: Review / bundle dependent
+- About_Us: content: story, team, timeline, CTA | behaviour: animations, counters | Suggested store tier: Review / bundle dependent
+- alogin: content: login fields, support links | behaviour: remember me, redirect | Suggested store tier: Review / bundle dependent
+- annoucement_board: content: announcements[] | behaviour: expiry, pin, sort | Suggested store tier: Review / bundle dependent
+- App: content: app cards, download links | behaviour: tabs / filters | Suggested store tier: Review / bundle dependent
+- blog: content: source, category, count, excerpt length | layout: list/grid/masonry | behaviour: pagination, filters | Suggested store tier: Premium
+- blog_media_youtube: content: youtube url/feed, title, caption | behaviour: autoplay, lightbox, lazyload | Suggested store tier: Premium
+- buttoning: content: button groups / CTA set | behaviour: spacing, alignment | Suggested store tier: Review / bundle dependent
+- cart: content: cart items, summary | behaviour: update quantities, coupons, ajax refresh | Suggested store tier: Premium
+- checkout: content: steps, fields, totals | behaviour: validation, gateway toggles | Suggested store tier: Premium
+- columns: content: child blocks | layout: column map, gap | behaviour: responsive stack | Suggested store tier: Free
+- Contact_Us: content: form, map, contact cards | behaviour: validation, submit states | Suggested store tier: Review / bundle dependent
+- debate: content: threads / opinions | behaviour: vote, sort | Suggested store tier: Review / bundle dependent
+- flipcard: content: front/back content | behaviour: hover/click flip | style: height, theme | Suggested store tier: Premium
+- footer: content: columns, menu, copyright, socials | layout: widget areas | behaviour: collapsible sections on mobile | Suggested store tier: Free
+- forum: content: forum source, thread count | behaviour: latest/recent tabs, search | Suggested store tier: Premium
+- fourzerofour: content: heading, text, button | behaviour: search prompt | Suggested store tier: Review / bundle dependent
+- header: content: logo, navigation source, CTA button | layout: sticky, transparent, height | behaviour: mobile menu, shrink on scroll | Suggested store tier: Free
+- heading: content: hero heading/subheading | style: alignment, spacing | behaviour: animation | Suggested store tier: Free
+- info: content: content cards / snippets | behaviour: tabs / accordion optional | Suggested store tier: Review / bundle dependent
+- installers: content: package cards, version data | behaviour: install/update toggles | Suggested store tier: Review / bundle dependent
+- left_sidebar: content: blocks[] | layout: width | behaviour: sticky | Suggested store tier: Free
+- listings: content: data source, filters, cards | behaviour: sort/filter/search | Suggested store tier: Premium
+- loop: content: source/query, template | behaviour: pagination, ordering, filters | Suggested store tier: Review / bundle dependent
+- menu: content: menu source, depth | layout: horizontal/vertical/mega | behaviour: mobile toggle, active trail | Suggested store tier: Free
+- notfound: content: heading, text, button | behaviour: suggestions | Suggested store tier: Review / bundle dependent
+- notfound_annomated: content: heading, text, animation | behaviour: animation toggle | Suggested store tier: Review / bundle dependent
+- notice: content: title, text, icon | behaviour: dismissible, role-based display | Suggested store tier: Free
+- panel: content: utility links, announcement, contact | layout: top utility bar | behaviour: closable, sticky | Suggested store tier: Free
+- platform: content: feature blocks, plans, CTA | behaviour: comparisons, tabs | Suggested store tier: Premium
+- policy: content: rich text sections, table of contents | behaviour: anchor navigation | Suggested store tier: Review / bundle dependent
+- privacy_policy: content: legal sections | behaviour: toc / last updated stamp | Suggested store tier: Review / bundle dependent
+- product: content: title, media, price, CTA, specs | behaviour: gallery, add-to-cart hooks | Suggested store tier: Premium
+- profile: content: overview cards, stats, links | behaviour: tabs / widgets | Suggested store tier: Review / bundle dependent
+- profile_inbox: content: messages list | behaviour: unread filters, pagination | Suggested store tier: Review / bundle dependent
+- profile_msg: content: single conversation view | behaviour: reply box, attachments | Suggested store tier: Review / bundle dependent
+- profile_outbox: content: sent messages | behaviour: filters, pagination | Suggested store tier: Review / bundle dependent
+- profile_page: content: user profile sections | behaviour: edit/view toggle | Suggested store tier: Review / bundle dependent
+- profile_sidebar: content: profile summary, links | behaviour: sticky, role-aware blocks | Suggested store tier: Premium
+- profile_tabs: content: tabs[], endpoints | behaviour: ajax tabs, deep links | Suggested store tier: Premium
+- shop: content: product grid, categories, promos | behaviour: filters, sort, search | Suggested store tier: Premium
+- sidebar: content: blocks[] | layout: left/right, width | behaviour: sticky sidebar | Suggested store tier: Free
+- slider: content: slides[] | behaviour: autoplay, arrows, dots, pause on hover | Suggested store tier: Premium
+- team_showcase: content: team members[{name,role,bio,image,links}] | layout: grid/carousel | behaviour: modal bio | Suggested store tier: Premium
+- testing: content: dev/test output | behaviour: hidden in production | Suggested store tier: Review / bundle dependent
+- top_head: content: announcement / promo strip | style: colors, icon | behaviour: dismissible, timed rotation | Suggested store tier: Free
+- welcome_box: content: heading, text, button, media | style: skin | behaviour: reveal animation | Suggested store tier: Free
+
+RECOMMENDED NEW PAGES / PAGE TEMPLATES
+--------------------------------------
+- Landing page
+- Services page
+- Pricing page
+- FAQ page
+- Testimonials page
+- Team page
+- Gallery page
+- Reservations page
+- Compliance dashboard page
+- Hospitality booking page
+- Shop category page
+- Product detail page
+- Checkout flow pages
+- Account / profile dashboard pages

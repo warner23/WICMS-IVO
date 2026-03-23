@@ -1,0 +1,16 @@
+{
+  "plugin": "WIBlog",
+  "version": "1.0.0",
+  "download_url": "https://plugins.wicms.com/WIBlog.zip",
+  "release_date": "2026-03-13",
+  "changelog": [
+    "Initial marketplace-ready release",
+    "PHP 8.2 compatibility baseline",
+    "Expanded plugin metadata",
+    "Prepared for structured admin/options/render classes"
+  ],
+  "requires": {
+    "wicms": ">=1.0.0",
+    "php": ">=8.2"
+  }
+}

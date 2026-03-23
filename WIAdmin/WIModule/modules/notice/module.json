@@ -1,0 +1,16 @@
+{
+  "name": "notice",
+  "slug": "notice",
+  "title": "Notice",
+  "author": "Warner Infinity",
+  "description": "Notice module for WICMS.",
+  "category": "Content",
+  "icon": "info-256.png",
+  "image": "info-256.png",
+  "class_file": "notice.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

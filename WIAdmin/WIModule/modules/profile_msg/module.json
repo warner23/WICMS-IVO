@@ -1,0 +1,16 @@
+{
+  "name": "profile_msg",
+  "slug": "profile_msg",
+  "title": "Profile Msg",
+  "author": "Warner Infinity",
+  "description": "Profile Msg module for WICMS.",
+  "category": "Account",
+  "icon": "",
+  "image": "",
+  "class_file": "profile_msg.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

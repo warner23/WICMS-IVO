@@ -1,0 +1,16 @@
+{
+  "name": "menu",
+  "slug": "menu",
+  "title": "Menu",
+  "author": "Warner Infinity",
+  "description": "Menu module for WICMS.",
+  "category": "Navigation",
+  "icon": "menu.PNG",
+  "image": "menu.PNG",
+  "class_file": "",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

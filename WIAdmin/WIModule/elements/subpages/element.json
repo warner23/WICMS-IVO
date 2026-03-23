@@ -1,0 +1,16 @@
+{
+  "name": "subpages",
+  "slug": "subpages",
+  "title": "Subpages",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Subpages element for the WICMS drag-and-drop module builder.",
+  "icon": "1.png",
+  "image": "1.png",
+  "class_file": "subpages.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

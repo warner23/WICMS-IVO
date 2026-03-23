@@ -1,0 +1,16 @@
+{
+  "name": "404",
+  "slug": "404",
+  "title": "404",
+  "author": "Warner Infinity",
+  "description": "404 module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "404.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

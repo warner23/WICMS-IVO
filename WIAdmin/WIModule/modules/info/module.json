@@ -1,0 +1,16 @@
+{
+  "name": "info",
+  "slug": "info",
+  "title": "Info",
+  "author": "Warner Infinity",
+  "description": "Info module for WICMS.",
+  "category": "Content",
+  "icon": "info.png",
+  "image": "info.png",
+  "class_file": "info.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

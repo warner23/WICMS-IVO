@@ -1,0 +1,16 @@
+{
+  "name": "installers",
+  "slug": "installers",
+  "title": "Installers",
+  "author": "Warner Infinity",
+  "description": "Installers module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

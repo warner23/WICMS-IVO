@@ -1,0 +1,1 @@
+[07-Jun-2020 02:51:37 UTC] PHP Recoverable fatal error:  Object of class WILogin could not be converted to string in /home/warner23/public_html/testing_IVO/WICore/WIVendor/Hybridauth/index.php on line 147

@@ -1,0 +1,558 @@
+.wi-admin-header {
+    margin: 20px 0 25px;
+    padding: 0 5px;
+}
+
+.wi-admin-header h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1f2d3d;
+}
+
+.wi-admin-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.wi-admin-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.wi-section-title {
+    margin-bottom: 8px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.wi-section-text {
+    margin-bottom: 20px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.wi-tab-nav {
+    margin-bottom: 20px;
+}
+
+.wi-tab-nav li a {
+    font-weight: 500;
+}
+
+.wi-card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.wi-soft-panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+/* =========================================================
+   ADMIN TOPBAR
+========================================================= */
+
+.wi-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    width: 100%;
+    background: #0e0e0e;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.wi-topbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 68px;
+    padding: 12px 20px;
+}
+
+.wi-topbar__left,
+.wi-topbar__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wi-topbar__left {
+    flex: 0 0 auto;
+}
+
+.wi-topbar__center {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.wi-topbar__right {
+    flex: 0 0 auto;
+}
+
+.wi-topbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #111827;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.wi-topbar__brand:hover,
+.wi-topbar__brand:focus {
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__brand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #1f2937;
+    font-size: 16px;
+}
+
+.wi-topbar__visit-site {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.wi-topbar__visit-site:hover,
+.wi-topbar__visit-site:focus {
+    border-color: #9ca3af;
+    background: #f9fafb;
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__nav {
+    width: 100%;
+}
+
+.wi-topbar__nav .navbar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    float: none;
+}
+
+.wi-topbar__nav .navbar-nav > li {
+    float: none;
+    margin: 0;
+}
+
+.wi-topbar__nav .navbar-nav > li > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.wi-topbar__nav .navbar-nav > li > a:hover,
+.wi-topbar__nav .navbar-nav > li.active > a {
+    background: #f3f4f6;
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wi-topbar__icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.wi-topbar__icon-btn:hover,
+.wi-topbar__icon-btn:focus {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.wi-topbar__badge:empty {
+    display: none;
+}
+
+.wi-topbar__badge--danger {
+    background: #dc2626;
+}
+
+.wi-topbar__dropdown {
+    position: relative;
+}
+
+.wi-topbar__menu {
+    min-width: 320px;
+    padding: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+.top_admin_li {
+    
+}
+
+.wi-topbar__menu-card {
+    background: #ffffff;
+}
+
+.wi-topbar__menu-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-weight: 700;
+    color: #111827;
+}
+
+.wi-topbar__menu-body {
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 12px 16px;
+}
+
+.wi-topbar__menu-foot {
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #fcfcfd;
+}
+
+.wi-topbar__menu-foot a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.wi-topbar__user {
+    position: relative;
+}
+
+.wi-topbar__user-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__user-toggle:hover,
+.wi-topbar__user-toggle:focus {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    text-decoration: none;
+    color: #111827;
+}
+
+.wi-topbar__user-avatar img,
+.wi-topbar__user-menu-avatar img,
+.wi-topbar__user-avatar .img-circle,
+.wi-topbar__user-menu-avatar .img-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.wi-topbar__user-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.wi-topbar__user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.wi-topbar__user-role {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.wi-topbar__user-caret {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.wi-topbar__user-menu {
+    min-width: 240px;
+    padding: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+}
+
+.wi-topbar__user-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.wi-topbar__user-menu-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.wi-topbar__user-menu-text strong {
+    color: #111827;
+}
+
+.wi-topbar__user-menu-text span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.wi-topbar__user-menu > li > a {
+    display: block;
+    padding: 12px 16px;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.wi-topbar__user-menu > li > a:hover,
+.wi-topbar__user-menu > li > a:focus {
+    background: #f9fafb;
+    color: #111827;
+    text-decoration: none;
+}
+
+.wi-topbar__user-menu > li > a i {
+    width: 16px;
+    margin-right: 8px;
+}
+
+/* =========================================================
+   GENERAL ADMIN UI BLOCKS
+========================================================= */
+
+.wi-admin-header {
+    margin: 20px 0 25px;
+    padding: 0 5px;
+}
+
+.wi-admin-header h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1f2d3d;
+}
+
+.wi-admin-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.wi-admin-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.wi-section-title {
+    margin-bottom: 8px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.wi-section-text {
+    margin-bottom: 20px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.wi-tab-nav {
+    margin-bottom: 20px;
+}
+
+.wi-tab-nav li a {
+    font-weight: 500;
+}
+
+.wi-card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.wi-soft-panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1199px) {
+    .wi-topbar__inner {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .wi-topbar__left,
+    .wi-topbar__center,
+    .wi-topbar__right {
+        width: 30%;
+    }
+
+    .wi-topbar__center {
+        order: 2;
+
+    }
+
+    .wi-topbar__nav .navbar-nav {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 767px) {
+    .wi-topbar__inner {
+        padding: 12px 14px;
+        gap: 12px;
+    }
+
+    .wi-topbar__left {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .wi-topbar__visit-site span,
+    .wi-topbar__brand-text,
+    .wi-topbar__user-role {
+        display: none;
+    }
+
+    .wi-topbar__actions {
+        flex-wrap: wrap;
+    }
+
+    .wi-topbar__right {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .wi-topbar__menu,
+    .wi-topbar__user-menu {
+        min-width: 260px;
+        right: 0;
+        left: auto;
+    }
+
+    .wi-topbar__nav .navbar-nav {
+        gap: 6px;
+    }
+
+    .wi-topbar__nav .navbar-nav > li > a {
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
+        padding: 9px 12px;
+    }
+}
+
+@media (min-width: 1600px) {
+    .wi-topbar__inner {
+        min-height: 76px;
+        padding: 14px 28px;
+    }
+
+    .wi-topbar__brand-text {
+        font-size: 16px;
+    }
+
+    .wi-topbar__nav .navbar-nav > li > a {
+        font-size: 15px;
+    }
+}

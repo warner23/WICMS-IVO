@@ -1,0 +1,16 @@
+{
+  "name": "accordion",
+  "slug": "accordion",
+  "title": "Accordion",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Accordion element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "accordion.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

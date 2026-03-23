@@ -1,0 +1,16 @@
+{
+  "name": "Base",
+  "slug": "Base",
+  "title": "Base",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Base element for the WICMS drag-and-drop module builder.",
+  "icon": "button.png",
+  "image": "button.png",
+  "class_file": "Base.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

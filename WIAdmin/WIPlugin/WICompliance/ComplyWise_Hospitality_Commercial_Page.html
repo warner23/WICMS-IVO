@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ComplyWise Hospitality</title>
+<style>
+:root{
+  --bg:#0f172a;
+  --panel:#111827;
+  --card:#ffffff;
+  --muted:#64748b;
+  --text:#0f172a;
+  --brand:#0f766e;
+  --brand2:#14b8a6;
+  --soft:#f1f5f9;
+  --line:#dbe4ee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#f8fafc;color:var(--text);line-height:1.6}
+.container{width:min(1120px,92vw);margin:0 auto}
+.hero{background:linear-gradient(135deg,#0f172a 0%, #11344b 48%, #0f766e 100%);color:#fff;padding:84px 0 72px}
+.badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:999px;font-size:13px;letter-spacing:.03em}
+h1{font-size:56px;line-height:1.05;margin:18px 0 16px;max-width:760px}
+.hero p{font-size:20px;max-width:720px;color:#dbf3f0}
+.cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-block;padding:14px 22px;border-radius:12px;text-decoration:none;font-weight:700}
+.btn-primary{background:#fff;color:#0f172a}
+.btn-secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.grid-3,.grid-2,.pricing{display:grid;gap:22px}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.pricing{grid-template-columns:repeat(3,1fr)}
+section{padding:72px 0}
+section.alt{background:#fff}
+.kpis{margin-top:30px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px}
+.kpi strong{display:block;font-size:24px}
+h2{font-size:36px;margin:0 0 12px}
+.lead{color:var(--muted);max-width:760px;margin-bottom:28px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.05)}
+.card h3{margin:0 0 10px;font-size:20px}
+.card p,.card li{color:#334155}
+.problem{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+.problem-box{background:#fff;border:1px solid #fee2e2;border-radius:20px;padding:24px}
+.solution-box{background:#ecfeff;border:1px solid #ccfbf1;border-radius:20px;padding:24px}
+.check{padding-left:18px}
+.check li{margin:8px 0}
+.feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.feature{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+.pricing .card{position:relative}
+.price{font-size:42px;font-weight:800;margin:10px 0}
+.tag{position:absolute;top:16px;right:16px;background:#ccfbf1;color:#115e59;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.footer-cta{background:linear-gradient(135deg,#0f766e,#0f172a);color:#fff;border-radius:28px;padding:40px}
+small.muted{color:#cbd5e1}
+ul.clean{list-style:none;padding:0;margin:0}
+ul.clean li{padding:9px 0;border-bottom:1px dashed #dbe4ee}
+@media (max-width:900px){
+ h1{font-size:42px}
+ .grid-3,.pricing,.kpis,.problem,.grid-2,.feature-list{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <span class="badge">Compliance OS for hospitality businesses</span>
+    <h1>ComplyWise Hospitality</h1>
+    <p>Compliance, food safety, records, reminders, and inspection readiness in one structured platform for restaurants, cafes, pubs, hotels, takeaways, and catering businesses.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#pricing">View pricing</a>
+      <a class="btn btn-secondary" href="#features">Explore features</a>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><strong>1 system</strong><span>For setup, daily checks, logs, and archives</span></div>
+      <div class="kpi"><strong>Role-based</strong><span>Owner, manager, staff, and auditor access</span></div>
+      <div class="kpi"><strong>Modular</strong><span>Add-ons for hospitality sub-sectors</span></div>
+      <div class="kpi"><strong>Scalable</strong><span>Single-site to multi-site operations</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="alt">
+  <div class="container problem">
+    <div class="problem-box">
+      <h2>The problem</h2>
+      <p>Hospitality businesses often run compliance through paper folders, loose spreadsheets, scattered messages, and memory. That creates missed checks, weak evidence trails, and unnecessary stress before inspections.</p>
+      <ul class="clean">
+        <li>Missed daily checks and overdue reviews</li>
+        <li>Evidence spread across paper, email, and local devices</li>
+        <li>No clear reminder system for recurring obligations</li>
+        <li>Weak retention and archive handling</li>
+        <li>Limited visibility across multiple locations</li>
+      </ul>
+    </div>
+    <div class="solution-box">
+      <h2>The solution</h2>
+      <p><strong>ComplyWise Hospitality</strong> turns compliance into a structured operational workflow. It helps teams set up correctly, complete work on time, capture evidence, manage documents, and keep an inspection-ready audit trail.</p>
+      <ul class="check">
+        <li>Business-type aware setup wizard</li>
+        <li>Dynamic checklists and recurring logs</li>
+        <li>Documents, policies, and acknowledgements</li>
+        <li>Reminder engine with priorities and escalation</li>
+        <li>Archive and retention controls</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <h2>Built for real hospitality operations</h2>
+    <p class="lead">The product is designed to support daily compliance activity, manager oversight, and longer-term evidence management without turning the admin area into a maze.</p>
+    <div class="feature-list">
+      <div class="feature"><h3>Smart setup wizard</h3><p>Profile the business once and load the right legal register, templates, reminders, and defaults for the site.</p></div>
+      <div class="feature"><h3>Checklists and logs</h3><p>Run opening, closing, temperature, cleaning, incident, and maintenance records through one consistent workflow.</p></div>
+      <div class="feature"><h3>Audit-ready evidence</h3><p>Keep task history, notes, attachments, signatures, and corrective actions tied to the original record.</p></div>
+      <div class="feature"><h3>Documents and policies</h3><p>Store certificates, policy versions, staff acknowledgements, and scheduled reviews in one document centre.</p></div>
+      <div class="feature"><h3>GDPR-aware retention</h3><p>Support data handling, retention rules, archive movement, restore, purge review, and activity logging.</p></div>
+      <div class="feature"><h3>Add-on ready</h3><p>Extend the base plugin with packs for bars, hotels, mobile catering, multi-site operations, and more.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2>Who it is for</h2>
+    <div class="grid-3">
+      <div class="card"><h3>Independent operators</h3><p>Cafes, takeaways, food trucks, small restaurants, and growing hospitality startups that need structure without enterprise complexity.</p></div>
+      <div class="card"><h3>Multi-site businesses</h3><p>Groups that need central visibility, standard templates, location-level control, and evidence consistency across sites.</p></div>
+      <div class="card"><h3>Hospitality support firms</h3><p>Consultants, compliance managers, and operators who support several sites and need clean reporting and oversight.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Core modules</h2>
+    <div class="grid-3">
+      <div class="card"><h3>Dashboard</h3><p>Overdue work, upcoming tasks, alerts, review queues, and readiness indicators.</p></div>
+      <div class="card"><h3>Legal register</h3><p>Track obligations, guidance records, review dates, and business-profile mapping.</p></div>
+      <div class="card"><h3>Logs and records</h3><p>Structured operational evidence with attachments, notes, and exception handling.</p></div>
+      <div class="card"><h3>Documents</h3><p>Policy centre, versioning, certificates, read-and-sign acknowledgements, and review cycles.</p></div>
+      <div class="card"><h3>Archive</h3><p>Retention rules, archive batches, restore controls, and audit-preserving storage.</p></div>
+      <div class="card"><h3>Add-ons</h3><p>Sector packs, operational extensions, and future healthcare-style editions.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="alt">
+  <div class="container">
+    <h2>Commercial structure</h2>
+    <p class="lead">A simple pricing shape that supports entry-level adoption while leaving room for premium and multi-site growth.</p>
+    <div class="pricing">
+      <div class="card">
+        <h3>Starter</h3>
+        <div class="price">Free</div>
+        <ul class="clean">
+          <li>Basic setup wizard</li>
+          <li>Core checklists</li>
+          <li>Limited logs</li>
+          <li>Single site</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag">Recommended</span>
+        <h3>Standard</h3>
+        <div class="price">£19<span style="font-size:18px;font-weight:600">/month</span></div>
+        <ul class="clean">
+          <li>Full checklist and logs engine</li>
+          <li>Legal register and reminders</li>
+          <li>Documents and archive tools</li>
+          <li>Manager review workflows</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Multi-site / Pro</h3>
+        <div class="price">£49<span style="font-size:18px;font-weight:600">/month</span></div>
+        <ul class="clean">
+          <li>Multiple sites and group oversight</li>
+          <li>Advanced reporting</li>
+          <li>Add-on support</li>
+          <li>Auditor and approval workflows</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="footer-cta">
+      <h2 style="margin-top:0">Stop guessing compliance. Start managing it.</h2>
+      <p>ComplyWise Hospitality is designed to become the operational backbone for compliance, records, and readiness inside WICMS.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#">Get started</a>
+        <a class="btn btn-secondary" href="#">Book a demo</a>
+      </div>
+      <p><small class="muted">Suitable for product pages, investor decks, brochure sites, and sales mockups.</small></p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "columns",
+  "slug": "columns",
+  "title": "Columns",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Columns element for the WICMS drag-and-drop module builder.",
+  "icon": "drop_here.png",
+  "image": "drop_here.png",
+  "class_file": "columns.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

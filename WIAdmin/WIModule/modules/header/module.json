@@ -1,0 +1,16 @@
+{
+  "name": "header",
+  "slug": "header",
+  "title": "Header",
+  "author": "Warner Infinity",
+  "description": "Header module for WICMS.",
+  "category": "Navigation",
+  "icon": "header.png",
+  "image": "header.png",
+  "class_file": "heading.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

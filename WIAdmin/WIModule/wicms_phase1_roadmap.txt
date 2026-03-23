@@ -1,0 +1,128 @@
+WICMS MODULES / ELEMENTS / PAGES REFACTOR ROADMAP
+=========================================
+Prepared from the current backend/frontend audit.
+These are planning estimates, not guarantees. They are based on folder structure, naming consistency, JSON metadata presence, class detection, builder intent, and likely refactor scope.
+
+Current high-level audit snapshot
+---------------------------------
+Estimated overall completion of the WIModules ecosystem: 75.8%
+- Elements estimated completion: 76.5%
+- Modules estimated completion: 85.1%
+- Pages estimated completion: 70.7%
+
+Priority order
+--------------
+1. Phase 1 - WIModules core refactor
+2. Phase 1b - WIAjax alignment for modules/elements/pages
+3. Phase 1c - attribute and options schema foundation
+4. Phase 2 - element refactor pass
+5. Phase 3 - module refactor pass
+6. Phase 4 - page refactor pass and page-builder alignment
+7. Phase 5 - builder UX / drag-drop / visual preview hardening
+8. Phase 6 - store-ready package contract and marketplace export rules
+
+Milestones and working estimates
+--------------------------------
+Phase 1 - WIModules core refactor
+Goal:
+- Stabilise discovery, registry, install/power state, builder visibility, loader assumptions, metadata reading, and shared render hooks.
+Checklist:
+- Audit and rename inconsistent methods where safe
+- Harden module/element/page discovery
+- Standardise file/folder/class validation
+- Keep soft uninstall / power-off model intact
+- Add clear type handling for module / element / page / custom item
+- Prepare shared attribute schema readers/writers
+- Ensure admin module page can still render lists/cards/grids
+Estimate: 3 to 5 working days
+
+Phase 1b - WIAjax alignment
+Goal:
+- Make backend actions match the refactored WIModules contract.
+Checklist:
+- Consolidate duplicate switches
+- Normalise module / element / page actions
+- Add clean JSON responses
+- Validate posted names/types/IDs safely
+- Ensure install, enable, disable, builder visibility, attribute actions all route correctly
+Estimate: 1 to 2 working days
+
+Phase 1c - attributes and options foundation
+Goal:
+- Introduce a stable schema for content, layout, style, behaviour and visibility options.
+Checklist:
+- Define common field types
+- Define defaults and validation rules
+- Add save / update / delete attribute flow
+- Support repeaters for items like accordion, tabs, slides, pricing rows
+- Support media selectors, link selectors, icon selectors, class fields and animation toggles
+Estimate: 2 to 4 working days
+
+Phase 2 - element refactor pass
+Goal:
+- Bring all elements to a shared standard and make them builder-safe.
+Checklist:
+- Fix exact file/class naming mismatches
+- Ensure every element has a loadable main class
+- Add or repair element.json
+- Add attribute schema for every element
+- Verify admin preview output
+- Verify frontend render output
+Estimate: 5 to 8 working days
+
+Phase 3 - module refactor pass
+Goal:
+- Bring all modules to a shared standard and make them reusable in the builder.
+Checklist:
+- Fix module loader mismatches
+- Ensure each module has module.json and a clean class entry point
+- Standardise render methods and editable options
+- Add module-level preview and reusable save/load behaviour
+Estimate: 5 to 8 working days
+
+Phase 4 - page refactor pass
+Goal:
+- Standardise pages and align them to the visual builder.
+Checklist:
+- Ensure page class/file naming consistency
+- Introduce page metadata contract (page.json recommended)
+- Add page-level attributes and assignment rules
+- Confirm getModMain / page loading compatibility remains intact
+Estimate: 4 to 7 working days
+
+Phase 5 - builder UX / visual editor hardening
+Goal:
+- Make the builder friendlier for non-technical users.
+Checklist:
+- Drag and drop ordering
+- Inline preview improvements
+- Clear placeholders and field labels
+- Repeaters for complex content blocks
+- Save as reusable custom module
+- Better empty states, errors and validation messages
+Estimate: 5 to 10 working days
+
+Phase 6 - marketplace and export groundwork
+Goal:
+- Prepare for store distribution and user-to-store submissions.
+Checklist:
+- Define package/export contract
+- Define dependency list format
+- Define security scan requirements
+- Define moderation / approval process
+- Define free / paid / subscription flags
+Estimate: 4 to 6 working days
+
+Practical total estimate
+------------------------
+Core stabilisation through Phase 4: 20 to 34 working days
+Builder hardening through Phase 5: 25 to 44 working days
+Marketplace groundwork through Phase 6: 29 to 50 working days
+
+Immediate next move
+-------------------
+Proceed with the Phase 1 rewrite of:
+WIAdmin/WICore/WIClass/WIModules.php
+Then align:
+WIAdmin/WICore/WIClass/WIAjax.php
+Then lock the shared attribute schema before refactoring individual elements/modules/pages.

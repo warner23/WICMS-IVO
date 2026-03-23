@@ -1,0 +1,19 @@
+{
+  "name": "blog_media_youtube",
+  "slug": "blog_media_youtube",
+  "title": "Blog Media Youtube",
+  "author": "Warner Infinity",
+  "description": "Blog Media Youtube module for WICMS.",
+  "category": "Content",
+  "icon": "",
+  "image": "",
+  "class_file": "blog_media_youtube.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [
+    "content",
+    "community"
+  ],
+  "editable": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "debate",
+  "slug": "debate",
+  "title": "Debate",
+  "author": "Warner Infinity",
+  "description": "Debate module for WICMS.",
+  "category": "Community",
+  "icon": "",
+  "image": "",
+  "class_file": "debate.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [
+    "content",
+    "community"
+  ],
+  "editable": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "font",
+  "slug": "font",
+  "title": "Font",
+  "type": "System",
+  "group": "System",
+  "author": "Warner Infinity",
+  "description": "Reusable Font element for the WICMS drag-and-drop module builder.",
+  "icon": "font.png",
+  "image": "font.png",
+  "class_file": "",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

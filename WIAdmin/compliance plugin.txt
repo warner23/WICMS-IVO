@@ -1,0 +1,30 @@
+ok lets create the first plugin, I have attached a completed plugin so you can see the base structure
+of it as a guide ( however this code does need to be updated later)
+This plugin is for kitchen possible bar as well compliance
+this needs to be inline with english law, health and safety for kitchens
+be suitable for all types of kitchens, contain a full settings and setup pages
+to be able to configure prior to install, a pricing plan such as:
+subscription->monthly installements
+pay in full
+maybe even rent to buy type of thing, to give plenty of options so regardless of someones background there is an option available
+this must include checklists, have multiple user types as an example
+Owners section/area
+Users/workers sections/area
+Managers section/area
+
+each area/section needs to show an overview for eg
+users/workers will show an overview of what checklists needs to be completed
+and have been done
+
+all checklists should show a time or countdown timer, as morning checklists for eg needs to be completed before midday 12 noon, evening checklists needs at start after 4pm ( so therefore should not be available before that time) for eg and be completed
+before midnight
+
+owners section area should comprise of a dashboard showing as much as possible
+as an example, how many sites there are, and which checklists have been completed
+any possible problems such as fridge 4 temperature is either too low or too high for multiple days ( and therefore might need repairs or replacing)
+
+this needs to be done in high UI, modern, sleek, easy to read for all, the ability to be able to zoom in for users with bad eyes
+maybe a button so it can be read out to the user
+
+I am open to suggestions and ideas
+

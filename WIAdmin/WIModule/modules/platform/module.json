@@ -1,0 +1,16 @@
+{
+  "name": "platform",
+  "slug": "platform",
+  "title": "Platform",
+  "author": "Warner Infinity",
+  "description": "Platform module for WICMS.",
+  "category": "General",
+  "icon": "",
+  "image": "",
+  "class_file": "platform.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

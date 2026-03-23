@@ -1,0 +1,16 @@
+{
+  "name": "notfound_annomated",
+  "slug": "notfound_annomated",
+  "title": "Notfound Annomated",
+  "author": "Warner Infinity",
+  "description": "Notfound Annomated module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "notfound_annomated.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

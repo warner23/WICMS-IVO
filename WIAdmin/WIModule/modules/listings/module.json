@@ -1,0 +1,16 @@
+{
+  "name": "listings",
+  "slug": "listings",
+  "title": "Listings",
+  "author": "Warner Infinity",
+  "description": "Listings module for WICMS.",
+  "category": "General",
+  "icon": "listings.png",
+  "image": "listings.png",
+  "class_file": "listings.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

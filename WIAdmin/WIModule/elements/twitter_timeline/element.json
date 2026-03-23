@@ -1,0 +1,16 @@
+{
+  "name": "twitter_timeline",
+  "slug": "twitter_timeline",
+  "title": "Twitter Timeline",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Twitter Timeline element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "twitter-timeline.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

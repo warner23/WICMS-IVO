@@ -1,0 +1,16 @@
+{
+  "name": "subscribe",
+  "slug": "subscribe",
+  "title": "Subscribe",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Subscribe element for the WICMS drag-and-drop module builder.",
+  "icon": "sub.png",
+  "image": "sub.png",
+  "class_file": "subscribe.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

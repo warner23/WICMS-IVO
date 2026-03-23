@@ -1,0 +1,319 @@
+1️⃣ First observation — Good foundation
+
+Your structure already follows a very good philosophy:
+
+file-based plugin
+
+database only for data
+
+install/uninstall scripts
+
+separate admin / frontend
+
+JSON metadata
+
+That is exactly how long-lasting CMS plugins should be built.
+
+So we are improving, not rewriting.
+
+2️⃣ plugin.json review
+
+You already have metadata support which is excellent.
+
+However for marketplace compatibility we should expand it slightly.
+
+Recommended plugin.json
+{
+  "name": "WIBlog",
+  "slug": "WIBlog",
+  "title": "Blog",
+  "author": "Warner Infinity",
+  "version": "1.0.0",
+  "description": "Advanced blogging plugin for WICMS with categories, tags and customizable layouts.",
+  "price": 0,
+  "currency": "GBP",
+  "subscription": false,
+  "license_required": false,
+
+  "category": "content",
+  "tags": ["blog", "articles", "news"],
+  "website": "https://wicms.com",
+  "support": "support@wicms.com",
+
+  "min_wicms_version": "1.0.0",
+  "php_required": "8.2",
+
+  "settings_page": "WIBlog_options",
+  "install_script": "Install/install.php",
+  "uninstall_script": "Install/uninstall.php",
+  "upgrade_script": "Install/upgrade.php"
+}
+Why this matters
+
+Your marketplace system can now automatically read:
+
+install script
+
+upgrade script
+
+admin settings page
+
+version compatibility
+
+pricing model
+
+3️⃣ update.json
+
+This is a very good idea and something most CMS forget.
+
+However it should look like this:
+
+{
+  "plugin": "WIBlog",
+  "version": "1.0.0",
+  "download_url": "https://wicms.com/plugins/WIBlog.zip",
+  "release_date": "2026-01-01",
+  "changelog": [
+    "Initial release",
+    "SEO improvements",
+    "Admin UI improvements"
+  ],
+  "requires": {
+    "wicms": ">=1.0.0",
+    "php": ">=8.2"
+  }
+}
+
+Later this allows automatic plugin updates.
+
+4️⃣ SQL review (WI_Blog.sql)
+
+The database structure is already good.
+
+However I recommend adding a few fields to future-proof it.
+
+Add fields for SEO
+meta_title VARCHAR(255),
+meta_description TEXT,
+meta_keywords TEXT
+Add fields for publishing workflow
+status ENUM('draft','published','scheduled','private') DEFAULT 'draft',
+scheduled_date DATETIME NULL
+Add fields for analytics
+views INT DEFAULT 0,
+likes INT DEFAULT 0
+Add fields for authorship
+author_id INT
+Add fields for revisions
+revision INT DEFAULT 1
+5️⃣ WIBlog.php review (architecture)
+
+Your core file is doing too many responsibilities.
+
+Currently it likely mixes:
+
+rendering
+
+database access
+
+settings
+
+admin logic
+
+For long-term maintainability we should split it.
+
+Recommended split
+blog/
+
+WIBlog.php
+WIBlog_Render.php
+WIBlog_Admin.php
+WIBlog_Options.php
+WIBlog_Permissions.php
+WIBlog_SEO.php
+Responsibilities
+
+WIBlog.php
+
+bootstrap plugin
+load classes
+register hooks
+
+WIBlog_Render
+
+frontend blog output
+post lists
+single post
+categories
+
+WIBlog_Admin
+
+admin panel
+editor UI
+post management
+
+WIBlog_Options
+
+plugin settings
+design options
+layout settings
+
+WIBlog_Permissions
+
+roles
+editor rights
+post ownership
+
+WIBlog_SEO
+
+meta tags
+schema
+sitemap
+6️⃣ Features I strongly recommend adding
+
+These make the plugin commercial-grade.
+
+Content features
+
+post scheduling
+
+revision history
+
+post duplication
+
+related posts
+
+featured posts
+
+author profile box
+
+post series
+
+pinned posts
+
+Design features
+
+grid/list toggle
+
+card style options
+
+hero image posts
+
+category colors
+
+typography presets
+
+dark mode
+
+Business / charity features
+
+donation CTA
+
+affiliate disclosure
+
+sponsor block
+
+event announcement post type
+
+SEO features
+
+schema article
+
+open graph
+
+canonical links
+
+sitemap generation
+
+Community features
+
+comments
+
+reactions
+
+share buttons
+
+Performance
+
+image lazy load
+
+post caching
+
+asset minification
+
+7️⃣ Security improvements
+
+Your plugin must include:
+
+CSRF protection
+
+Admin actions must check token.
+
+Sanitization
+htmlspecialchars
+intval
+filter_var
+Prepared statements
+
+You already use PDO which is good.
+
+8️⃣ PHP 8.2 compatibility checklist
+
+I will later scan WIBlog.php for these:
+
+Common issues:
+
+dynamic properties
+foreach on non arrays
+optional parameters before required
+null array access
+deprecated functions
+9️⃣ Translation support
+
+Create:
+
+WILang/blog/en.php
+WILang/blog/fr.php
+WILang/blog/es.php
+
+Example:
+
+return [
+ "blog_title" => "Blog",
+ "read_more" => "Read more",
+ "posted_by" => "Posted by"
+];
+🔟 Next step
+
+Now we should inspect WIBlog.php itself and modernise it.
+
+That will allow us to:
+
+make it PHP 8.2 safe
+
+simplify the architecture
+
+prepare it as the WICMS plugin blueprint
+
+My suggestion for the build order
+Step 1
+Audit and modernise WIBlog.php
+
+Step 2
+Rebuild admin options UI
+
+Step 3
+Improve SQL schema
+
+Step 4
+Add missing features
+
+Step 5
+Turn WIBlog into plugin blueprint
+
+Step 6
+Clone architecture for
+
+WIForum
+WICompliance
+WIPOS

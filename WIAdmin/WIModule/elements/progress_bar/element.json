@@ -1,0 +1,16 @@
+{
+  "name": "progress_bar",
+  "slug": "progress_bar",
+  "title": "Progress Bar",
+  "type": "Content",
+  "group": "Content",
+  "author": "Warner Infinity",
+  "description": "Reusable Progress Bar element for the WICMS drag-and-drop module builder.",
+  "icon": "progress_bar.png",
+  "image": "progress_bar.png",
+  "class_file": "progress_bar.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

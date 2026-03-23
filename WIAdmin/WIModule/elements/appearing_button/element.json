@@ -1,0 +1,16 @@
+{
+  "name": "appearing_button",
+  "slug": "appearing_button",
+  "title": "Appearing Button",
+  "type": "Forms",
+  "group": "Forms",
+  "author": "Warner Infinity",
+  "description": "Reusable Appearing Button element for the WICMS drag-and-drop module builder.",
+  "icon": "button.jpg",
+  "image": "button.jpg",
+  "class_file": "appearing_button.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

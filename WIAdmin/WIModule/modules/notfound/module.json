@@ -1,0 +1,16 @@
+{
+  "name": "notfound",
+  "slug": "notfound",
+  "title": "Notfound",
+  "author": "Warner Infinity",
+  "description": "Notfound module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "notfound.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

@@ -1,0 +1,30 @@
+POS
+
+This needs to be set up to the the options for all types of kitchens/bars for all types of busiensses
+including charities
+mulitple different types of users
+Owners
+Managers
+Hr
+Workers
+etc
+
+
+For the owners area needs:
+An overview of all sites, as well as a dropdown selectable sites( so you can select an individual site
+each needs to have dashboard showing an overview off all orders( card and cash)
+wastage, stock, as well as stats ( for example charts etc) for easy visualisation
+all deliveries both ordered( coming) and delievered plus anything that was missing ( so it can be chased up etc and preferably tracked if possible.
+
+For bar / Kitchen /Till workers
+This needs to be logged into via a portal:
+Needs a training area, so the user/worker can be trained(earn the right sort of qualifications to do their job correctly), also needs to have access to the specs weather it be bar or kitchen or both ( dual trained), also to improve work flow a quiz section, with 3 different types ( easy, medium and hard ( timed), this way its more fun or gamification), as well as rota access
+
+For the Manager: 
+The ability to see all staff rotas, add/delete or create shifts, depending on whats needed, and their position( permissions), so HR and a General manager would be able to add new staff and trherefore creating new payroll(etc), area maangers would have access to everything they need to do their job, including creating job postings for the sites under there control, for a kitchen manager
+
+
+
+
+
+

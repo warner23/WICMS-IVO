@@ -1,0 +1,16 @@
+{
+  "name": "testing",
+  "slug": "testing",
+  "title": "Testing",
+  "author": "Warner Infinity",
+  "description": "Testing module for WICMS.",
+  "category": "System",
+  "icon": "",
+  "image": "",
+  "class_file": "testing.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

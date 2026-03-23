@@ -1,0 +1,16 @@
+{
+  "name": "google_map",
+  "slug": "google_map",
+  "title": "Google Map",
+  "type": "Maps",
+  "group": "Maps",
+  "author": "Warner Infinity",
+  "description": "Reusable Google Map element for the WICMS drag-and-drop module builder.",
+  "icon": "gp.png",
+  "image": "gp.png",
+  "class_file": "google_map.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

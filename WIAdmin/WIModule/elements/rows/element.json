@@ -1,0 +1,16 @@
+{
+  "name": "rows",
+  "slug": "rows",
+  "title": "Rows",
+  "type": "Layout",
+  "group": "Layout",
+  "author": "Warner Infinity",
+  "description": "Reusable Rows element for the WICMS drag-and-drop module builder.",
+  "icon": "drop_here.png",
+  "image": "drop_here.png",
+  "class_file": "rows.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

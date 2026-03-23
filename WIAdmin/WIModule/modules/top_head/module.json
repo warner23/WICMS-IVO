@@ -1,0 +1,16 @@
+{
+  "name": "top_head",
+  "slug": "top_head",
+  "title": "Top Head",
+  "author": "Warner Infinity",
+  "description": "Top Head module for WICMS.",
+  "category": "Navigation",
+  "icon": "top_head.PNG",
+  "image": "top_head.PNG",
+  "class_file": "top_head.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

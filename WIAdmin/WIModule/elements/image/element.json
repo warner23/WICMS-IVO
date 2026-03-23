@@ -1,0 +1,16 @@
+{
+  "name": "image",
+  "slug": "image",
+  "title": "Image",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Image element for the WICMS drag-and-drop module builder.",
+  "icon": "image.png",
+  "image": "image.png",
+  "class_file": "image.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

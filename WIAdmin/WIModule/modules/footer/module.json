@@ -1,0 +1,16 @@
+{
+  "name": "footer",
+  "slug": "footer",
+  "title": "Footer",
+  "author": "Warner Infinity",
+  "description": "Footer module for WICMS.",
+  "category": "Navigation",
+  "icon": "index.png",
+  "image": "index.png",
+  "class_file": "footer.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

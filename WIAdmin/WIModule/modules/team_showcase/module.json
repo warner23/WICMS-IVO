@@ -1,0 +1,16 @@
+{
+  "name": "team_showcase",
+  "slug": "team_showcase",
+  "title": "Team Showcase",
+  "author": "Warner Infinity",
+  "description": "Team Showcase module for WICMS.",
+  "category": "Layout",
+  "icon": "",
+  "image": "",
+  "class_file": "team_showcase.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

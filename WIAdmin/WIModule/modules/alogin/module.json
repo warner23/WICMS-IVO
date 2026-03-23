@@ -1,0 +1,16 @@
+{
+  "name": "alogin",
+  "slug": "alogin",
+  "title": "Alogin",
+  "author": "Warner Infinity",
+  "description": "Alogin module for WICMS.",
+  "category": "Account",
+  "icon": "login.png",
+  "image": "login.png",
+  "class_file": "alogin.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

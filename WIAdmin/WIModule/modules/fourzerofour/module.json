@@ -1,0 +1,16 @@
+{
+  "name": "fourzerofour",
+  "slug": "fourzerofour",
+  "title": "Fourzerofour",
+  "author": "Warner Infinity",
+  "description": "Fourzerofour module for WICMS.",
+  "category": "General",
+  "icon": "",
+  "image": "",
+  "class_file": "fourzerofour.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}

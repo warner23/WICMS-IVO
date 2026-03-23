@@ -1,0 +1,16 @@
+{
+  "name": "image_mosaic",
+  "slug": "image_mosaic",
+  "title": "Image Mosaic",
+  "type": "Media",
+  "group": "Media",
+  "author": "Warner Infinity",
+  "description": "Reusable Image Mosaic element for the WICMS drag-and-drop module builder.",
+  "icon": "",
+  "image": "",
+  "class_file": "image-mosaic.php",
+  "status": "disabled",
+  "powered": "power_off",
+  "version": "1.0.0",
+  "editable": true
+}

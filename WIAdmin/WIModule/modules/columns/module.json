@@ -1,0 +1,16 @@
+{
+  "name": "columns",
+  "slug": "columns",
+  "title": "Columns",
+  "author": "Warner Infinity",
+  "description": "Columns module for WICMS.",
+  "category": "Layout",
+  "icon": "drop_here.png",
+  "image": "drop_here.png",
+  "class_file": "columns.php",
+  "version": "1.0.0",
+  "status": "disabled",
+  "powered": "power_off",
+  "business_types": [],
+  "editable": true
+}
