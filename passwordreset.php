@@ -1,94 +1,49 @@
 <?php
+declare(strict_types=1);
 
-include "WICore/WIClass/WI.php";
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS
+| Project: WI Ecosystem
+| File: passwordreset.php
+| Location: /
+| Type: PHP Entry Page
+| Layer: Front Controller
+| Purpose Area: Password reset public route
+| Version: 2.0.0
+| Created: Legacy
+| Last Updated: 2026-06-21
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Backwards-compatible password-reset entry point. Replaces the legacy manual
+| HTML page with the canonical WIStartUp/WIModules flow while preserving the
+| original passwordreset.php URL.
+*/
 
-if (! isset($_GET['k'])) {
-    redirect('index.php');
+require_once __DIR__ . '/WICore/WIClass/WI.php';
+
+if (isset($_GET['key']) && !isset($_GET['k'])) {
+    $_GET['k'] = (string) $_GET['key'];
 }
 
-$valid = $validator->prKeyValid($_GET['k']);
+if (isset($_GET['k']) && !isset($_GET['key'])) {
+    $_GET['key'] = (string) $_GET['k'];
+}
 
-?>
-<!doctype html>
-<html lang="en"> 
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="<?php echo WEBSITE_NAME; ?>">
-        <meta name="author" content="Jules Warner">
-        
-        <title><?php echo WILang::get('password_reset'); ?> | EMA</title>
-        <link rel='stylesheet' href='WITheme/EMA/site/css/frameworks/bootstrap.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='WITheme/EMA/site/css/style.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='WITheme/EMA/site/css/vender/bootstrap.min.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='WITheme/EMA/site/css/style3.css' type='text/css' media='all' />
-        <script type="text/javascript" src="WITheme/EMA/site/js/frameworks/JQuery.js"></script>
-        <script type="text/javascript" src="WITheme/EMA/site/js/frameworks/bootstrap.js"></script>
+$page = 'passwordreset';
+$moduleName = 'reset_password';
 
-        <link rel="icon" type="image/png" href="WIAdmin/WIMedia/Img/favicon/wi_cms_logo.PNG"/>
-          <script type="text/javascript">
-            var $_lang = <?php echo WILang::all(); ?>;
-        </script> 
+$startup = new WIStartUp();
+$startup->boot($page);
+$startup->header($page);
 
-    </head>
-    <body>
-        <div class="container">
-            <div class="modal modal-visible" id="password-reset-modal">
-                <div class="modal-dialog" >
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3><?php echo WEBSITE_NAME; ?></h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="well">
-                                <?php if ($valid) : ?>
-                                    <form class="form-horizontal" id="password-reset-form">
-                                        <fieldset>
-                                            <div id="legend">
-                                                <legend class=""><?php echo WILang::get('password_reset'); ?></legend>
-                                            </div>
+$modules = new WIModules();
+$modules->getModMain($moduleName, $page);
 
-                                            <div class="control-group form-group">
-                                                <label class="control-label col-lg-4"  for="login-username">
-                                                    <?php echo WILang::get('new_password'); ?>
-                                                </label>
-                                                <div class="controls col-lg-8">
-                                                    <input type="password" id="password-reset-new-password"
-                                                           class="input-xlarge form-control" />
-                                                </div>
-                                            </div>
-
-                                            <div class="control-group  form-group">
-                                            <label class="control-label col-lg-4" for="password-reset-repeat-password"><?php echo WILang::get("repeat_password") ?> <span class="required">*</span></label>
-                                            <div class="controls col-lg-8">
-                                                <input type="password" id="password-reset-repeat-password" class="input-xlarge form-control">
-                                            </div>
-                                         </div>
-
-                                  
-                                            <div class="control-group form-group">
-                                                <div class="controls col-lg-offset-4 col-lg-8">
-                                                    <button id="btn-reset-pass" class="btn btn-success">
-                                                       <?php echo WILang::get('reset_password'); ?>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </form>
-                                <?php else : ?>
-                                    <h5 class="text-error text-center"><?php echo WILang::get('invalid_password_reset_key') ?></h5>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script type="text/javascript" src="WICore/WIJ/sha512.js"></script>
-        <script type="text/javascript" src="WICore/WIJ/WICore.js"></script>
-        <script type="text/javascript" src="WICore/WIJ/WIPasswordReset.js"></script>
-
-    </body>
-</html>
+$startup->footer();

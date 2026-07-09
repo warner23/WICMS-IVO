@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "label": "Example Workspace",
+      "link": "WIAdmin.php?page=example_plugin",
+      "top_level": true,
+      "standalone_workspace": true,
+      "show_when_enabled": true,
+      "sort": 100,
+      "icon": "fa fa-puzzle-piece"
+    }
+  ]
+}

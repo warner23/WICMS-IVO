@@ -1,0 +1,253 @@
+:root {
+    --wi-admin-login-bg: #070b16;
+    --wi-admin-login-panel: rgba(15, 23, 42, 0.94);
+    --wi-admin-login-border: rgba(148, 163, 184, 0.22);
+    --wi-admin-login-text: #f8fafc;
+    --wi-admin-login-muted: #94a3b8;
+    --wi-admin-login-soft: #dbeafe;
+    --wi-admin-login-accent: #22c55e;
+    --wi-admin-login-accent-2: #16a34a;
+    --wi-admin-login-danger: #fecaca;
+    --wi-admin-login-danger-bg: rgba(127, 29, 29, 0.35);
+    --wi-admin-login-danger-border: rgba(248, 113, 113, 0.34);
+    --wi-admin-login-success: #bbf7d0;
+    --wi-admin-login-success-bg: rgba(20, 83, 45, 0.35);
+    --wi-admin-login-success-border: rgba(74, 222, 128, 0.32);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+.wi-admin-login-body {
+    min-height: 100vh;
+    background: var(--wi-admin-login-bg);
+    color: var(--wi-admin-login-text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.wi-admin-login-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 34%),
+        linear-gradient(135deg, #070b16 0%, #101827 52%, #0b1220 100%);
+}
+
+.wi-admin-login-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--wi-admin-login-panel);
+    border: 1px solid var(--wi-admin-login-border);
+    border-radius: 26px;
+    padding: 36px 32px 30px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(18px);
+}
+
+.wi-admin-login-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 22px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--wi-admin-login-accent) 0%, var(--wi-admin-login-accent-2) 55%, #15803d 100%);
+    color: #052e16;
+    font-size: 25px;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    box-shadow: 0 18px 34px rgba(34, 197, 94, 0.24);
+}
+
+.wi-admin-login-header {
+    margin-bottom: 26px;
+    text-align: center;
+}
+
+.wi-admin-login-eyebrow {
+    margin: 0 0 8px;
+    color: #86efac;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.wi-admin-login-header h1 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 31px;
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -0.035em;
+}
+
+.wi-admin-login-header p {
+    margin: 0;
+    color: var(--wi-admin-login-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.wi-admin-login-group { margin-bottom: 18px; }
+
+.wi-admin-login-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--wi-admin-login-soft);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.wi-admin-login-input {
+    display: block;
+    width: 100%;
+    min-height: 54px;
+    padding: 0 16px;
+    border: 1px solid rgba(148, 163, 184, 0.36);
+    border-radius: 15px;
+    background: rgba(2, 6, 23, 0.72);
+    color: var(--wi-admin-login-text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+
+.wi-admin-login-password-wrap {
+    position: relative;
+}
+
+.wi-admin-login-password-wrap .wi-admin-login-input {
+    padding-right: 78px;
+}
+
+.wi-admin-login-password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 58px;
+    min-height: 38px;
+    border: 1px solid rgba(134, 239, 172, 0.34);
+    border-radius: 11px;
+    background: rgba(15, 23, 42, 0.86);
+    color: #86efac;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.wi-admin-login-password-toggle:hover,
+.wi-admin-login-password-toggle:focus {
+    border-color: rgba(134, 239, 172, 0.72);
+    background: rgba(20, 83, 45, 0.36);
+    outline: none;
+}
+
+.wi-admin-login-input:focus {
+    border-color: rgba(34, 197, 94, 0.86);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+    background: rgba(2, 6, 23, 0.94);
+}
+
+.wi-admin-login-input::placeholder { color: #64748b; }
+
+.wi-admin-login-input.wi-input-error {
+    border-color: rgba(248, 113, 113, 0.8);
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.11);
+}
+
+.wi-admin-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 54px;
+    margin-top: 4px;
+    border: 0;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--wi-admin-login-accent) 0%, var(--wi-admin-login-accent-2) 100%);
+    color: #052e16;
+    font-size: 15px;
+    font-weight: 950;
+    cursor: pointer;
+    box-shadow: 0 18px 34px rgba(34, 197, 94, 0.22);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.wi-admin-login-btn:hover,
+.wi-admin-login-btn:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 22px 42px rgba(34, 197, 94, 0.28);
+}
+
+.wi-admin-login-btn:disabled {
+    opacity: 0.68;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#aerror {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: var(--wi-admin-login-danger-bg);
+    border: 1px solid var(--wi-admin-login-danger-border);
+    color: var(--wi-admin-login-danger);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#aerror.is-success {
+    background: var(--wi-admin-login-success-bg);
+    border-color: var(--wi-admin-login-success-border);
+    color: var(--wi-admin-login-success);
+}
+
+.wi-admin-login-footer {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--wi-admin-login-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.wi-admin-login-footer a {
+    color: #86efac;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.wi-admin-login-footer a:hover,
+.wi-admin-login-footer a:focus { text-decoration: underline; }
+
+.wi-admin-login-footer span { margin: 0 7px; color: #475569; }
+
+@media (max-width: 575px) {
+    .wi-admin-login-shell {
+        padding: 18px 10px;
+        align-items: flex-start;
+    }
+
+    .wi-admin-login-card {
+        margin-top: 22px;
+        padding: 28px 20px 24px;
+        border-radius: 20px;
+    }
+
+    .wi-admin-login-header h1 { font-size: 27px; }
+    .wi-admin-login-input,
+    .wi-admin-login-btn { min-height: 56px; font-size: 16px; }
+}

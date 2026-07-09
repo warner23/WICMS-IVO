@@ -1,569 +1,430 @@
-$(document).ready(function(){
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WI Ecosystem
+| Project: WICMS / WICOS / WIKitchenCompli
+| File: WIMedia.js
+| Location: /root/WIAdmin/WICore/WIJ/WIMedia.js
+| Type: JavaScript Helper
+| Layer: Shared Admin UI Support
+| Purpose Area: Shared Media AJAX Foundation
+| Version: 1.2.0
+| Created: 2026-05-04
+| Last Updated: 2026-05-08
+| Status: WM-02 Production Refactor
+|--------------------------------------------------------------------------
+| Summary:
+| Shared WIMedia AJAX helper for site-wide media operations.
+| - Provides one reusable AJAX interface for upload, list, get, update, delete and restore
+| - Supports link/unlink/linked lookup plus attach/detach aliases for documents/evidence/users
+| - Supports view/download URL helpers
+| - Contains no page-specific, compliance-specific or database logic
+|--------------------------------------------------------------------------
+*/
 
-  $("img.img-media-library").click(function() {      
-    $(this).toggleClass("hover");
-    var id = $(".hover").attr("id");
+(function (window, document, $) {
+    'use strict';
 
-    if($(this).hasClass('favicon')){
-      WIMedia.changefavicon(id);
-    }else if($(this).hasClass('product')){
-      WIMedia.changeProduct(id);
-    }else{
-    WIMedia.change(id);
+    if (!$) {
+        if (window.console && window.console.error) {
+            window.console.error('WIMedia.js requires jQuery.');
+        }
+        return;
     }
 
-  });
+    var WIMedia = {
+        endpoint: window.WI_MEDIA_ENDPOINT || window.WI_AJAX_URL || 'WICore/WIAjax/WIMedia.php',
 
-  var 
-   mod               = $("#ModDragandDropHandler");
-   obj               = $("#dragandrophandler");
-   fav               = $("#Favidragandrophandler");
-   product           = $("#productdragandrophandler");  
-   team              = $("#teamdragandrophandler");
-   media             = $("#mediadragandrophandler");
-   floor               = $("#Floordragandrophandler");
+        actions: {
+            upload: 'media_upload',
+            uploadBulk: 'media_upload_bulk',
+            list: 'media_list',
+            get: 'media_get',
+            update: 'media_update',
+            delete: 'media_delete',
+            restore: 'media_restore',
+            link: 'media_link',
+            unlink: 'media_unlink',
+            linked: 'media_linked',
+            viewUrl: 'media_view_url',
+            downloadUrl: 'media_download_url',
+            accessCheck: 'media_access_check'
+        },
 
-   
-//ModHandler drop and drag object handling
-mod.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-mod.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-mod.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
-      dir   = $("#supload").attr("value");
-     //We need to send dropped files to Server
-     console.log(files,obj, dir, selector);
-     handleFileUpload(files,obj,dir, selector);
-});
+        aliases: {
+            'media.upload': 'media_upload',
+            'media.uploadBulk': 'media_upload_bulk',
+            'media.list': 'media_list',
+            'media.get': 'media_get',
+            'media.update': 'media_update',
+            'media.delete': 'media_delete',
+            'media.restore': 'media_restore',
+            'media.link': 'media_link',
+            'media.unlink': 'media_unlink',
+            'media.attach': 'media_link',
+            'media.detach': 'media_unlink',
+            'media.linked': 'media_linked',
+            'media.viewUrl': 'media_view_url',
+            'media.downloadUrl': 'media_download_url',
+            'media.accessCheck': 'media_access_check'
+        },
 
+        init: function () {
+            this.bindGlobalEvents();
+            this.mountAll(document);
+        },
 
-//OBJ drop and drag object handling
-obj.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-obj.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-obj.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
-  dir  = $("#supload").attr("value");
-     //We need to send dropped files to Server
-     console.log(files,obj, dir);
-     handleFileUpload(files,obj,dir);
-});
+        setEndpoint: function (endpoint) {
+            if (typeof endpoint === 'string' && endpoint.length > 0) {
+                this.endpoint = endpoint;
+            }
 
-//fav drop and drag object handling
-fav.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-fav.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-fav.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
-  dir  = $("#supload").attr("value");
-     //We need to send dropped files to Server
-     console.log(files,fav, dir);
-     handleFileUpload(files,fav,dir);
-});
+            return this;
+        },
 
-//floor drop and drag object handling
-floor.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-floor.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-floor.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
-  dir  = $("#supload").attr("value");
-     //We need to send dropped files to Server
-     console.log(files,fav, dir);
-     handleFileUpload(files,fav,dir);
-});
+        resolveAction: function (action) {
+            action = String(action || '').trim();
+            return this.aliases[action] || action;
+        },
 
-//media drop and drag object handling
-media.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-media.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-media.on('drop', function (e) 
-{
- 
- $(this).css('border', '2px dotted #0B85A1');
- e.preventDefault();
- var files = e.originalEvent.dataTransfer.files;
-dir  = $("#supload").attr("value");
- //We need to send dropped files to Server
- console.log(files,media, dir, selector);
- handleFileUpload(files,media,dir, selector);
-});
+        request: function (action, payload, options) {
+            var resolvedAction = this.resolveAction(action);
+            var ajaxOptions = options || {};
+            var data = payload || {};
+            var isFormData = (typeof FormData !== 'undefined' && data instanceof FormData);
 
-//product drop and drag object handling
-product.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-product.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-product.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
- dir  = $("#supload").attr("value");
- id = $("#product_id").attr("value");
- selector   = $("#selector").val();
-     //We need to send dropped files to Server
-     console.log(files,product,dir,selector,id);
-     handleFileUpload(files,product,dir,selector,id);
-});
+            if (isFormData) {
+                if (!data.has('action')) {
+                    data.append('action', resolvedAction);
+                }
+            } else {
+                data = $.extend({}, data, {
+                    action: resolvedAction
+                });
+            }
 
+            return $.ajax($.extend({
+                url: ajaxOptions.endpoint || this.endpoint,
+                method: ajaxOptions.method || 'POST',
+                data: data,
+                dataType: ajaxOptions.dataType || 'json',
+                processData: !isFormData,
+                contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8'
+            }, ajaxOptions));
+        },
 
-// train function
-team.on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    $(this).css('border', '2px solid #0B85A1');
-});
-team.on('dragover', function (e) 
-{
-     e.stopPropagation();
-     e.preventDefault();
-});
-team.on('drop', function (e) 
-{
- 
-     $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
-     var files = e.originalEvent.dataTransfer.files;
- dir  = $("#supload").attr("value");
-     //We need to send dropped files to Server
-     //selector   = $("#selector").val();
-     console.log(files,team, dir);
-     handleFileUpload(files,team,dir);
-});
+        upload: function (source, context) {
+            return this.request(this.actions.upload, this.buildUploadFormData(source, context || {}, false));
+        },
 
+        uploadBulk: function (source, context) {
+            return this.request(this.actions.uploadBulk, this.buildUploadFormData(source, context || {}, true));
+        },
 
+        uploadAndAttach: function (source, context) {
+            return this.uploadBulk(source, context || {});
+        },
 
-$(document).on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-});
-$(document).on('dragover', function (e) 
-{
-  e.stopPropagation();
-  e.preventDefault();
-  obj.css('border', '2px dotted #0B85A1');
-});
-$(document).on('drop', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-});
+        list: function (filters) {
+            return this.request(this.actions.list, filters || {});
+        },
 
-});
+        get: function (mediaId, context) {
+            return this.request(this.actions.get, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-var WIMedia = {};
+        update: function (mediaId, payload) {
+            return this.request(this.actions.update, $.extend({}, payload || {}, {media_id: mediaId}));
+        },
 
-WIMedia.media = function(){
-   $("#modal-header-edit-details").removeClass("hide").addClass("show");
-    $("#modal-header-media-details").removeClass("hide").addClass("show");
-}
+        delete: function (mediaId, context) {
+            return this.request(this.actions.delete, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-WIMedia.changeProductPic = function(id){
-  //console.log('clicked');
-  $("#modal-product-edit-details").removeClass("hide").addClass("show");
-  $("#product_id").attr('value', id);
-}
+        restore: function (mediaId, context) {
+            return this.request(this.actions.restore, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-// lang functions
+        link: function (mediaId, context) {
+            return this.request(this.actions.link, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-WIMedia.langmedia = function(){
-   $("#modal-lang-selection-details").removeClass("hide").addClass("show");
-    $("#modal-lang-media-details").removeClass("hide").addClass("show");
-}
+        attach: function (mediaId, context) {
+            return this.link(mediaId, context || {});
+        },
 
+        unlink: function (mediaId, context) {
+            return this.request(this.actions.unlink, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
+        detach: function (mediaId, context) {
+            return this.unlink(mediaId, context || {});
+        },
 
-WIMedia.Langupload = function(){
-   $("#modal-lang-selection-details").removeClass("show").addClass("hide");
-    $("#modal-lang-upload-details").removeClass("hide").addClass("show");
-}
+        linked: function (context) {
+            return this.request(this.actions.linked, context || {});
+        },
 
-WIMedia.pagemedia = function(){
-   $("#modal-page-edit-details").removeClass("hide").addClass("show");
-  $("#modal-page-media-details").removeClass("hide").addClass("show");
-}
+        viewUrl: function (mediaId, context) {
+            return this.request(this.actions.viewUrl, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-WIMedia.pagemediagallery = function(){
-   $("#modal-media-edit-details").removeClass("hide").addClass("show");
-     $("#modal-media-media-details").removeClass("hide").addClass("show");
-}
+        downloadUrl: function (mediaId, context) {
+            return this.request(this.actions.downloadUrl, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-WIMedia.changeiconPic = function(){
-   $("#modal-favicon-edit-details").removeClass("show").addClass("hide");
-     $("#modal-favicon-media-details").removeClass("hide").addClass("show");
-}
+        accessCheck: function (mediaId, context) {
+            return this.request(this.actions.accessCheck, $.extend({}, context || {}, {media_id: mediaId}));
+        },
 
-WIMedia.ProductMedia = function(){
-   $("#modal-product-media-details").removeClass("hide").addClass("show");
-    $("#modal-product-edit-details").removeClass("hide").addClass("hide");
-}
+        openView: function (mediaId, context) {
+            return this.viewUrl(mediaId, context || {}).done(function (response) {
+                var url = WIMedia.responseValue(response, 'url');
 
-WIMedia.ProductUpload = function(){
-   $("#modal-product-upload-details").removeClass("hide").addClass("show");
-    $("#modal-product-edit-details").removeClass("hide").addClass("hide");
-}
+                if (url) {
+                    window.open(url, '_blank', 'noopener');
+                }
+            });
+        },
 
-WIMedia.changeFloorPlanPic = function(){
-   $("#modal-floorplan-edit-details").removeClass("show").addClass("hide");
-     $("#modal-change-details").removeClass("hide").addClass("show");
-}
+        openDownload: function (mediaId, context) {
+            return this.downloadUrl(mediaId, context || {}).done(function (response) {
+                var url = WIMedia.responseValue(response, 'url');
 
-WIMedia.foodPics = function(){
-   $("#modal-media-details").removeClass("show").addClass("hide");
-     $("#modal-changePic-details").removeClass("hide").addClass("show");
-}
+                if (url) {
+                    window.open(url, '_blank', 'noopener');
+                }
+            });
+        },
 
-WIMedia.changeMenuPic = function(){
-     $("#modal-media-details").removeClass("hide").addClass("show");
-}
+        buildUploadFormData: function (source, context, bulk) {
+            var formData = (typeof FormData !== 'undefined' && source instanceof FormData) ? source : new FormData();
+            var files;
+            var i;
 
-WIMedia.changePic = function(ele){
-    console.log(ele);
-  $("#modal-"+ele+"-details").removeClass("hide").addClass("show");
-  $("#modal-add-details").removeClass("show").addClass("hide");
-  }
+            if (!(typeof FormData !== 'undefined' && source instanceof FormData)) {
+                files = this.normaliseFiles(source);
 
-WIMedia.changeEditPic = function(ele, selector, select){
-  console.log(ele);
-  $("#modal-"+ele+"-details").removeClass("hide").addClass("show");
-  console.log(selector);
-  if(selector == ""){
+                for (i = 0; i < files.length; i += 1) {
+                    formData.append(bulk ? 'files[]' : 'file', files[i]);
 
-  }else{
-      $("#"+select).attr('value',selector);
-  }
+                    if (!bulk) {
+                        break;
+                    }
+                }
+            }
 
+            this.appendContext(formData, context || {});
 
-  }
+            return formData;
+        },
 
-WIMedia.editPic = function(ele){
+        normaliseFiles: function (source) {
+            var raw = source;
+            var files = [];
+            var i;
 
-    var t = $(event.target).parent().parent().children();
-    t.closest('.view').attr('id','newpic');
-    $("#modal-"+ele+"-details").removeClass("hide").addClass("show");
-  }
+            if (source && source.jquery) {
+                raw = source.get(0);
+            }
 
-WIMedia.LangPics = function(){
+            if (raw && raw.files) {
+                raw = raw.files;
+            }
 
-    var t = $(event.target).parent().parent().children();
-    t.closest('.view').attr('id','newpic');
-    $("#modal-"+ele+"-details").removeClass("hide").addClass("show");
-  }
+            if (typeof File !== 'undefined' && raw instanceof File) {
+                return [raw];
+            }
 
-WIMedia.changefaviconPic = function(){
-$("#modal-favicon-edit-details").removeClass("hide").addClass("show");
-}
+            if (raw && typeof raw.length === 'number') {
+                for (i = 0; i < raw.length; i += 1) {
+                    if (raw[i]) {
+                        files.push(raw[i]);
+                    }
+                }
+            }
 
-WIMedia.changeFloorPlanPic = function(){
-$("#modal-floorplan-edit-details").removeClass("hide").addClass("show");
-}
+            return files;
+        },
 
+        appendContext: function (formData, context) {
+            $.each(context || {}, function (key, value) {
+                if (value !== undefined && value !== null && value !== '') {
+                    formData.append(key, value);
+                }
+            });
 
-  WIMedia.closeEdit = function(){
+            return formData;
+        },
 
-  	 $("#modal-header-edit-details").removeClass("show").addClass("hide");
-  }
+        responseItems: function (response) {
+            if (!response) {
+                return [];
+            }
 
-  WIMedia.closed = function(ele){
+            if ($.isArray(response.items)) {
+                return response.items;
+            }
 
-     $("#modal-"+ele+"-details").removeClass("show").addClass("hide");
-  }
+            if ($.isArray(response.media)) {
+                return response.media;
+            }
 
-    WIMedia.closeFEdit = function(){
+            if ($.isArray(response.data)) {
+                return response.data;
+            }
 
-     $("#modal-favicon-edit-details").removeClass("show").addClass("hide");
-  }
+            if (response.data && $.isArray(response.data.items)) {
+                return response.data.items;
+            }
 
-  WIMedia.closeMedia = function(){
-    $("#modal-header-media-details").removeClass("show").addClass("hide");
-  }
+            if (response.data && $.isArray(response.data.media)) {
+                return response.data.media;
+            }
 
-    WIMedia.closeFMedia = function(){
-    $("#modal-favicon-media-details").removeClass("show").addClass("hide");
-  }
+            if (response.data && $.isArray(response.data.data)) {
+                return response.data.data;
+            }
 
-  WIMedia.closeUpload = function(){
-    $("#modal-header-upload-details").removeClass("show").addClass("hide");
-  }
+            return [];
+        },
 
-    WIMedia.closeFUpload = function(){
-    $("#modal-favicon-upload-details").removeClass("show").addClass("hide");
-  }
+        responseValue: function (response, key) {
+            if (!response) {
+                return null;
+            }
 
-  WIMedia.change = function(img){
+            if (response[key] !== undefined) {
+                return response[key];
+            }
 
-  	$("#modal-header-media-details").removeClass("show").addClass("hide");
-    $("#modal-header-edit-details").removeClass("show").addClass("hide");
-    $(".cp").attr("src", "WIMedia/Img/header/"+img);
-    $(".cp").attr("value", img);
-  }
+            if (response.data && response.data[key] !== undefined) {
+                return response.data[key];
+            }
 
-  WIMedia.changefavicon = function(img){
+            return null;
+        },
 
-    $("#modal-favicon-media-details").removeClass("show").addClass("hide");
-    $("#modal-favicon-edit-details").removeClass("show").addClass("hide");
-    $(".cp").attr("src", "WIMedia/Img/favicon/"+img);
-    $(".cp").attr("value", img);
-  }
+        isSuccess: function (response) {
+            return !!(response && (response.success === true || response.status === 'success'));
+        },
 
-  WIMedia.changeFloorPlan = function(img){
+        escapeHtml: function (value) {
+            return $('<div>').text(value === undefined || value === null ? '' : String(value)).html();
+        },
 
-    $("#modal-floorplan-media-details").removeClass("show").addClass("hide");
-    $("#modal-floorplan-edit-details").removeClass("show").addClass("hide");
-    $(".cp").attr("src", "WIMedia/Img/pos/floor_plan/"+img);
-    $(".cp").attr("value", img);
-  }
+        readJsonAttribute: function (element, attribute, fallback) {
+            var value = $(element).attr(attribute);
 
-    WIMedia.changeProduct = function(img){
-        console.log(img);
-    $("#modal-product-media-details").removeClass("show").addClass("hide");
-    $("#modal-product-edit-details").removeClass("show").addClass("hide");
-    $(".cp").attr("src", "WIMedia/Img/pos/products/"+img);
-    $(".cp").attr("value", img);
-  }
+            if (!value) {
+                return fallback || {};
+            }
 
+            try {
+                return JSON.parse(value);
+            } catch (e) {
+                return fallback || {};
+            }
+        },
 
-  WIMedia.savePic = function(){
+        mountAll: function (scope) {
+            var self = this;
+            var root = scope ? $(scope) : $(document);
 
-  	var img = $(".cp").attr("value");
-  	//alert(img);
+            root.find('[data-wimedia-mount="upload"]').each(function () {
+                self.mountUpload(this);
+            });
 
-  	    $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-            action : "changePic",
-            img    : img
-                    },
-        success: function(result)
-        {
-            var res = JSON.parse(result);
-            if (res.status === "successful") {
-             $("#hresults").append(res.msg).fadeOut("slow");
-            
+            root.find('[data-wimedia-mount="attached-list"]').each(function () {
+                self.mountAttachedList(this);
+            });
+        },
+
+        mountUpload: function (target, options) {
+            var self = this;
+            var box = $(target);
+            var context = $.extend({}, options || {}, this.readJsonAttribute(box, 'data-wimedia-context', {}));
+
+            if (!box.length || box.data('wimedia-upload-mounted')) {
+                return;
+            }
+
+            box.data('wimedia-upload-mounted', true);
+
+            box.on('change.wimediaUploadMount', '[data-wimedia-upload-input]', function () {
+                var input = this;
+                var bulk = $(input).prop('multiple') === true;
+                var status = box.find('[data-wimedia-upload-status]');
+
+                status.text('Uploading...');
+
+                (bulk ? self.uploadBulk(input, context) : self.upload(input, context))
+                    .done(function (response) {
+                        status.text(response.message || 'Upload complete.');
+                        box.trigger('wimedia:uploaded', [response]);
+                    })
+                    .fail(function () {
+                        status.text('Upload failed.');
+                    });
+            });
+        },
+
+        mountAttachedList: function (target, options) {
+            var self = this;
+            var box = $(target);
+            var context = $.extend({}, options || {}, this.readJsonAttribute(box, 'data-wimedia-context', {}));
+
+            if (!box.length) {
+                return;
+            }
+
+            self.linked(context).done(function (response) {
+                var rows = self.responseItems(response);
+
+                if (!rows.length) {
+                    box.html('<p class="wi-media-empty">No media attached.</p>');
+                    return;
+                }
+
+                box.html(rows.map(function (item) {
+                    var id = item.id || item.media_id || '';
+                    var title = item.title || item.original_name || item.file_name || ('Media #' + id);
+
+                    return '<article class="wi-media-attached-card" data-wimedia-attached-id="' + self.escapeHtml(id) + '">' +
+                        '<strong>' + self.escapeHtml(title) + '</strong>' +
+                        '<span>' + self.escapeHtml(item.media_type || 'file') + '</span>' +
+                        '<button type="button" data-wimedia-view="' + self.escapeHtml(id) + '">View</button>' +
+                        '<button type="button" data-wimedia-download="' + self.escapeHtml(id) + '">Download</button>' +
+                    '</article>';
+                }).join(''));
+            });
+        },
+
+        bindGlobalEvents: function () {
+            var self = this;
+
+            $(document)
+                .off('click.wimediaGlobalView')
+                .on('click.wimediaGlobalView', '[data-wimedia-view]', function (event) {
+                    event.preventDefault();
+                    self.openView($(this).attr('data-wimedia-view'), self.readJsonAttribute(this, 'data-wimedia-context', {}));
+                });
+
+            $(document)
+                .off('click.wimediaGlobalDownload')
+                .on('click.wimediaGlobalDownload', '[data-wimedia-download]', function (event) {
+                    event.preventDefault();
+                    self.openDownload($(this).attr('data-wimedia-download'), self.readJsonAttribute(this, 'data-wimedia-context', {}));
+                });
         }
-    }
+    };
+
+    window.WIMedia = WIMedia;
+
+    $(function () {
+        window.WIMedia.init();
     });
-  }
-
-    WIMedia.savefaviconPic = function(){
-
-    var img = $(".cp").attr("value");
-    //alert(img);
-      console.log(img);
-        $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-            action : "changefaviconPic",
-            img    : img
-                    },
-        success: function(result)
-        {
-            var res = JSON.parse(result);
-            if (res.status === "successful") {
-             $("#favresults").append(res.msg).fadeOut(5000);
-            
-        }
-    }
-    });
-  }
-
-      WIMedia.saveFloorPlanPic = function(){
-
-    var img = $(".cp").attr("value");
-    //alert(img);
-      console.log(img);
-        $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-            action : "changeFloorPlanPic",
-            img    : img
-                    },
-        success: function(result)
-        {
-            var res = JSON.parse(result);
-            if (res.status === "successful") {
-             $("#floorresults").append(res.msg).fadeOut(5000);
-            
-        }
-    }
-    });
-  }
-
-
-  WIMedia.upload = function(){
-  	  	     $("#modal-header-edit-details").removeClass("show").addClass("hide");
-  	  	$("#modal-header-upload-details").removeClass("hide").addClass("show");
-  }
-
-    WIMedia.Langupload = function(){
-    $("#modal-lang-selection-details").removeClass("show").addClass("hide");
-        $("#modal-lang-upload-details").removeClass("hide").addClass("show");
-  }
-
-    WIMedia.pageupload = function(){
-             $("#modal-page-edit-details").removeClass("show").addClass("hide");
-        $("#modal-page-upload-details").removeClass("hide").addClass("show");
-  }
-
-      WIMedia.PageMediaUploadPics = function(){
-        $("#modal-media-edit-details").removeClass("show").addClass("hide");
-        $("#modal-media-upload-details").removeClass("hide").addClass("show");;
-  }
-
-  WIMedia.PagePics = function(){
-        $("#modal-media-edit-details").removeClass("show").addClass("hide");
-        $("#modal-media-media-details").removeClass("hide").addClass("show");;
-  }
-
-
-  WIMedia.PageUploadPics = function(){
-        $("#modal-media-edit-details").removeClass("show").addClass("hide");
-        $("#modal-media-upload-details").removeClass("hide").addClass("show");;
-  }
-
-
-  WIMedia.PageMediaPics = function(){
-   $("#modal-media-edit-details").removeClass("hide").addClass("show");
-     $("#modal-media-media-details").removeClass("hide").addClass("show");
-}
-
-    WIMedia.faviconupload = function(){
-             $("#modal-favicon-edit-details").removeClass("show").addClass("hide");
-        $("#modal-favicon-upload-details").removeClass("hide").addClass("show");
-  }
-
-  WIMedia.floorplanupload = function(){
-             $("#modal-floorplan-edit-details").removeClass("show").addClass("hide");
-        $("#modal-floorplan-upload-details").removeClass("hide").addClass("show");
-  }
-
-  
-    WIMedia.ProductUpload = function(){
-             $("#modal-product-edit-details").removeClass("show").addClass("hide");
-        $("#modal-product-upload-details").removeClass("hide").addClass("show");
-  }
-
-    WIMedia.foodPicsupload = function(){
-             $("#modal-food-details").removeClass("show").addClass("hide");
-        $("#modal-food-upload-details").removeClass("hide").addClass("show");
-  }
-
-
-  WIMedia.ImageMedia = function(){
-   // e.preventDefault();
-  var files = files;
-  var obj = $("#manmed");
- 
-     //We need to send dropped files to Server
-     handleFileUpload(files,obj);
-
-
-  }
-
-  WIMedia.Folder = function(folder){
-    
-     $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-            action : "folder",
-            folder : folder
-                    },
-        success: function(result)
-        {
-          $("#images").html(result);
-            
-        }
-    });
-  }
-
-  WIMedia.goback= function(){
-
-         $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-            action : "back",
-                    },
-        success: function(result)
-        {
-          $("#images").html(result);
-            
-        }
-    });
-  }
-
-WIMedia.addphoto = function()
-{
-  $("#modal-photo-details").removeClass("hide").addClass("show");
-}
+})(window, document, window.jQuery);

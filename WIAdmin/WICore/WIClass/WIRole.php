@@ -1,46 +1,86 @@
 <?php
-#[\AllowDynamicProperties]
-/**
- * WIRole Class
- * Rewritten for:
- * - wi_user_roles
- * - wi_members.user_role
- * - wi_role_permissions
- * - wi_permissions
- */
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| Class: WIRole
+| File: WIRole.php
+| Location: /WIAdmin/WICore/WIClass/WIRole.php
+| Type: Role / Permission Service
+| Layer: Shared Core
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Purpose
+|--------------------------------------------------------------------------
+| Shared role and permission administration service.
+|
+| Notes:
+| - Uses WIdb only
+| - Preserves existing public method names for compatibility
+| - Keeps core/system roles protected from accidental deletion
+|--------------------------------------------------------------------------
+*/
 
 class WIRole
 {
-    protected $WIdb;
-    protected $validator;
+    protected WIdb $WIdb;
+    protected ?object $validator = null;
 
     public function __construct()
     {
         $this->WIdb = WIdb::getInstance();
-        $this->validator = new WIValidator();
+
+        if (class_exists('WIValidator')) {
+            $this->validator = new WIValidator();
+        }
     }
 
     public function getRoles(): array
     {
-        return $this->WIdb->bindfree(
-            "SELECT r.`role_id`, r.`role`,
-                    (
-                        SELECT COUNT(*)
-                        FROM `wi_members` m
-                        WHERE m.`user_role` = r.`role_id`
-                    ) AS users_count,
-                    (
-                        SELECT COUNT(*)
-                        FROM `wi_role_permissions` rp
-                        WHERE rp.`role_id` = r.`role_id`
-                    ) AS permissions_count
-             FROM `wi_user_roles` r
-             ORDER BY r.`role_id` ASC"
-        );
+        if (!$this->WIdb->tableExists('wi_user_roles')) {
+            return [];
+        }
+
+        $sql = "SELECT r.`role_id`,
+                       r.`role`,
+                       (
+                           SELECT COUNT(*)
+                           FROM `wi_members` m
+                           WHERE m.`user_role` = r.`role_id`
+                       ) AS users_count";
+
+        if ($this->WIdb->tableExists('wi_role_permissions')) {
+            $sql .= ",
+                       (
+                           SELECT COUNT(*)
+                           FROM `wi_role_permissions` rp
+                           WHERE rp.`role_id` = r.`role_id`
+                       ) AS permissions_count";
+        } else {
+            $sql .= ", 0 AS permissions_count";
+        }
+
+        $sql .= "
+                FROM `wi_user_roles` r
+                ORDER BY r.`role_id` ASC";
+
+        return $this->WIdb->bindfree($sql);
     }
 
     public function getRoleById(int $roleId): ?array
     {
+        if ($roleId <= 0 || !$this->WIdb->tableExists('wi_user_roles')) {
+            return null;
+        }
+
         $result = $this->WIdb->select(
             "SELECT `role_id`, `role`
              FROM `wi_user_roles`
@@ -49,16 +89,26 @@ class WIRole
             ['role_id' => $roleId]
         );
 
-        return count($result) > 0 ? $result[0] : null;
+        return $result[0] ?? null;
     }
 
     public function roleExists(string $roleName, int $excludeId = 0): bool
     {
+        if (!$this->WIdb->tableExists('wi_user_roles')) {
+            return false;
+        }
+
+        $roleName = strtolower(trim($roleName));
+
+        if ($roleName === '') {
+            return false;
+        }
+
         $sql = "SELECT `role_id`
                 FROM `wi_user_roles`
                 WHERE LOWER(`role`) = :role";
 
-        $params = ['role' => strtolower(trim($roleName))];
+        $params = ['role' => $roleName];
 
         if ($excludeId > 0) {
             $sql .= " AND `role_id` != :role_id";
@@ -69,13 +119,20 @@ class WIRole
 
         $result = $this->WIdb->select($sql, $params);
 
-        return count($result) > 0;
+        return $result !== [];
     }
 
     public function saveRole(array $data): array
     {
-        $roleId = isset($data['role_id']) ? (int)$data['role_id'] : 0;
-        $role   = trim((string)($data['role'] ?? ''));
+        if (!$this->WIdb->tableExists('wi_user_roles')) {
+            return [
+                'status' => 'error',
+                'msg'    => 'Roles table is not available.',
+            ];
+        }
+
+        $roleId = isset($data['role_id']) ? (int) $data['role_id'] : 0;
+        $role   = trim((string) ($data['role'] ?? ''));
 
         $errors = [];
 
@@ -87,10 +144,10 @@ class WIRole
             $errors[] = ['id' => 'role-name', 'msg' => 'Role already exists.'];
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             return [
                 'status' => 'error',
-                'errors' => $errors
+                'errors' => $errors,
             ];
         }
 
@@ -102,20 +159,30 @@ class WIRole
                 ['role_id' => $roleId]
             );
 
+            $this->logRoleEvent('Updated role', [
+                'role_id'   => $roleId,
+                'role_name' => $role,
+            ]);
+
             return [
                 'status' => 'success',
-                'msg'    => 'Role updated successfully.'
+                'msg'    => 'Role updated successfully.',
             ];
         }
 
         $this->WIdb->insert('wi_user_roles', ['role' => $role]);
-        $newId = $this->WIdb->lastInsertId();
+        $newId = (int) $this->WIdb->lastInsertId();
+
+        $this->logRoleEvent('Created role', [
+            'role_id'   => $newId,
+            'role_name' => $role,
+        ]);
 
         return [
             'status'   => 'success',
             'msg'      => 'Role created successfully.',
             'roleId'   => $newId,
-            'roleName' => $role
+            'roleName' => $role,
         ];
     }
 
@@ -124,37 +191,47 @@ class WIRole
         if ($roleId <= 0) {
             return [
                 'status' => 'error',
-                'msg'    => 'Invalid role id.'
+                'msg'    => 'Invalid role id.',
             ];
         }
 
-        /* preserve current core-role behaviour */
+        if (!$this->WIdb->tableExists('wi_user_roles')) {
+            return [
+                'status' => 'error',
+                'msg'    => 'Roles table is not available.',
+            ];
+        }
+
         if (in_array($roleId, [1, 2, 3], true)) {
             return [
                 'status' => 'error',
-                'msg'    => 'This system role cannot be deleted.'
+                'msg'    => 'This system role cannot be deleted.',
             ];
         }
 
-        $inUse = $this->WIdb->select(
-            "SELECT COUNT(*) AS total
-             FROM `wi_members`
-             WHERE `user_role` = :role_id",
-            ['role_id' => $roleId]
-        );
+        if ($this->WIdb->tableExists('wi_members')) {
+            $inUse = $this->WIdb->select(
+                "SELECT COUNT(*) AS total
+                 FROM `wi_members`
+                 WHERE `user_role` = :role_id",
+                ['role_id' => $roleId]
+            );
 
-        if (!empty($inUse) && (int)$inUse[0]['total'] > 0) {
-            return [
-                'status' => 'error',
-                'msg'    => 'This role is assigned to one or more users. Reassign users first.'
-            ];
+            if ((int) ($inUse[0]['total'] ?? 0) > 0) {
+                return [
+                    'status' => 'error',
+                    'msg'    => 'This role is assigned to one or more users. Reassign users first.',
+                ];
+            }
         }
 
-        $this->WIdb->delete(
-            'wi_role_permissions',
-            '`role_id` = :role_id',
-            ['role_id' => $roleId]
-        );
+        if ($this->WIdb->tableExists('wi_role_permissions')) {
+            $this->WIdb->Fulldelete(
+                'wi_role_permissions',
+                '`role_id` = :role_id',
+                ['role_id' => $roleId]
+            );
+        }
 
         $this->WIdb->delete(
             'wi_user_roles',
@@ -162,20 +239,30 @@ class WIRole
             ['role_id' => $roleId]
         );
 
+        $this->logRoleEvent('Deleted role', ['role_id' => $roleId]);
+
         return [
             'status' => 'success',
-            'msg'    => 'Role deleted successfully.'
+            'msg'    => 'Role deleted successfully.',
         ];
     }
 
     public function getAllPermissions(): array
     {
-        return $this->WIdb->bindfree(
-            "SELECT `id`, `name`, `code`, `group_name`, `description`, `is_active`
-             FROM `wi_permissions`
-             WHERE `is_active` = 1
-             ORDER BY `group_name` ASC, `name` ASC"
-        );
+        if (!$this->WIdb->tableExists('wi_permissions')) {
+            return [];
+        }
+
+        $sql = "SELECT `id`, `name`, `code`, `group_name`, `description`, `is_active`
+                FROM `wi_permissions`";
+
+        if ($this->WIdb->columnExists('wi_permissions', 'is_active')) {
+            $sql .= " WHERE `is_active` = 1";
+        }
+
+        $sql .= " ORDER BY `group_name` ASC, `name` ASC";
+
+        return $this->WIdb->bindfree($sql);
     }
 
     public function getGroupedPermissions(): array
@@ -184,7 +271,7 @@ class WIRole
         $grouped = [];
 
         foreach ($permissions as $permission) {
-            $group = !empty($permission['group_name']) ? $permission['group_name'] : 'General';
+            $group = !empty($permission['group_name']) ? (string) $permission['group_name'] : 'General';
 
             if (!isset($grouped[$group])) {
                 $grouped[$group] = [];
@@ -198,6 +285,10 @@ class WIRole
 
     public function getRolePermissionIds(int $roleId): array
     {
+        if ($roleId <= 0 || !$this->WIdb->tableExists('wi_role_permissions')) {
+            return [];
+        }
+
         $rows = $this->WIdb->select(
             "SELECT `permission_id`
              FROM `wi_role_permissions`
@@ -208,7 +299,7 @@ class WIRole
         $ids = [];
 
         foreach ($rows as $row) {
-            $ids[] = (int)$row['permission_id'];
+            $ids[] = (int) ($row['permission_id'] ?? 0);
         }
 
         return $ids;
@@ -219,27 +310,36 @@ class WIRole
         if ($roleId <= 0) {
             return [
                 'status' => 'error',
-                'msg'    => 'Invalid role id.'
+                'msg'    => 'Invalid role id.',
+            ];
+        }
+
+        if (!$this->WIdb->tableExists('wi_role_permissions')) {
+            return [
+                'status' => 'error',
+                'msg'    => 'Role permissions table is not available.',
             ];
         }
 
         $role = $this->getRoleById($roleId);
-        if (!$role) {
+
+        if ($role === null) {
             return [
                 'status' => 'error',
-                'msg'    => 'Role not found.'
+                'msg'    => 'Role not found.',
             ];
         }
 
         $cleanIds = [];
+
         foreach ($permissionIds as $permissionId) {
-            $permissionId = (int)$permissionId;
+            $permissionId = (int) $permissionId;
             if ($permissionId > 0) {
                 $cleanIds[$permissionId] = $permissionId;
             }
         }
 
-        $this->WIdb->delete(
+        $this->WIdb->Fulldelete(
             'wi_role_permissions',
             '`role_id` = :role_id',
             ['role_id' => $roleId]
@@ -248,13 +348,25 @@ class WIRole
         foreach ($cleanIds as $permissionId) {
             $this->WIdb->insert('wi_role_permissions', [
                 'role_id'       => $roleId,
-                'permission_id' => $permissionId
+                'permission_id' => $permissionId,
             ]);
         }
 
+        $this->logRoleEvent('Updated role permissions', [
+            'role_id'        => $roleId,
+            'permission_ids' => array_values($cleanIds),
+        ]);
+
         return [
             'status' => 'success',
-            'msg'    => 'Role permissions updated successfully.'
+            'msg'    => 'Role permissions updated successfully.',
         ];
+    }
+
+    private function logRoleEvent(string $message, array $context = []): void
+    {
+        if (class_exists('WILogger')) {
+            WILogger::info($message, $context, 'roles');
+        }
     }
 }

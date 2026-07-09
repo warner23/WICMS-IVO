@@ -1,54 +1,47 @@
 <?php
-        $page = "userpayments";
+declare(strict_types=1);
 
-        include_once "WIInc/WI_StartUp.php";
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIProfile
+| Project: WI Ecosystem
+| File: userpayments.php
+| Location: /userpayments.php
+| Type: Front-Side Page Entrypoint
+| Layer: Root Modular Route
+| Purpose Area: WIProfile/WIMembers root-aligned modular page
+| Version: 1.0.0
+| Created: 2026-06-11
+| Last Updated: 2026-06-11
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Thin root-style page route. The page name is database-mapped through wi_page,
+| then rendered by the canonical WICMS startup and module loader. CSS, JS, meta
+| tags and module ownership remain database/module driven.
+*/
 
-        $ref = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "";
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+ini_set('log_errors', '1');
 
-        $agent = $_SERVER["HTTP_USER_AGENT"];
-        $ip = $_SERVER["REMOTE_ADDR"];
+require_once 'WICore/WIClass/WI.php';
 
-        $tracking_page = $_SERVER["SCRIPT_NAME"];
+$page = 'userpayments';
 
-        $country = $maint->ip_info($ip, "country");
-        $location = $maint->ip_info($ip, "location");
-        $city = $location["city"];
-        if($country === null){
-          $country = "localhost";
-        }
+$startup = new WIStartUp();
 
-        $maint->visitors_log($page, $ip, $country, $ref, $agent, $tracking_page, $city);
+$startup->boot($page);
+$startup->header($page);
 
-        $panelPower = $web->pageModPower($page, "panel");
+$modules = new WIModules();
+$moduleName = $modules->getModuleNameByPage($page) ?? 'notfound';
+$modules->getModMain($moduleName, $page);
 
-        $Panel = $web->PageMod($page, "panel");
-        if ($panelPower > 0) {
-          $mod->getMod($Panel);
-        }
-
-        $topPower = $web->pageModPower($page, "top_head");
-        $top_head = $web->PageMod($page, "top_head");
-        if ($topPower > 0) {
-          $mod->getMod($top_head);
-        }
-
-        $headerPower = $web->pageModPower($page, "header");
-        if ($headerPower > 0) {
-        $web->MainHeader();
-        }
-
-        $web->MainMenu();
-        
-        $contents = $web->pageModPower($page, "contents");
-        $mod->getModMain($contents, $page, $contents);
-
-        $footerPower = $web->pageModPower($page, "footer");
-
-        if ($footerPower >0) {
-        $web->footer();
-        }
-        $web->backendJs();
-        ?>
-        </body>
-        </html>
-        
+$startup->footer();

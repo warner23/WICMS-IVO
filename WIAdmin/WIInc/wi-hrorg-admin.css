@@ -1,0 +1,415 @@
+/*
+|--------------------------------------------------------------------------
+| WI HR / Org Admin Layout
+|--------------------------------------------------------------------------
+| File: /WIAdmin/WIInc/css/wi-hrorg-admin.css
+| Purpose:
+| - Make WIOrg/WIHR tabs full-width like the other modern plugin tabs.
+| - Keep HR/Org tables dark/black-only so they match the admin design.
+| Scope:
+| - Scoped under .wi-hrorg-page to avoid changing other modules.
+|--------------------------------------------------------------------------
+*/
+
+.wi-hrorg-page .wi-comp-admin-well {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+.wi-hrorg-page .wi-hrorg-system-note {
+    background: #050b1a !important;
+    border: 1px solid rgba(96, 165, 250, 0.24) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.wi-hrorg-page .wi-hrorg-system-note span {
+    color: #cbd5e1 !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Full-width tabs
+|--------------------------------------------------------------------------
+*/
+
+.wi-hrorg-page .wi-hrorg-tabs,
+.wi-hrorg-page .wi-comp-admin-tabs {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav,
+.wi-hrorg-page .ui-tabs .ui-tabs-nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 0 18px 0 !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    clear: both !important;
+    background: #050b1a !important;
+    border: 1px solid rgba(96, 165, 250, 0.22) !important;
+    border-radius: 18px !important;
+    list-style: none !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li,
+.wi-hrorg-page .ui-tabs .ui-tabs-nav li {
+    float: none !important;
+    flex: 1 1 145px !important;
+    min-width: 130px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    list-style: none !important;
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li > a,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li > a,
+.wi-hrorg-page .ui-tabs .ui-tabs-nav li a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    padding: 10px 12px !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(96, 165, 250, 0.22) !important;
+    background: #071126 !important;
+    color: #dbeafe !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li > a:hover,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li > a:hover,
+.wi-hrorg-page .ui-tabs .ui-tabs-nav li a:hover {
+    transform: translateY(-1px);
+    background: #0b1b3a !important;
+    border-color: rgba(96, 165, 250, 0.48) !important;
+    color: #ffffff !important;
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li.ui-tabs-active > a,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li.ui-tabs-active > a,
+.wi-hrorg-page .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
+    background: #2563eb !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.28);
+}
+
+.wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-panel,
+.wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-panel,
+.wi-hrorg-page .ui-tabs .ui-tabs-panel {
+    display: block;
+    width: 100% !important;
+    max-width: none !important;
+    clear: both !important;
+    box-sizing: border-box;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Dark cards / tables
+|--------------------------------------------------------------------------
+*/
+
+.wi-hrorg-page .wi-comp-card,
+.wi-hrorg-page .box,
+.wi-hrorg-page .panel,
+.wi-hrorg-page .card {
+    background: #050b1a !important;
+    border: 1px solid rgba(96, 165, 250, 0.18) !important;
+    color: #f8fafc !important;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+.wi-hrorg-page .wi-comp-card *,
+.wi-hrorg-page .box *,
+.wi-hrorg-page .panel *,
+.wi-hrorg-page .card * {
+    color: inherit;
+}
+
+.wi-hrorg-page table,
+.wi-hrorg-page .table,
+.wi-hrorg-page .table-bordered,
+.wi-hrorg-page .table-striped,
+.wi-hrorg-page .dataTable {
+    width: 100%;
+    background: #020617 !important;
+    color: #f8fafc !important;
+    border-color: rgba(96, 165, 250, 0.18) !important;
+}
+
+.wi-hrorg-page table thead,
+.wi-hrorg-page .table thead {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.wi-hrorg-page table th,
+.wi-hrorg-page table td,
+.wi-hrorg-page .table th,
+.wi-hrorg-page .table td {
+    background: #020617 !important;
+    color: #f8fafc !important;
+    border-color: rgba(96, 165, 250, 0.16) !important;
+}
+
+.wi-hrorg-page table tbody tr,
+.wi-hrorg-page .table tbody tr {
+    background: #020617 !important;
+}
+
+.wi-hrorg-page table tbody tr:nth-child(even),
+.wi-hrorg-page .table-striped tbody tr:nth-child(even),
+.wi-hrorg-page .table-striped > tbody > tr:nth-of-type(odd) {
+    background: #050b1a !important;
+}
+
+.wi-hrorg-page table tbody tr:hover,
+.wi-hrorg-page .table tbody tr:hover {
+    background: #071126 !important;
+}
+
+.wi-hrorg-page table tbody tr:hover td,
+.wi-hrorg-page .table tbody tr:hover td {
+    background: #071126 !important;
+    color: #ffffff !important;
+}
+
+.wi-hrorg-page input,
+.wi-hrorg-page select,
+.wi-hrorg-page textarea,
+.wi-hrorg-page .form-control {
+    background: #071126 !important;
+    border: 1px solid rgba(96, 165, 250, 0.24) !important;
+    color: #f8fafc !important;
+}
+
+.wi-hrorg-page input::placeholder,
+.wi-hrorg-page textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+.wi-hrorg-page label,
+.wi-hrorg-page .control-label {
+    color: #e2e8f0 !important;
+}
+
+@media (max-width: 900px) {
+    .wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li,
+    .wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li,
+    .wi-hrorg-page .ui-tabs .ui-tabs-nav li {
+        flex-basis: calc(50% - 8px) !important;
+        min-width: 160px !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .wi-hrorg-page .wi-hrorg-tabs > .ui-tabs-nav > li,
+    .wi-hrorg-page .wi-comp-admin-tabs > .ui-tabs-nav > li,
+    .wi-hrorg-page .ui-tabs .ui-tabs-nav li {
+        flex-basis: 100% !important;
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| HRORG-R3 New Business WIModal additions
+|--------------------------------------------------------------------------
+*/
+
+.wi-hrorg-panel-head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.wi-hrorg-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.wi-hrorg-primary-action {
+    border-radius: 999px !important;
+    font-weight: 900 !important;
+    padding: 10px 16px !important;
+}
+
+.wi-hrorg-context-strip {
+    align-items: center;
+    background: #020617;
+    border: 1px solid rgba(96, 165, 250, 0.18);
+    border-radius: 16px;
+    color: #f8fafc;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin: 0 0 18px 0;
+    padding: 13px 15px;
+}
+
+.wi-hrorg-context-strip strong,
+.wi-hrorg-context-strip span {
+    display: block;
+}
+
+.wi-hrorg-context-strip span {
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.wi-hrorg-context-link {
+    background: rgba(37, 99, 235, 0.18);
+    border: 1px solid rgba(96, 165, 250, 0.45);
+    border-radius: 999px;
+    color: #dbeafe !important;
+    font-weight: 900;
+    padding: 8px 12px;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.wi-hrorg-message {
+    border-radius: 12px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    padding: 11px 13px;
+}
+
+.wi-hrorg-message--success {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #bbf7d0;
+}
+
+.wi-hrorg-message--error {
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fecaca;
+}
+
+.wi-hrorg-message--info {
+    background: rgba(96, 165, 250, 0.14);
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    color: #dbeafe;
+}
+
+.wi-hrorg-business-modal .wi-modal-content {
+    background: #050b1a;
+}
+
+.wi-hrorg-modal-note {
+    background: rgba(37, 99, 235, 0.10);
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    border-radius: 14px;
+    color: #f8fafc;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+}
+
+.wi-hrorg-modal-note strong,
+.wi-hrorg-modal-note span {
+    display: block;
+}
+
+.wi-hrorg-modal-note span {
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.wi-hrorg-modal-grid {
+    display: grid;
+    gap: 13px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wi-hrorg-modal-flags {
+    background: rgba(2, 6, 23, 0.48);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 16px;
+    margin-top: 16px;
+    padding: 14px;
+}
+
+.wi-hrorg-modal-flags h4 {
+    color: #ffffff;
+    font-weight: 900;
+    margin: 0 0 12px 0;
+}
+
+.wi-hrorg-modal-check-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wi-hrorg-check {
+    align-items: center;
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 12px;
+    color: #e2e8f0 !important;
+    cursor: pointer;
+    display: flex;
+    gap: 9px;
+    padding: 9px 10px;
+}
+
+.wi-hrorg-check input {
+    margin: 0 !important;
+    width: auto !important;
+}
+
+@media (max-width: 760px) {
+    .wi-hrorg-panel-head,
+    .wi-hrorg-context-strip {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .wi-hrorg-panel-actions {
+        justify-content: flex-start;
+    }
+
+    .wi-hrorg-modal-grid,
+    .wi-hrorg-modal-check-grid {
+        grid-template-columns: 1fr;
+    }
+}

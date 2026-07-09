@@ -1,279 +1,97 @@
 <?php
-
 declare(strict_types=1);
+
+/**
+ * FILE:
+ * /WIAdmin/WICore/WIAjax/WIMedia.php
+ *
+ * Written By: Jules Warner
+ * Company: WILabs
+ * Product: WICMS / WICOS / WIKitchenCompli
+ * Type: Legacy AJAX Compatibility Wrapper
+ * Layer: Compatibility
+ * Version: 2.0.0
+ * Status: Compatibility
+ *
+ * Purpose:
+ * - Keeps old direct WIMedia AJAX URL working.
+ * - Routes all media actions through WIAjaxMedia.
+ */
 
 header('Content-Type: application/json; charset=utf-8');
 
+$root = dirname(__DIR__);
+
+require_once $root . '/WIClass/WI.php';
+require_once $root . '/WIClass/WIMedia.php';
+require_once $root . '/WIClass/WIAjaxMedia.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if (class_exists('WISession')) {
+        WISession::startSession();
+    } else {
+        session_start();
+    }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Core Includes
-|--------------------------------------------------------------------------
-| Keep structure as-is.
-| Adjust include lines only if your exact startup/db loader differs.
-*/
-require_once dirname(__DIR__) . '/WIInc/WI_Start_Up.php';
-require_once dirname(__DIR__) . '/WIClass/WIMedia.php';
-
-/*
-|--------------------------------------------------------------------------
-| Database Connection
-|--------------------------------------------------------------------------
-*/
-global $WIdb;
-
-if (!isset($WIdb) || !($WIdb instanceof mysqli)) {
-    echo json_encode([
-        'status'  => 'error',
-        'message' => 'Database connection not available.'
-    ]);
+/**
+ * Emits JSON.
+ *
+ * @param array<string, mixed> $payload Payload.
+ * @param int $statusCode HTTP status code.
+ *
+ * @return never
+ */
+function wiMediaLegacyJson(array $payload, int $statusCode = 200): never
+{
+    http_response_code($statusCode);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-$media = new WIMedia($WIdb);
-
-function wiMediaJson(array $response): void
+/**
+ * Resolves action.
+ *
+ * @return string
+ */
+function wiMediaLegacyAction(): string
 {
-    echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
+    $action = trim((string)($_POST['action'] ?? ''));
+
+    if ($action !== '') {
+        return $action;
+    }
+
+    return trim((string)($_GET['action'] ?? ''));
 }
 
-function wiMediaPost(string $key, mixed $default = null): mixed
-{
-    return $_POST[$key] ?? $default;
-}
+try {
+    $action = wiMediaLegacyAction();
 
-function wiMediaRequireLogin(): void
-{
-    $loggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
-
-    if (!$loggedIn) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'You must be logged in to perform this action.'
-        ]);
-    }
-}
-
-function wiMediaCheckCsrf(): void
-{
-    if (isset($_POST['csrf_token'], $_SESSION['csrf_token'])) {
-        if (!hash_equals((string)$_SESSION['csrf_token'], (string)$_POST['csrf_token'])) {
-            wiMediaJson([
-                'status'  => 'error',
-                'message' => 'Invalid security token.'
-            ]);
-        }
-    }
-}
-
-function wiMediaCurrentUserId(): ?int
-{
-    if (isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])) {
-        return (int)$_SESSION['user_id'];
+    if ($action === '') {
+        wiMediaLegacyJson([
+            'success' => false,
+            'status' => 'error',
+            'message' => 'No action supplied.',
+            'data' => [],
+        ], 400);
     }
 
-    if (isset($_SESSION['admin_id']) && is_numeric($_SESSION['admin_id'])) {
-        return (int)$_SESSION['admin_id'];
-    }
+    $router = new WIAjaxMedia(new WIMedia(WIdb::getInstance()));
+    $request = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'POST')) === 'GET'
+        ? $_GET
+        : $_POST;
 
-    return null;
-}
-
-function wiMediaNormalizeInt(mixed $value, int $default = 0): int
-{
-    if ($value === null || $value === '') {
-        return $default;
-    }
-
-    return is_numeric($value) ? (int)$value : $default;
-}
-
-function wiMediaNormalizeString(mixed $value, bool $trim = true): ?string
-{
-    if ($value === null) {
-        return null;
-    }
-
-    $value = (string)$value;
-    $value = $trim ? trim($value) : $value;
-
-    return trim($value) === '' ? null : $value;
-}
-
-function wiMediaAllowedType(?string $type): ?string
-{
-    $allowed = ['image', 'video', 'audio', 'document', 'other'];
-
-    if ($type === null || $type === '') {
-        return null;
-    }
-
-    return in_array($type, $allowed, true) ? $type : null;
-}
-
-wiMediaRequireLogin();
-wiMediaCheckCsrf();
-
-$action = wiMediaPost('action', '');
-
-if ($action === '') {
-    wiMediaJson([
-        'status'  => 'error',
-        'message' => 'No action provided.'
-    ]);
-}
-
-switch ($action) {
-    case 'uploadMedia':
-        handleUploadMedia($media);
-        break;
-
-    case 'getMediaList':
-        handleGetMediaList($media);
-        break;
-
-    case 'getMediaItem':
-        handleGetMediaItem($media);
-        break;
-
-    case 'updateMedia':
-        handleUpdateMedia($media);
-        break;
-
-    case 'deleteMedia':
-        handleDeleteMedia($media);
-        break;
-
-    default:
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'Invalid action.'
-        ]);
-}
-
-function handleUploadMedia(WIMedia $media): void
-{
-    if (!isset($_FILES['file'])) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'No file was uploaded.'
-        ]);
-    }
-
-    $data = [
-        'title'       => wiMediaNormalizeString(wiMediaPost('title')),
-        'alt_text'    => wiMediaNormalizeString(wiMediaPost('alt_text')),
-        'caption'     => wiMediaNormalizeString(wiMediaPost('caption'), false),
-        'description' => wiMediaNormalizeString(wiMediaPost('description'), false),
-        'folder'      => wiMediaNormalizeString(wiMediaPost('folder')),
-        'status'      => wiMediaNormalizeInt(wiMediaPost('status', 1), 1),
-        'is_private'  => wiMediaNormalizeInt(wiMediaPost('is_private', 0), 0),
-        'uploaded_by' => wiMediaCurrentUserId()
-    ];
-
-    wiMediaJson($media->upload($_FILES['file'], $data));
-}
-
-function handleGetMediaList(WIMedia $media): void
-{
-    $filters = [
-        'media_type' => wiMediaAllowedType(wiMediaNormalizeString(wiMediaPost('media_type'))),
-        'folder'     => wiMediaNormalizeString(wiMediaPost('folder')),
-        'status'     => wiMediaPost('status', ''),
-        'search'     => wiMediaNormalizeString(wiMediaPost('search')),
-        'limit'      => wiMediaNormalizeInt(wiMediaPost('limit', 50), 50),
-        'offset'     => wiMediaNormalizeInt(wiMediaPost('offset', 0), 0)
-    ];
-
-    if ($filters['limit'] < 1) {
-        $filters['limit'] = 50;
-    }
-
-    if ($filters['limit'] > 500) {
-        $filters['limit'] = 500;
-    }
-
-    $items = $media->getMediaList($filters);
-
-    wiMediaJson([
-        'status'  => 'success',
-        'message' => 'Media list loaded successfully.',
-        'items'   => $items,
-        'count'   => count($items)
-    ]);
-}
-
-function handleGetMediaItem(WIMedia $media): void
-{
-    $id = wiMediaNormalizeInt(wiMediaPost('id'));
-
-    if ($id <= 0) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'Invalid media ID.'
-        ]);
-    }
-
-    $item = $media->getMediaById($id);
-
-    if (!$item) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'Media item not found.'
-        ]);
-    }
-
-    wiMediaJson([
-        'status'  => 'success',
-        'message' => 'Media item loaded successfully.',
-        'item'    => $item
-    ]);
-}
-
-function handleUpdateMedia(WIMedia $media): void
-{
-    $id = wiMediaNormalizeInt(wiMediaPost('id'));
-
-    if ($id <= 0) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'Invalid media ID.'
-        ]);
-    }
-
-    $data = [];
-
-    $fields = ['title', 'alt_text', 'caption', 'description', 'folder', 'status', 'is_private'];
-
-    foreach ($fields as $field) {
-        if (!array_key_exists($field, $_POST)) {
-            continue;
-        }
-
-        if ($field === 'status' || $field === 'is_private') {
-            $data[$field] = wiMediaNormalizeInt($_POST[$field]);
-        } else {
-            $data[$field] = trim((string)$_POST[$field]);
-        }
-    }
-
-    wiMediaJson($media->updateMedia($id, $data));
-}
-
-function handleDeleteMedia(WIMedia $media): void
-{
-    $id = wiMediaNormalizeInt(wiMediaPost('id'));
-
-    if ($id <= 0) {
-        wiMediaJson([
-            'status'  => 'error',
-            'message' => 'Invalid media ID.'
-        ]);
-    }
-
-    wiMediaJson($media->deleteMedia($id));
+    wiMediaLegacyJson(
+        $router->handle($action, $request, $_FILES)
+    );
+} catch (Throwable $e) {
+    wiMediaLegacyJson([
+        'success' => false,
+        'status' => 'error',
+        'message' => defined('APP_DEBUG') && APP_DEBUG
+            ? $e->getMessage()
+            : 'System error.',
+        'data' => [],
+    ], 500);
 }

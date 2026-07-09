@@ -22,6 +22,31 @@ class WIWebsite
     |--------------------------------------------------------------------------
     */
 
+
+    private function resolveAdminMediaAsset(string $value, string $legacyType = 'header'): string
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('#^https?://#i', $value) === 1 || str_starts_with($value, '/')) {
+            return $value;
+        }
+
+        if (str_starts_with($value, 'WIAdmin/')) {
+            return '../' . $value;
+        }
+
+        if (str_starts_with($value, 'WIMedia/')) {
+            return $value;
+        }
+
+        $legacyFolder = $legacyType === 'favicon' ? 'favicon' : 'header';
+        return 'WIMedia/Img/' . $legacyFolder . '/' . rawurlencode($value);
+    }
+
     private function notify(string $message): void
     {
         $this->maint->Notifications((string) WISession::get('user_id', '0'), $message);
@@ -750,8 +775,7 @@ class WIWebsite
                         <div class="row">
                             <div class="col-lg-3 col-md-3 col-sm-2">
                                 <div class="navbar_brand" id="HeaderImg">
-                                    <img class="img-responsive cp" id="headerPic" src="WIMedia/Img/header/' . htmlspecialchars((string) $res['logo'], ENT_QUOTES, 'UTF-8') . '" style="width:120px; height:120px;">
-                                    <button class="btn mediaPic" onclick="WIMedia.changePic(`' . htmlspecialchars($context !== '' ? $context : 'header-edit', ENT_QUOTES, 'UTF-8') . '`)">Change Picture</button>
+                                    <img class="img-responsive cp" id="headerPic" src="' . htmlspecialchars($this->resolveAdminMediaAsset((string) $res['logo'], 'header'), ENT_QUOTES, 'UTF-8') . '" style="width:120px; height:120px;">
                                 </div>
                             </div>
                         </div>
@@ -771,7 +795,7 @@ class WIWebsite
         $this->WIdb->update(
             'wi_header',
             $data,
-            '`id` = :id',
+            '`header_id` = :id',
             ['id' => 1]
         );
 
@@ -841,8 +865,7 @@ class WIWebsite
             echo '<div class="container">
                     <div class="row">
                         <div id="favimg">
-                            <img class="img-responsive cp" id="faviconPic" src="WIMedia/Img/favicon/' . htmlspecialchars((string) $res['favicon'], ENT_QUOTES, 'UTF-8') . '" style="width:120px; height:120px;">
-                            <button class="btn mediaPic" onclick="WIMedia.changefaviconPic()">Change Picture</button>
+                            <img class="img-responsive cp" id="faviconPic" src="' . htmlspecialchars($this->resolveAdminMediaAsset((string) $res['favicon'], 'favicon'), ENT_QUOTES, 'UTF-8') . '" style="width:120px; height:120px;">
                         </div>
                     </div>
 

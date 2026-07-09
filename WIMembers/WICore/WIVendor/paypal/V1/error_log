@@ -1,4 +1,0 @@
-[17-Jun-2020 12:28:33 UTC] PHP Fatal error:  Uncaught Error: Class 'ApiContext' not found in /home/warner23/public_html/WIShop/WICore/WIVendor/paypal/rest-api-sdk-php/lib/PayPal/index.php:24
-Stack trace:
-#0 {main}
-  thrown in /home/warner23/public_html/WIShop/WICore/WIVendor/paypal/rest-api-sdk-php/lib/PayPal/index.php on line 24

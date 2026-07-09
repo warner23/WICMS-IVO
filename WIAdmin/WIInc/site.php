@@ -1,103 +1,100 @@
 <?php
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS
+| Project: WI Ecosystem
+| File: site.php
+| Location: /WIAdmin/WIInc/
+| Type: Admin Include
+| Layer: Backend Admin UI
+| Purpose Area: Core settings tabs
+| Version: 2.3.0
+| Last Updated: 2026-06-22
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Renders the WICMS core Settings workspace with horizontal tabs. Styling and
+| tab behaviour live under root/WITheme/WICMS/admin so admin theme assets stay
+| outside WIAdmin and remain replaceable by site/theme owners.
+*/
+
 $settingsTabs = [
-    'tabs-1'  => ['label' => 'Website',              'file' => 'WIInc/site/Site/website.php'],
-    'tabs-2'  => ['label' => 'Database',             'file' => 'WIInc/site/Site/database.php'],
-    'tabs-3'  => ['label' => 'Email',                'file' => 'WIInc/site/Site/email.php'],
-    'tabs-4'  => ['label' => 'Sessions',             'file' => 'WIInc/site/Site/session.php'],
-    'tabs-5'  => ['label' => 'Login',                'file' => 'WIInc/site/Site/login.php'],
-    'tabs-6'  => ['label' => 'Password Security',    'file' => 'WIInc/site/Site/security.php'],
-    'tabs-7'  => ['label' => 'Social Set Up',        'file' => 'WIInc/site/Site/social.php'],
-    'tabs-8'  => ['label' => 'Multilingual Settings','file' => 'WIInc/site/Site/lang.php'],
-    'tabs-9'  => ['label' => 'Password Salt',        'file' => 'WIInc/site/Site/salt.php'],
-    'tabs-10' => ['label' => 'Email Verification',   'file' => 'WIInc/site/Site/verification.php'],
-    'tabs-11' => ['label' => 'Version Control',      'file' => 'WIInc/site/Site/version.php'],
+    'website'      => ['label' => 'Website', 'icon' => '🌐', 'file' => 'WIInc/site/Site/website.php'],
+    'database'     => ['label' => 'Database', 'icon' => '🛢', 'file' => 'WIInc/site/Site/database.php'],
+    'email'        => ['label' => 'Email', 'icon' => '✉', 'file' => 'WIInc/site/Site/email.php'],
+    'sessions'     => ['label' => 'Sessions', 'icon' => '🔁', 'file' => 'WIInc/site/Site/session.php'],
+    'login'        => ['label' => 'Login', 'icon' => '👤', 'file' => 'WIInc/site/Site/login.php'],
+    'security'     => ['label' => 'Password Security', 'icon' => '🔐', 'file' => 'WIInc/site/Site/security.php'],
+    'social'       => ['label' => 'Social Set Up', 'icon' => '🔗', 'file' => 'WIInc/site/Site/social.php'],
+    'language'     => ['label' => 'Multilingual Settings', 'icon' => '🌍', 'file' => 'WIInc/site/Site/lang.php'],
+    'salt'         => ['label' => 'Password Salt', 'icon' => '🧂', 'file' => 'WIInc/site/Site/salt.php'],
+    'verification' => ['label' => 'Email Verification', 'icon' => '✅', 'file' => 'WIInc/site/Site/verification.php'],
+    'version'       => ['label' => 'Version Control', 'icon' => '⚙', 'file' => 'WIInc/site/Site/version.php'],
+    'legal_cookies' => ['label' => 'Legal & Cookies', 'icon' => '⚖️', 'file' => 'WIInc/site/Site/legal_cookies.php'],
+    'bug_reporter'  => ['label' => 'Bug Reporter', 'icon' => '🐞', 'file' => 'WIInc/site/Site/bug_reporter.php'],
 ];
+
+$esc = static fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 ?>
 
-<script>
-$(function () {
-    var storageKey = 'wi_settings_active_tab';
-    var dataStore = window.sessionStorage;
-    var oldIndex = 0;
-
-    try {
-        var savedIndex = dataStore.getItem(storageKey);
-        oldIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
-
-        if (isNaN(oldIndex)) {
-            oldIndex = 0;
-        }
-    } catch (e) {
-        oldIndex = 0;
-    }
-
-    $("#wi-settings-tabs").tabs({
-        active: oldIndex,
-        activate: function (event, ui) {
-            var newIndex = ui.newTab.parent().children().index(ui.newTab);
-
-            try {
-                dataStore.setItem(storageKey, newIndex);
-            } catch (e) {}
-        }
-    });
-});
-</script>
+<link rel="stylesheet" href="../WITheme/WICMS/admin/css/core-admin-settings.css">
+<link rel="stylesheet" href="../WITheme/WICMS/admin/css/core-admin-consent-legal.css">
+<link rel="stylesheet" href="../WITheme/WICMS/admin/css/core-admin-language.css">
 
 <aside class="right-side">
-    <div class="wi-admin-header">
-        <h2>Settings</h2>
-        <p class="text-muted">Manage core site, login, session, email and system settings.</p>
+    <div class="wi-settings-page" data-wi-settings-page>
+        <section class="wi-settings-hero">
+            <div>
+                <p class="wi-settings-kicker">WICMS Core</p>
+                <h1>Settings</h1>
+                <p>Manage core site, login, session, email and system settings.</p>
+            </div>
+            <div class="wi-settings-hero-badge">
+                <span>Core Settings</span>
+                <strong>System configuration</strong>
+            </div>
+        </section>
+
+        <nav class="wi-settings-tabs" aria-label="Settings sections">
+            <?php foreach ($settingsTabs as $tabKey => $tab): ?>
+                <button
+                    type="button"
+                    class="wi-settings-tab-link"
+                    data-wi-settings-tab="<?php echo $esc($tabKey); ?>"
+                    aria-controls="wi-settings-panel-<?php echo $esc($tabKey); ?>"
+                >
+                    <span class="wi-settings-tab-icon" aria-hidden="true"><?php echo $esc($tab['icon']); ?></span>
+                    <span><?php echo $esc($tab['label']); ?></span>
+                </button>
+            <?php endforeach; ?>
+        </nav>
+
+        <?php foreach ($settingsTabs as $tabKey => $tab): ?>
+            <section
+                id="wi-settings-panel-<?php echo $esc($tabKey); ?>"
+                class="wi-settings-panel-view"
+                data-wi-settings-panel="<?php echo $esc($tabKey); ?>"
+                hidden
+            >
+                <?php
+                if (is_file($tab['file'])) {
+                    include $tab['file'];
+                } else {
+                    echo '<div class="wi-settings-alert wi-settings-alert--warning">Missing settings include: ' . $esc($tab['file']) . '</div>';
+                }
+                ?>
+            </section>
+        <?php endforeach; ?>
     </div>
-
-    <section class="content wi-settings-shell">
-        <div class="wi-admin-panel">
-            <div class="wi-section-head">
-                <div>
-                    <h3>Site Settings</h3>
-                    <p>Control the core configuration for your WICMS installation.</p>
-                </div>
-            </div>
-
-            <div class="wi-settings-tabs-wrap">
-                <div id="wi-settings-tabs">
-                    <ul>
-                        <?php foreach ($settingsTabs as $tabId => $tab): ?>
-                            <li>
-                                <a href="#<?php echo htmlspecialchars((string)$tabId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
-                                    <?php echo htmlspecialchars((string)$tab['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-
-                    <?php foreach ($settingsTabs as $tabId => $tab): ?>
-                        <div id="<?php echo htmlspecialchars((string)$tabId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>" class="wi-settings-tab-panel">
-                            <div class="wi-settings-tab-card">
-                                <?php
-                                if (is_file($tab['file'])) {
-                                    include $tab['file'];
-                                } else {
-                                    echo '<div class="alert alert-warning">Missing settings include: '
-                                        . htmlspecialchars((string)$tab['file'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-                                        . '</div>';
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <script type="text/javascript" src="WICore/WIJ/WICore.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WISite.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WIDatabase.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WIEmail.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WILogin_Settings.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WISecurity.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WISession.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WISocial.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WILang.js"></script>
 </aside>
+
+<script type="text/javascript" src="../WITheme/WICMS/admin/js/core-admin-settings.js"></script>
+<script type="text/javascript" src="../WITheme/WICMS/admin/js/core-admin-consent-legal.js"></script>
+<script type="text/javascript" src="../WITheme/WICMS/admin/js/core-admin-language.js"></script>

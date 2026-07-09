@@ -2,472 +2,732 @@
 declare(strict_types=1);
 
 /**
-* WEbsite Class
-* Created by Warner Infinity
-* Author Jules Warner
-*/
-
-#[\AllowDynamicProperties]
-class WIWebsite
+ * FILE:
+ * WICMS-IVO/WICore/WIClass/WIWebsite.php
+ *
+ * Canonical website chrome/helper class for WICMS front-end.
+ */
+final class WIWebsite
 {
+    private WIdb $WIdb;
+    private WISite $site;
+    private ?WIMobileDetect $mobileDetect;
+    private WILogin $Login;
+    private ?WIUser $User;
+
     public function __construct()
     {
-        $this->WIdb         = WIdb::getInstance();
-        $this->mobileDetect = new WIMobileDetect();
-        $this->Login        = new WILogin();
-        $this->User         = new WIUser(WISession::get('user_id'));
+        $this->WIdb = WIdb::getInstance();
+        $this->site = new WISite();
+        $this->mobileDetect = class_exists('WIMobileDetect') ? new WIMobileDetect() : null;
+        $this->Login = new WILogin();
+
+        $userId = (int) WISession::get('user_id', 0);
+        $this->User = ($userId > 0 && class_exists('WIUser')) ? new WIUser($userId) : null;
     }
 
-    private function e($value): string
-    {
-        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
-    }
-
-    private function getSingleRow(string $table, string $where = '', array $params = []): array
-    {
-        $sql = "SELECT * FROM `{$table}`";
-
-        if ($where !== '') {
-            $sql .= " WHERE {$where}";
-        }
-
-        $sql .= " LIMIT 1";
-
-        $result = $this->WIdb->select($sql, $params);
-
-        return $result[0] ?? [];
-    }
-
-    public function webSite_essentials($column)
+    public function webSite_essentials(string $column): mixed
     {
         $row = $this->getSingleRow('wi_header');
         return $row[$column] ?? null;
     }
 
-    public function webSite_icons()
+    public function webSite_icons(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_site`");
-        //var_dump($result);
-        foreach ($result as $res) {
-            $favicon = $this->e($res['favicon'] ?? '');
-            echo '<link rel="icon" type="image/png" href="WIAdmin/WIMedia/Img/favicon/' . $favicon . '"/>';
-        }
-    }
+        $favicon = $this->showFavicon();
 
-    public function Meta($page)
-    {
-        $mobile = $this->mobileDetect->isMobile();
-
-        if ((int)$mobile === 1) {
-            echo '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, user-scalable=0" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />';
+        if ($favicon === '') {
             return;
         }
 
-        $result = $this->WIdb->select(
-            "SELECT * FROM `wi_meta` WHERE `page` = :page",
+        echo '<link rel="icon" type="image/png" href="' . $this->e($this->resolvePublicMediaAsset($favicon, 'favicon')) . '"/>';
+    }
+
+    public function Meta($page): void
+    {
+        $pageName = $this->sanitizeAssetPage((string) $page);
+        $seen = [];
+
+        if ($this->isMobileDevice()) {
+            echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">' . PHP_EOL;
+            echo '<meta name="apple-mobile-web-app-capable" content="yes">' . PHP_EOL;
+            echo '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' . PHP_EOL;
+            $seen['viewport'] = true;
+            $seen['apple-mobile-web-app-capable'] = true;
+            $seen['apple-mobile-web-app-status-bar-style'] = true;
+        }
+
+        $rows = $this->WIdb->select(
+            'SELECT *
+             FROM `wi_meta`
+             WHERE `page` IN (:global_page, :all_page, :star_page, :page)
+             ORDER BY CASE
+                WHEN `page` IN (\'global\', \'all\', \'*\') THEN 0
+                ELSE 1
+             END, `meta_id` ASC',
             [
-                "page" => $page
+                'global_page' => 'global',
+                'all_page' => 'all',
+                'star_page' => '*',
+                'page' => $pageName,
             ]
         );
-        //var_dump($result);
-        foreach ($result as $res) {
-            echo '<meta name="' . $this->e($res['name'] ?? '') . '" content="' . $this->e($res['content'] ?? '') . '" author="' . $this->e($res['author'] ?? '') . '" >';
+
+        foreach ($rows as $row) {
+            $name = trim((string) ($row['name'] ?? ''));
+            $content = trim((string) ($row['content'] ?? ''));
+
+            if ($name === '' || $content === '') {
+                continue;
+            }
+
+            $key = strtolower($name);
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+
+            echo '<meta name="' . $this->e($name) . '" content="' . $this->e($content) . '">' . PHP_EOL;
         }
     }
 
-    public function Theme()
+    public function Theme(): string
     {
-        $result = $this->WIdb->select(
-            "SELECT * FROM `wi_theme` WHERE `in_use` = :in_use LIMIT 1",
-            [
-                "in_use" => 1
-            ]
-        );
-        //var_dump($result);
-        return $result[0]['destination'] ?? '';
+        $theme = $this->site->getActiveThemeRow();
+
+        return trim((string) ($theme['destination'] ?? ''));
     }
 
-    public function Styling($page)
+    public function Styling($page): void
     {
-        $result = $this->WIdb->select(
-            "SELECT * FROM `wi_css` WHERE `page` = :page",
+        $pageName = $this->sanitizeAssetPage((string) $page);
+
+        $rows = $this->WIdb->select(
+            'SELECT *
+             FROM `wi_css`
+             WHERE `page` IN (:global_page, :all_page, :star_page, :page)
+             ORDER BY CASE
+                WHEN `page` IN (\'global\', \'all\', \'*\') THEN 0
+                ELSE 1
+             END, `id` ASC',
             [
-                "page" => $page
+                'global_page' => 'global',
+                'all_page' => 'all',
+                'star_page' => '*',
+                'page' => $pageName,
             ]
         );
-        //var_dump($result);
-        foreach ($result as $res) {
-            echo '<link href="' . $this->e($this->Theme() . ($res['href'] ?? '')) . '" rel="' . $this->e($res['rel'] ?? 'stylesheet') . '">';
+
+        $themeBase = $this->Theme();
+        $seen = [];
+
+        foreach ($rows as $row) {
+            $href = trim((string) ($row['href'] ?? ''));
+            if ($href === '') {
+                continue;
+            }
+
+            $key = strtolower($href);
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $rel = trim((string) ($row['rel'] ?? 'stylesheet'));
+            echo '<link href="' . $this->e($themeBase . $href) . '" rel="' . $this->e($rel) . '">' . PHP_EOL;
+        }
+
+        $consentManager = $this->consentManager();
+        if ($consentManager !== null) {
+            echo $consentManager->renderPublicCssLink();
         }
     }
 
-    public function Scripts($page)
+    public function Scripts($page): void
     {
-        $result = $this->WIdb->select(
-            "SELECT * FROM `wi_scripts` WHERE `page` = :page",
+        $consentManager = $this->consentManager();
+        if ($consentManager !== null) {
+            echo $consentManager->renderGoogleConsentDefaultScript();
+        }
+
+        $pageName = $this->sanitizeAssetPage((string) $page);
+
+        $rows = $this->WIdb->select(
+            'SELECT *
+             FROM `wi_scripts`
+             WHERE `page` IN (:global_page, :all_page, :star_page, :page)
+             ORDER BY CASE
+                WHEN `page` IN (\'global\', \'all\', \'*\') THEN 0
+                ELSE 1
+             END, `id` ASC',
             [
-                "page" => $page
+                'global_page' => 'global',
+                'all_page' => 'all',
+                'star_page' => '*',
+                'page' => $pageName,
             ]
         );
-        //var_dump($result);
 
-        foreach ($result as $res) {
-            echo '<script src="' . $this->e($this->Theme() . ($res['src'] ?? '')) . '" type="text/javascript"></script>';
+        $themeBase = $this->Theme();
+        $seen = [];
+
+        foreach ($rows as $row) {
+            $src = trim((string) ($row['src'] ?? ''));
+            if ($src === '') {
+                continue;
+            }
+
+            $key = strtolower($src);
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            echo '<script src="' . $this->e($themeBase . $src) . '" type="text/javascript"></script>' . PHP_EOL;
         }
     }
 
-    public function StartUp()
+    public function StartUp(): void
     {
+        $siteName = $this->site->siteName('WICMS');
 
-        echo "<!DOCTYPE html>
-<html class='no-js' lang='en'>
-<head>
-
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KCW4NMQ');</script>
-<!-- End Google Tag Manager -->
-
-<title>" . $this->e(WEBSITE_NAME) . "</title>
-<meta charset='utf-8'>";
+        echo '<!DOCTYPE html>' . PHP_EOL;
+        echo '<html class="no-js" lang="' . $this->e(WILang::getLanguage()) . '">' . PHP_EOL;
+        echo '<head>' . PHP_EOL;
+        echo '<meta charset="utf-8">' . PHP_EOL;
+        echo '<meta http-equiv="X-UA-Compatible" content="IE=edge">' . PHP_EOL;
+        echo '<title>' . $this->e($siteName) . '</title>' . PHP_EOL;
     }
 
-    public function Social()
+    public function Social(): void
     {
-        $result = $this->WIdb->bindfree('SELECT * FROM `wi_social`');
+        $rows = $this->WIdb->select('SELECT * FROM `wi_social` ORDER BY `id` ASC', []);
 
-        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
-        <ul class="social_media">';
+        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">';
+        echo '<ul class="social_media">';
 
-        foreach ($result as $res) {
-            $href = $this->e($res['href'] ?? '#');
-            $name = $this->e($res['name'] ?? '');
+        foreach ($rows as $row) {
+            $href = trim((string) ($row['href'] ?? '#'));
+            $name = trim((string) ($row['name'] ?? ''));
 
-            echo '<li>
-            <a href="' . $href . '" target="_blank" data-placement="bottom" data-toggle="tooltip" class="fa fa-' . $name . ' fa-5x" title="' . $name . '">
-            ' . $name . '
-            </a></li>';
+            if ($name === '') {
+                continue;
+            }
+
+            echo '<li>';
+            echo '<a href="' . $this->e($href) . '" target="_blank" rel="noopener noreferrer" class="fa fa-' . $this->e($name) . ' fa-5x" title="' . $this->e($name) . '">';
+            echo $this->e($name);
+            echo '</a>';
+            echo '</li>';
         }
 
         echo '</ul></div>';
     }
 
-    public function contact()
+    public function contact(): void
     {
-        $result = $this->WIdb->bindfree('SELECT * FROM `wi_site`');
+        $contactNo = $this->site->contactNumber();
+        $contactEmail = $this->site->contactEmail();
 
-        echo '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="phone">
-        <style>
-        .phone{
+        echo '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">';
+        echo '<div class="phone">';
+        echo '<ul class="phone__no">';
 
+        if ($contactNo !== '') {
+            echo '<li class="align">';
+            echo '<i class="fa fa-phone" aria-hidden="true"></i> ';
+            echo '<a href="tel:' . $this->e($contactNo) . '" class="white">' . $this->e($contactNo) . '</a>';
+            echo '</li>';
         }
 
-        .phone__no{
-        width: 100%;
-        }
-
-        .white{
-            color: rgb(12 12 12)!important;
-        }
-
-        .align{
-            width:fit-content;
-            float:left;
-        }
-        </style>
-        <ul class="phone__no">';
-
-        foreach ($result as $res) {
-            $contactNo = $this->e($res['contact_no'] ?? '');
-            $contactEmail = $this->e($res['contact_email'] ?? '');
-
-            echo '<li class="align">
-            <i class="fa fa-phone" aria-hidden="true"></i>
-            <a href="tel:' . $contactNo . '" class="white" data-placement="bottom" data-toggle="tooltip" title="' . $contactNo . '">' . $contactNo . '
-            </a></li>';
-
-            echo '<li class="align">
-            <i class="fa fa-envelope-o" aria-hidden="true"></i>
-            <a href="mailto:' . $contactEmail . '" class="white" data-placement="bottom" data-toggle="tooltip" title="' . $contactEmail . '">' . $contactEmail . '
-            </a></li>';
+        if ($contactEmail !== '') {
+            echo '<li class="align">';
+            echo '<i class="fa fa-envelope-o" aria-hidden="true"></i> ';
+            echo '<a href="mailto:' . $this->e($contactEmail) . '" class="white">' . $this->e($contactEmail) . '</a>';
+            echo '</li>';
         }
 
         echo '</ul></div></div>';
     }
 
-    public function MainHeader()
+    public function MainHeader(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_header`");
+        $row = $this->getSingleRow('wi_header');
+        $siteName = $this->site->siteName('WICMS');
+        $logo = trim((string) ($row['logo'] ?? ''));
+        $logoPath = $logo !== '' ? $this->resolvePublicMediaAsset($logo, 'header') : '';
 
-        foreach ($result as $res) {
-            $logo = $this->e($res['logo'] ?? '');
-            $bkHeader = $this->e($res['bk_header_image'] ?? '');
-            $headerContent = $res['header_content'] ?? '';
-            $headerSlogan = $res['header_slogan'] ?? '';
+        echo '<header class="wi-marketing-topbar" role="banner">';
+        echo '<div class="wi-marketing-container wi-topbar-inner">';
+        echo '<a class="wi-brand" href="index.php" aria-label="' . $this->e($siteName) . ' home">';
 
-            echo '<header class="header">
-
-                        <div class="col-lg-3 col-md-3 col-sm-2">
-                            <div class="navbar_brand">
-                                <a href="index.php">
-                                <img alt="" class="logo" src="WIAdmin/WIMedia/Img/header/' . $logo . '"></a>
-
-                            </div>
-                        </div>
-                        <div class="col-lg-9 col-md-9 col-sm-9">
-                        <div class="col-ms bg-header" style="background-image: url(WIAdmin/WIMedia/Img/header/' . $bkHeader . ');">
-                        <div class="zapfino">' . $headerContent . '
-                        <span class="slogan">' . $headerSlogan . '</span>
-                        </div>
-                        </div>
-
-        </header>';
+        if ($logoPath !== '') {
+            echo '<span class="wi-brand-logo"><img src="' . $this->e($logoPath) . '" alt="' . $this->e($siteName) . '"></span>';
+        } else {
+            echo '<span class="wi-brand-mark">WI</span>';
         }
+
+        echo '<span class="wi-brand-copy">';
+        echo '<strong>' . $this->e($siteName) . '</strong>';
+        echo '<small>Powered by WICMS</small>';
+        echo '</span>';
+        echo '</a>';
+
+        echo '<div class="wi-topbar-copy">';
+        echo '<span>Flexible WICMS platform for websites, members, plugins and themes</span>';
+        echo '</div>';
+
+        echo '<div class="wi-topbar-actions">';
+        echo '<a class="wi-topbar-link" href="login.php">Member login</a>';
+        echo '<a class="wi-topbar-button" href="alogin.php">Admin portal</a>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</header>';
     }
 
-    public function MainMenu()
+    public function MainMenu(): void
     {
-        $result0 = $this->WIdb->bindfree("SELECT * FROM `wi_menu` ORDER BY `sort` ASC, `id` ASC");
+        $rows = $this->WIdb->select(
+            'SELECT * FROM `wi_menu` ORDER BY `sort` ASC, `id` ASC',
+            []
+        );
 
-        echo '<nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <a class="navbar-brand" href="index.php">' . $this->e(WEBSITE_NAME) . '</a>
+        echo '<nav class="wi-marketing-nav" role="navigation" aria-label="Primary navigation">';
+        echo '<div class="wi-marketing-container wi-nav-inner">';
+        echo '<button class="wi-nav-toggle" type="button" aria-label="Open navigation" onclick="document.body.classList.toggle(&quot;wi-nav-open&quot;)">';
+        echo '<span></span><span></span><span></span>';
+        echo '</button>';
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#expanderNav"
-    aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+        echo '<div class="wi-nav-links">';
 
-  <div class="collapse navbar-collapse" id="expanderNav">
-
-    <ul class="navbar-nav mr-auto">';
-
-        foreach ($result0 as $res) {
-            $link = $this->e($res['link'] ?? '#');
-            $langKey = (string)($res['lang'] ?? '');
-            $label = $this->e(WILang::get($langKey));
-
-            echo '<li class="nav-item">
-            <a class="nav-link" href="' . $link . '">' . $label . '</a></li>';
-
-            if ((int)($res['parent'] ?? 0) > 0) {
-                echo '<li class="nav-item">
-                <a class="nav-link" href="' . $link . '">' . $label . '</a></li>';
-            }
+        foreach ($this->buildMenuTree($rows) as $item) {
+            $this->renderMenuItem($item);
         }
 
-        if ($this->User->isStaff()) {
-            echo '<li class="nav-item">
-            <a class="nav-link" href="WIPOS/WIAdmin/cashposlogin.php">' . $this->e(WILang::get('Staff_log_in')) . '</a></li>
-            <li class="nav-item">
-            <a class="nav-link" href="WICompliance/WIAdmin/admin_comp_login.php">' . $this->e(WILang::get('compliance')) . '</a></li>
-            <li class="dropdown" style="padding-top: 13px;">
-            <a href="javascript:void(0)" id="specs" class="dropdown-toggle" aria-expanded="false" dropdown="false" data-toggle="dropdown">' . $this->e(WILang::get('specs')) . '</a>
-<div class="dropdown-menu" >
-
-            <a class="nav-link" href="WIPOS/WICashier/kitchen.php">' . $this->e(WILang::get('kitchen')) . '</a>
-            <a class="nav-link" href="WIPOS/WICashier/bar.php">' . $this->e(WILang::get('bar')) . '</a>
-</div>
-
-</li>';
-        }
-
-        echo '</ul>
-             <form class="form-inline">
-      <div class="md-form my-0">';
+        echo '</div>';
+        echo '<div class="wi-nav-actions">';
 
         if ($this->Login->isLoggedIn()) {
-            echo '<ul>
-        <li class="nav-item">
-            <a class="nav-link" href="WIMembers/profile.php">' . $this->e(WILang::get('profile')) . '</a></li>
-      <li class="nav-item">
-            <a class="nav-link" href="logout.php">' . $this->e(WILang::get('logout')) . '</a></li>
-        </ul>';
+            echo '<a class="wi-nav-link" href="WIMembers/profile.php">' . $this->e(class_exists('WILang') ? WILang::get('profile') : 'Profile') . '</a>';
+            echo '<a class="wi-nav-link" href="logout.php">' . $this->e(class_exists('WILang') ? WILang::get('logout') : 'Logout') . '</a>';
         } else {
-            echo '<ul>
-        <li class="nav-item">
-            <a class="nav-link" href="register.php">' . $this->e(WILang::get('register')) . '</a></li>
-      <li class="nav-item">
-            <a class="nav-link" href="login.php">' . $this->e(WILang::get('login')) . '</a></li>
-        </ul>';
+            echo '<a class="wi-nav-link" href="register.php">' . $this->e(class_exists('WILang') ? WILang::get('register') : 'Register') . '</a>';
+            echo '<a class="wi-nav-link" href="login.php">' . $this->e(class_exists('WILang') ? WILang::get('login') : 'Login') . '</a>';
+            echo '<a class="wi-nav-cta" href="alogin.php">Admin portal</a>';
         }
 
-        echo '</div>
-    </form>
-  </div>
-
-</nav>';
+        echo '</div>';
+        echo '</div>';
+        echo '</nav>';
     }
 
-    public function footer()
+
+    public function footer(): void
     {
-        $date = date("Y");
-        $res = $this->getSingleRow('wi_footer', 'footer_id = :id', ['id' => 1]);
+        $row = $this->getSingleRow('wi_footer', 'footer_id = :id', ['id' => 1]);
+        $year = date('Y');
+        $websiteName = trim((string) ($row['website_name'] ?? ''));
 
-        if (!empty($res)) {
-            echo '<footer class="footer">
-            <section class="footer_bottom container-fluid text-center">
-            <div class="container">
-                <div class="row">
-
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <p class="copyright">' . $this->e(WILang::get("copyright")) . ' &copy; ' . $this->e($date) . ' ' . $this->e($res['website_name'] ?? WEBSITE_NAME) . ' - All rights reserved Powered by WICMS.</p>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-        </footer>
-        <!--End Footer-->';
-        }
-    }
-
-    public static function langClassSelector($lang)
-    {
-        if (WILang::getLanguage() === $lang) {
-            return WILang::getLanguage();
+        if ($websiteName === '') {
+            $websiteName = $this->site->siteName('WICMS');
         }
 
-        return "fade";
-    }
+        echo '<footer class="wi-marketing-footer" role="contentinfo">';
+        echo '<div class="wi-marketing-container wi-footer-grid">';
 
-    public function viewLang()
-    {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_lang`");
+        echo '<div class="wi-footer-brand">';
+        echo '<strong>' . $this->e($websiteName) . '</strong>';
+        echo '<p>WICMS core for websites, members, themes, plugins and admin workflows.</p>';
+        echo '</div>';
 
-        echo '<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                         <div class="flags-wrapper">';
+        echo '<div class="wi-footer-column">';
+        echo '<h4>Core</h4>';
+        echo '<a href="index.php">Home</a>';
+        echo '<a href="about_us.php">About</a>';
+        echo '<a href="contact_us.php">Contact</a>';
+        echo '</div>';
 
-        foreach ($result as $lang) {
-            echo '<a href="' . $this->e($lang['href'] ?? '#') . '">
-                 <img src="WIAdmin/WIMedia/Img/lang/' . $this->e($lang['lang_flag'] ?? '') . '" alt="' . $this->e($lang['name'] ?? '') . '" title="' . $this->e($lang['name'] ?? '') . '"
-                      class="' . $this->e(self::langClassSelector($lang['lang'] ?? '')) . '" /></a>';
+        echo '<div class="wi-footer-column">';
+        echo '<h4>Access</h4>';
+        echo '<a href="login.php">Member login</a>';
+        echo '<a href="register.php">Register</a>';
+        echo '<a href="alogin.php">Admin portal</a>';
+        echo '</div>';
+
+        echo '<div class="wi-footer-column">';
+        echo '<h4>System</h4>';
+        echo '<span>Role-based access</span>';
+        echo '<span>Plugin-ready core</span>';
+        echo '<span>Privacy-first controls</span>';
+
+        $consentManager = $this->consentManager();
+        if ($consentManager !== null) {
+            echo $consentManager->renderFooterCookieLink();
         }
 
-        echo '</div>
-                    </div>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '<div class="wi-marketing-container wi-footer-bottom">';
+        echo '<p>Copyright &copy; ' . $this->e($year) . ' ' . $this->e($websiteName) . '. All rights reserved.</p>';
+        echo '<p>Powered by WICMS.</p>';
+        echo '</div>';
+        echo '</footer>';
     }
 
-    public function PageMod($page, $column)
+
+    public static function langClassSelector($lang): string
     {
-        
-        return $this->WIdb->selectColumn(
-            "SELECT * FROM `wi_page` WHERE `name` = :page LIMIT 1",
-            [
-                "page" => $page
-            ],
-            $column
+        return WILang::getLanguage() === (string) $lang ? WILang::getLanguage() : 'fade';
+    }
+
+    public function viewLang(): void
+    {
+        $rows = $this->WIdb->select('SELECT * FROM `wi_lang` ORDER BY `id` ASC', []);
+
+        echo '<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">';
+        echo '<div class="flags-wrapper">';
+
+        foreach ($rows as $lang) {
+            $href = trim((string) ($lang['href'] ?? '#'));
+            $flag = trim((string) ($lang['lang_flag'] ?? ''));
+            $name = trim((string) ($lang['name'] ?? ''));
+            $code = trim((string) ($lang['lang'] ?? ''));
+
+            echo '<a href="' . $this->e($href) . '">';
+            echo '<img src="' . $this->e('WIAdmin/WIMedia/Img/lang/' . $flag) . '" alt="' . $this->e($name) . '" title="' . $this->e($name) . '" class="' . $this->e(self::langClassSelector($code)) . '" />';
+            echo '</a>';
+        }
+
+        echo '</div>';
+        echo '</div>';
+    }
+
+    public function PageMod($page, $column): mixed
+    {
+        $result = $this->WIdb->select(
+            'SELECT * FROM `wi_page` WHERE `name` = :page LIMIT 1',
+            ['page' => (string) $page]
         );
+
+        return $result[0][$column] ?? null;
     }
 
-    public function pageModPower($page, $column)
+    public function pageModPower($page, $column): int
     {
-        $result = $this->WIdb->selectColumn(
-            "SELECT * FROM `wi_page` WHERE `name` = :page LIMIT 1",
-            [
-                "page" => $page
-            ],
-            $column
-        );
+        $result = $this->PageMod((string) $page, (string) $column);
 
         if ($result === null || $result === '') {
             return 0;
         }
 
         if (is_numeric($result)) {
-            return (int)$result;
+            return (int) $result;
         }
 
-        return strlen((string)$result) > 0 ? 1 : 0;
+        return strlen((string) $result) > 0 ? 1 : 0;
     }
 
-    public function showFavicon()
+    public function showFavicon(): string
     {
-        $site = $this->getSingleRow('wi_site');
-        return $site['favicon'] ?? '';
+        return trim((string) $this->site->favicon(''));
     }
 
-    public function google_lang()
+    public function google_lang(): void
     {
-        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
-                         <div class="flags-wrapper">
-                         <div id="google_translate_element"></div><script type="text/javascript">
+        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">';
+        echo '<div class="flags-wrapper">';
+        echo '<div id="google_translate_element"></div>';
+        echo '<script type="text/javascript">
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({pageLanguage: "en", layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, "google_translate_element");
 }
-</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-                         </div>
-                    </div>';
+</script>';
+        echo '<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>';
+        echo '</div>';
+        echo '</div>';
     }
 
-    public function backendJs()
+    public function backendJs(): void
     {
-        echo '<script type="text/javascript" src="' . $this->e($this->Theme() . 'site/js/vendor/jquery.easing.1.3.js') . '"></script>
-  <script type="text/javascript" src="' . $this->e($this->Theme() . 'site/js/jquery.cookie.js') . '"></script>
-  <script type="text/javascript" src="' . $this->e($this->Theme() . 'site/js/styleswitch.js') . '"></script>
-  <script type="text/javascript" src="' . $this->e($this->Theme() . 'site/js/plugin/jquery.themepunch.revolution.min.js') . '"></script>
-  <script type="text/javascript" src="' . $this->e($this->Theme() . 'site/js/plugin/jquery.plugin.js') . '"></script>';
+        $theme = $this->Theme();
+
+        echo '<script type="text/javascript" src="' . $this->e($theme . 'site/js/vendor/jquery.easing.1.3.js') . '"></script>' . PHP_EOL;
+        echo '<script type="text/javascript" src="' . $this->e($theme . 'site/js/jquery.cookie.js') . '"></script>' . PHP_EOL;
+        echo '<script type="text/javascript" src="' . $this->e($theme . 'site/js/styleswitch.js') . '"></script>' . PHP_EOL;
+        echo '<script type="text/javascript" src="' . $this->e($theme . 'site/js/plugin/jquery.themepunch.revolution.min.js') . '"></script>' . PHP_EOL;
+        echo '<script type="text/javascript" src="' . $this->e($theme . 'site/js/plugin/jquery.plugin.js') . '"></script>' . PHP_EOL;
+
+        $consentManager = $this->consentManager();
+        if ($consentManager !== null) {
+            echo $consentManager->renderPublicJsLink();
+        }
     }
 
+    private function sanitizeAssetPage(string $page): string
+    {
+        $value = preg_replace('/[^A-Za-z0-9_-]/', '', trim($page)) ?? '';
+        return $value !== '' ? $value : 'index';
+    }
 
     public function getPage(): string
     {
         if (!empty($_GET['page'])) {
-            return preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['page']);
+            return preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $_GET['page']);
         }
 
         return 'home';
     }
 
-
-
-
     public function getPageModule(string $page): ?string
     {
-        return $this->WIdb->selectColumn(
-            "SELECT module_name FROM wi_page WHERE name = :page LIMIT 1",
-            ["page" => $page],
-            "module_name"
+        $result = $this->WIdb->select(
+            'SELECT `module_name` FROM `wi_page` WHERE `name` = :page LIMIT 1',
+            ['page' => $page]
         );
+
+        if (!isset($result[0]['module_name'])) {
+            return null;
+        }
+
+        $value = trim((string) $result[0]['module_name']);
+
+        return $value !== '' ? $value : null;
     }
 
     public function modulePowered(string $moduleName): bool
     {
-        $power = $this->WIdb->selectColumn(
-            "SELECT mod_powered FROM wi_mod WHERE module_name = :name LIMIT 1",
-            ["name" => $moduleName],
-            "mod_powered"
+        $result = $this->WIdb->select(
+            'SELECT `mod_powered` FROM `wi_mod` WHERE `module_name` = :name LIMIT 1',
+            ['name' => $moduleName]
         );
 
-        return $power === "power_on";
+        $power = (string) ($result[0]['mod_powered'] ?? '');
+
+        return $power === 'power_on' || $power === '1' || strtolower($power) === 'on';
     }
 
     public function loadModule(string $moduleName): void
     {
-        $file = "WIAdmin/WIModule/modules/{$moduleName}/{$moduleName}.php";
+        $moduleName = preg_replace('/[^A-Za-z0-9_-]/', '', $moduleName);
 
-        if (!file_exists($file)) {
-            echo "Module file missing: " . htmlspecialchars($moduleName);
+        if ($moduleName === '') {
+            echo 'Module name missing.';
+            return;
+        }
+
+        $file = dirname(dirname(dirname(__DIR__))) . '/WIAdmin/WIModule/modules/' . $moduleName . '/' . $moduleName . '.php';
+
+        if (!is_file($file)) {
+            echo 'Module file missing: ' . $this->e($moduleName);
             return;
         }
 
         require_once $file;
 
         if (!class_exists($moduleName)) {
-            echo "Module class missing: " . htmlspecialchars($moduleName);
+            echo 'Module class missing: ' . $this->e($moduleName);
             return;
         }
 
         $module = new $moduleName();
 
-        if (method_exists($module, "mod_name")) {
-            $module->mod_name();
+        if (method_exists($module, 'mod_name')) {
+            $module->mod_name($this->getPage());
         }
     }
+
+    private function resolvePublicMediaAsset(string $asset, string $area = 'header'): string
+    {
+        $asset = trim(str_replace('\\', '/', $asset));
+
+        if ($asset === '') {
+            return '';
+        }
+
+        if (preg_match('/^(https?:)?\/\//i', $asset) === 1) {
+            return $asset;
+        }
+
+        $asset = ltrim($asset, '/');
+
+        if (str_contains($asset, '../') || str_contains($asset, '..\\')) {
+            return '';
+        }
+
+        $root = dirname(dirname(__DIR__));
+        $allowedPrefixes = [
+            'WIAdmin/WIMedia/Images/',
+            'WIAdmin/WIMedia/Img/',
+            'WIMedia/Images/',
+            'WIMedia/Img/',
+        ];
+
+        foreach ($allowedPrefixes as $prefix) {
+            if (str_starts_with($asset, $prefix)) {
+                return $asset;
+            }
+        }
+
+        if (str_contains($asset, '/')) {
+            $candidate = preg_replace('#/+#', '/', $asset) ?? '';
+            if ($candidate !== '' && is_file($root . '/' . $candidate)) {
+                return $candidate;
+            }
+        }
+
+        $filename = basename($asset);
+        $area = strtolower(preg_replace('/[^a-z0-9_-]/i', '', $area) ?? 'header');
+
+        if ($filename === '' || $filename === '.' || $filename === '..') {
+            return '';
+        }
+
+        $candidates = [];
+
+        if ($area === 'favicon') {
+            $candidates[] = 'WIAdmin/WIMedia/Images/wicms/favicon/' . $filename;
+            $candidates[] = 'WIAdmin/WIMedia/Img/favicon/' . $filename;
+            $candidates[] = 'WIAdmin/WIMedia/Img/icons/' . $filename;
+        } else {
+            $candidates[] = 'WIAdmin/WIMedia/Images/wicms/header/' . $filename;
+            $candidates[] = 'WIAdmin/WIMedia/Img/header/' . $filename;
+        }
+
+        $candidates[] = 'WIAdmin/WIMedia/Images/wicms/' . $filename;
+        $candidates[] = 'WIAdmin/WIMedia/Images/' . $filename;
+        $candidates[] = 'WIAdmin/WIMedia/Img/' . $filename;
+
+        foreach ($candidates as $candidate) {
+            if (is_file($root . '/' . $candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $candidates[0] ?? '';
+    }
+
+    private function consentManager(): ?WIConsentManager
+    {
+        if (!class_exists('WIConsentManager')) {
+            $consentClass = __DIR__ . '/WIConsentManager.php';
+            if (is_file($consentClass)) {
+                require_once $consentClass;
+            }
+        }
+
+        if (!class_exists('WIConsentManager')) {
+            return null;
+        }
+
+        try {
+            return new WIConsentManager();
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    private function e($value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+
+    private function getSingleRow(string $table, string $where = '', array $params = []): array
+    {
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+            return [];
+        }
+
+        $sql = "SELECT * FROM `{$table}`";
+
+        if ($where !== '') {
+            $sql .= " WHERE {$where}";
+        }
+
+        $sql .= ' LIMIT 1';
+
+        $result = $this->WIdb->select($sql, $params);
+
+        return $result[0] ?? [];
+    }
+
+    private function isMobileDevice(): bool
+    {
+        if ($this->mobileDetect === null) {
+            return false;
+        }
+
+        try {
+            return (bool) $this->mobileDetect->isMobile();
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    private function buildMenuTree(array $rows): array
+    {
+        $items = [];
+        $children = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+            $parent = (int) ($row['parent'] ?? 0);
+
+            $item = [
+                'id' => $id,
+                'parent' => $parent,
+                'link' => (string) ($row['link'] ?? '#'),
+                'lang' => (string) ($row['lang'] ?? ''),
+                'children' => [],
+            ];
+
+            if ($parent > 0) {
+                $children[$parent][] = $item;
+            } else {
+                $items[$id] = $item;
+            }
+        }
+
+        foreach ($children as $parentId => $childItems) {
+            if (isset($items[$parentId])) {
+                $items[$parentId]['children'] = $childItems;
+            } else {
+                foreach ($childItems as $child) {
+                    $items[$child['id']] = $child;
+                }
+            }
+        }
+
+        return array_values($items);
+    }
+
+    private function renderMenuItem(array $item): void
+    {
+        $link = $this->e($item['link'] ?? '#');
+        $langKey = (string) ($item['lang'] ?? '');
+        $label = $langKey !== '' ? $this->e(WILang::get($langKey)) : $link;
+        $children = $item['children'] ?? [];
+
+        if (!is_array($children) || $children === []) {
+            echo '<a class="wi-nav-link" href="' . $link . '">' . $label . '</a>';
+            return;
+        }
+
+        echo '<span class="wi-nav-dropdown">';
+        echo '<a class="wi-nav-link" href="' . $link . '">' . $label . '</a>';
+        echo '<span class="wi-nav-dropdown-menu">';
+
+        foreach ($children as $child) {
+            $childLink = $this->e($child['link'] ?? '#');
+            $childLangKey = (string) ($child['lang'] ?? '');
+            $childLabel = $childLangKey !== '' ? $this->e(WILang::get($childLangKey)) : $childLink;
+
+            echo '<a href="' . $childLink . '">' . $childLabel . '</a>';
+        }
+
+        echo '</span>';
+        echo '</span>';
+    }
 }
-?>

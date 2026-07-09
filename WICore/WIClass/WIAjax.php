@@ -1,395 +1,583 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * FILE:
+ * WICMS-IVO/WICore/WIClass/WIAjax.php
+ *
+ * Canonical root AJAX dispatcher for WICMS.
+ */
+
 require_once __DIR__ . '/WI.php';
 
-header('Content-Type: application/json; charset=UTF-8');
 
-/*
-|--------------------------------------------------------------------------
-| Security checks
-|--------------------------------------------------------------------------
-*/
-
-if (
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
-    strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest'
-) {
-    http_response_code(403);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Invalid request'
-    ]);
-    exit;
-}
-
-$referer = $_SERVER['HTTP_REFERER'] ?? '';
-$url = parse_url($referer);
-
-if (!isset($url['host']) || $url['host'] !== ($_SERVER['SERVER_NAME'] ?? '')) {
-    http_response_code(403);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Invalid origin'
-    ]);
-    exit;
-}
-
-/*
-|--------------------------------------------------------------------------
-| Helpers
-|--------------------------------------------------------------------------
-*/
-
-function postValue(string $key, $default = null)
+final class WIAjax
 {
-    return $_POST[$key] ?? $default;
-}
+    private WILogin $login;
+    private WIRegister $register;
 
-function postString(string $key, string $default = ''): string
-{
-    $value = $_POST[$key] ?? $default;
+    public function __construct()
+    {
+        WISession::startSession();
+        WIToken::cleanupExpiredCsrfTokens();
 
-    if (is_array($value)) {
-        return $default;
+        $this->login = new WILogin();
+        $this->register = new WIRegister();
     }
 
-    return trim((string) $value);
-}
+    public function handle(): never
+    {
+        $this->guardRequest();
 
-function postInt(string $key, int $default = 0): int
-{
-    $value = $_POST[$key] ?? $default;
-    return is_numeric($value) ? (int) $value : $default;
-}
+        $action = WIRequest::postString('action', '');
 
-function jsonResponse(array $data, int $statusCode = 200): void
-{
-    http_response_code($statusCode);
-    echo json_encode($data);
-    exit;
-}
+        if ($action === '') {
+            WIResponse::error('No action supplied.', 400);
+        }
 
-function jsonError(string $message, int $statusCode = 400): void
-{
-    jsonResponse([
-        'status' => 'error',
-        'message' => $message
-    ], $statusCode);
-}
+        $this->requireCsrfForAction($action);
 
-function jsonSuccess(array $data = []): void
-{
-    jsonResponse(array_merge([
-        'status' => 'success'
-    ], $data));
-}
+        try {
+            switch ($action) {
+                /*
+                |--------------------------------------------------------------------------
+                | Auth
+                |--------------------------------------------------------------------------
+                */
 
-function onlyAdmin(): void
-{
-    $login = new WILogin();
+                case 'checkLogin':
+                    $this->handleLogin();
 
-    if (!$login->isLoggedIn()) {
-        jsonError('Unauthorized', 401);
+                case 'registerUser':
+                    $this->handleRegister();
+
+                case 'forgotPassword':
+                    $this->handleForgotPassword();
+
+                case 'resetPassword':
+                    $this->handleResetPassword();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Account / profile
+                |--------------------------------------------------------------------------
+                */
+
+                case 'updatePassword':
+                    $this->handleUpdatePassword();
+
+                case 'updateDetails':
+                    $this->handleUpdateDetails();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Comments
+                |--------------------------------------------------------------------------
+                */
+
+                case 'postComment':
+                    $this->handlePostComment();
+
+                case 'public_consent_save':
+                    $this->handlePublicConsentSave();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Admin users / roles
+                |--------------------------------------------------------------------------
+                */
+
+                case 'getUserDetails':
+                    $this->handleGetUserDetails();
+
+                case 'getUser':
+                    $this->handleGetUser();
+
+                case 'deleteUser':
+                    $this->handleDeleteUser();
+
+                case 'changeRole':
+                    $this->handleChangeRole();
+
+                case 'addRole':
+                    $this->handleAddRole();
+
+                case 'deleteRole':
+                    $this->handleDeleteRole();
+
+                case 'addUser':
+                    $this->handleAddUser();
+
+                case 'updateUser':
+                    $this->handleUpdateUser();
+
+                case 'banUser':
+                    $this->handleBanUser();
+
+                case 'unbanUser':
+                    $this->handleUnbanUser();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Legacy passthroughs kept for compatibility
+                |--------------------------------------------------------------------------
+                */
+
+                case 'nextSlider':
+                    $this->legacyNextSlider();
+
+                default:
+                    WIResponse::error('Unknown action.', 404);
+            }
+        } catch (Throwable $e) {
+            error_log('WIAjax error: ' . $e->getMessage());
+
+            if (defined('APP_DEBUG') && APP_DEBUG) {
+                WIResponse::error($e->getMessage(), 500);
+            }
+
+            WIResponse::error('System error.', 500);
+        }
     }
 
-    $loggedUser = new WIUser((int) WISession::get('user_id', 0));
+    /*
+    |--------------------------------------------------------------------------
+    | Request guards
+    |--------------------------------------------------------------------------
+    */
 
-    if (!$loggedUser->isAdmin()) {
-        jsonError('Forbidden', 403);
+    private function guardRequest(): void
+    {
+        if (!WIRequest::isPost()) {
+            WIResponse::error('Method not allowed.', 405);
+        }
+
+        if (!WIRequest::isAjax()) {
+            WIResponse::error('Invalid request type.', 403);
+        }
+
+        if (!WIRequest::sameOrigin()) {
+            WIResponse::error('Invalid origin.', 403);
+        }
     }
-}
 
-/*
-|--------------------------------------------------------------------------
-| Action router
-|--------------------------------------------------------------------------
-*/
+    private function requireCsrfForAction(string $action): void
+    {
+        $form = $this->csrfFormForAction($action);
 
-$action = postString('action', '');
+        if ($form === null) {
+            return;
+        }
 
-switch ($action) {
-    case 'checkLogin':
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+        if (!WIToken::validatePostToken($form)) {
+            WIResponse::error('Invalid security token.', 403);
+        }
+    }
 
-    $logged = $login->userLogin((string) $username, (string) $password);
+    private function csrfFormForAction(string $action): ?string
+    {
+        $map = [
+            'checkLogin'      => 'login',
+            'registerUser'    => 'register',
+            'forgotPassword'  => 'forgot_password',
+            'resetPassword'   => 'reset_password',
+            'postComment'     => 'comment',
+            'public_consent_save' => 'public_consent',
+            'updatePassword'  => 'update_password',
+            'updateDetails'   => 'update_details',
+            'changeRole'      => 'change_role',
+            'deleteUser'      => 'delete_user',
+            'addRole'         => 'add_role',
+            'deleteRole'      => 'delete_role',
+            'addUser'         => 'add_user',
+            'updateUser'      => 'update_user',
+            'banUser'         => 'ban_user',
+            'unbanUser'       => 'unban_user',
+            'nextSlider'      => 'next_slider',
+        ];
 
-    if ($logged === true) {
-        $redirectPage = 'index.php';
+        return $map[$action] ?? null;
+    }
 
-        if (function_exists('get_redirect_page')) {
-            $redirectPage = (string) get_redirect_page();
-        } elseif (WISession::get('user_id') !== null) {
-            $user = new WIUser((int) WISession::get('user_id'));
+    /*
+    |--------------------------------------------------------------------------
+    | Common guards
+    |--------------------------------------------------------------------------
+    */
+
+    private function requireAuth(): WIUser
+    {
+        if (!$this->login->isLoggedIn()) {
+            WIResponse::error('Unauthorized.', 401);
+        }
+
+        $userId = (int) WISession::get('user_id', 0);
+
+        if ($userId <= 0) {
+            WIResponse::error('Unauthorized.', 401);
+        }
+
+        return new WIUser($userId);
+    }
+
+    private function requireAdmin(): WIUser
+    {
+        $user = $this->requireAuth();
+
+        if (!method_exists($user, 'isAdmin') || !$user->isAdmin()) {
+            WIResponse::error('Forbidden.', 403);
+        }
+
+        return $user;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auth handlers
+    |--------------------------------------------------------------------------
+    */
+
+    private function handleLogin(): never
+    {
+        $logged = $this->login->userLogin(
+            WIRequest::postString('username'),
+            WIRequest::postString('password')
+        );
+
+        if ($logged !== true) {
+            WIResponse::json($this->login->getLastResult(), 422);
+        }
+
+        $redirectPage = 'WIMembers/profile.php';
+        $userId = (int) WISession::get('user_id', 0);
+
+        if ($userId > 0) {
+            $user = new WIUser($userId);
 
             if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
                 $redirectPage = 'WIAdmin/dashboard.php';
+            } elseif (function_exists('get_redirect_page')) {
+                $redirectPage = (string) get_redirect_page();
             }
         }
 
-        echo json_encode([
-            'status' => 'success',
-            'page'   => $redirectPage
+        WIResponse::success([
+            'message' => 'Login successful',
+            'page' => $redirectPage,
+            'redirect' => $redirectPage,
         ]);
     }
-    break;
 
-    case 'registerUser':
-        $register->register((array) postValue('User', []));
-        exit;
+    private function handleRegister(): never
+    {
+        $result = $this->register->register(WIRequest::postArray('User'));
 
-    case 'resetPassword':
-        $register->resetPassword(
-            postString('newPass'),
-            postString('key')
-        );
-        jsonSuccess([
-            'message' => 'Password reset complete'
-        ]);
-        break;
-
-    case 'forgotPassword':
-        $result = $register->forgotPassword(postString('email'));
-
-        if ($result !== true) {
-            jsonError((string) $result);
+        if (($result['status'] ?? 'error') !== 'success') {
+            WIResponse::json($result, 422);
         }
 
-        jsonSuccess([
-            'message' => 'Password reset request sent'
+        WIResponse::success([
+            'message' => (string) ($result['message'] ?? $result['msg'] ?? 'Registration successful'),
+            'user_id' => (int) ($result['user_id'] ?? 0),
         ]);
-        break;
+    }
 
-    case 'postComment':
-        $WIComment = new WIComment();
+    private function handleForgotPassword(): never
+    {
+        $result = $this->register->forgotPassword(
+            WIRequest::postString('email')
+        );
 
-        jsonResponse([
-            'status' => 'success',
-            'html' => $WIComment->insertComment(
-                WISession::get('user_id'),
-                postString('comment')
-            )
+        if ($result !== true) {
+            WIResponse::error((string) $result, 422);
+        }
+
+        WIResponse::success([
+            'message' => 'Password reset request sent.',
         ]);
-        break;
+    }
 
-    case 'updatePassword':
-        $user = new WIUser((int) WISession::get('user_id', 0));
-        $user->updatePassword(postString('oldpass'), postString('newpass'));
-        jsonSuccess();
-        break;
+    private function handleResetPassword(): never
+    {
+        $this->register->resetPassword(
+            WIRequest::postString('newPass'),
+            WIRequest::postString('key')
+        );
 
-    case 'updateDetails':
-        $user = new WIUser((int) WISession::get('user_id', 0));
-        $user->updateDetails((array) postValue('details', []));
-        jsonSuccess();
-        break;
-
-    case 'changeRole':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
-        jsonSuccess([
-            'role' => ucfirst((string) $user->changeRole())
+        WIResponse::success([
+            'message' => 'Password reset complete.',
         ]);
-        break;
+    }
 
-    case 'deleteUser':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
+    /*
+    |--------------------------------------------------------------------------
+    | Account / profile handlers
+    |--------------------------------------------------------------------------
+    */
+
+    private function handleUpdatePassword(): never
+    {
+        $user = $this->requireAuth();
+
+        $user->updatePassword(
+            WIRequest::postString('oldpass'),
+            WIRequest::postString('newpass')
+        );
+
+        WIResponse::success([
+            'message' => 'Password updated.',
+        ]);
+    }
+
+    private function handleUpdateDetails(): never
+    {
+        $user = $this->requireAuth();
+        $details = WIRequest::postArray('details');
+
+        $user->updateDetails($details);
+
+        WIResponse::success([
+            'message' => 'Details updated.',
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Comments
+    |--------------------------------------------------------------------------
+    */
+
+    private function handlePostComment(): never
+    {
+        $this->requireAuth();
+
+        $comment = new WIComment();
+        $userId = (int) WISession::get('user_id', 0);
+
+        $html = $comment->insertComment(
+            $userId,
+            WIRequest::postString('comment')
+        );
+
+        WIResponse::success([
+            'html' => $html,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin users / roles
+    |--------------------------------------------------------------------------
+    */
+
+    private function handleGetUserDetails(): never
+    {
+        $this->requireAdmin();
+
+        $user = new WIUser(WIRequest::postInt('userId'));
+        WIResponse::json($user->getAll());
+    }
+
+    private function handleGetUser(): never
+    {
+        $this->requireAdmin();
+
+        $user = new WIUser(WIRequest::postInt('userId'));
+        WIResponse::json($user->getAll());
+    }
+
+    private function handleDeleteUser(): never
+    {
+        $this->requireAdmin();
+
+        $user = new WIUser(WIRequest::postInt('userId'));
         $user->deleteUser();
-        jsonSuccess();
-        break;
 
-    case 'getUserDetails':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
-        jsonResponse($user->getAll());
-        break;
+        WIResponse::success([
+            'message' => 'User deleted.',
+        ]);
+    }
 
-    case 'addRole':
-        onlyAdmin();
+
+    private function handlePublicConsentSave(): never
+    {
+        if (!class_exists('WIConsentManager')) {
+            $managerClass = __DIR__ . '/WIConsentManager.php';
+            if (is_file($managerClass)) {
+                require_once $managerClass;
+            }
+        }
+
+        if (!class_exists('WIConsentManager')) {
+            WIResponse::error('Consent manager could not be loaded.', 500);
+        }
+
+        $manager = new WIConsentManager();
+        $result = $manager->recordPublicConsent([
+            'consent_id' => WIRequest::postString('consent_id', ''),
+            'categories' => is_array($_POST['categories'] ?? null) ? $_POST['categories'] : [],
+        ]);
+
+        WIResponse::json($result);
+    }
+
+    private function handleChangeRole(): never
+    {
+        $this->requireAdmin();
+
+        $user = new WIUser(WIRequest::postInt('userId'));
+        $role = ucfirst((string) $user->changeRole());
+
+        WIResponse::success([
+            'message' => 'Role updated.',
+            'role' => $role,
+        ]);
+    }
+
+    private function handleAddRole(): never
+    {
+        $this->requireAdmin();
+
+        $roleName = WIRequest::postString('role');
+
+        if ($roleName === '') {
+            WIResponse::error('Role name is required.', 422);
+        }
+
         $role = new WIRole();
-        jsonResponse($role->add(postString('role')));
-        break;
+        $result = $role->add($roleName);
 
-    case 'deleteRole':
-        onlyAdmin();
+        if (is_array($result)) {
+            WIResponse::json($result);
+        }
+
+        WIResponse::success([
+            'message' => 'Role added.',
+            'roleName' => $roleName,
+        ]);
+    }
+
+    private function handleDeleteRole(): never
+    {
+        $this->requireAdmin();
+
+        $roleId = WIRequest::postInt('roleId');
+
+        if ($roleId <= 0) {
+            WIResponse::error('Invalid role id.', 422);
+        }
+
         $role = new WIRole();
-        $role->delete(postInt('roleId'));
-        jsonSuccess();
-        break;
+        $role->delete($roleId);
 
-    case 'addUser':
-        onlyAdmin();
+        WIResponse::success([
+            'message' => 'Role deleted.',
+        ]);
+    }
+
+    private function handleAddUser(): never
+    {
+        $this->requireAdmin();
+
         $user = new WIUser(null);
-        jsonResponse($user->add($_POST));
-        break;
+        $result = $user->add($_POST);
 
-    case 'updateUser':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
+        if (is_array($result)) {
+            WIResponse::json($result);
+        }
+
+        WIResponse::success([
+            'message' => 'User added.',
+        ]);
+    }
+
+    private function handleUpdateUser(): never
+    {
+        $this->requireAdmin();
+
+        $userId = WIRequest::postInt('userId');
+
+        if ($userId <= 0) {
+            WIResponse::error('Invalid user id.', 422);
+        }
+
+        $user = new WIUser($userId);
         $user->updateUser($_POST);
-        jsonSuccess();
-        break;
 
-    case 'banUser':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
+        WIResponse::success([
+            'message' => 'User updated.',
+        ]);
+    }
+
+    private function handleBanUser(): never
+    {
+        $this->requireAdmin();
+
+        $userId = WIRequest::postInt('userId');
+
+        if ($userId <= 0) {
+            WIResponse::error('Invalid user id.', 422);
+        }
+
+        $user = new WIUser($userId);
         $user->updateInfo(['banned' => 'Y']);
-        jsonSuccess();
-        break;
 
-    case 'unbanUser':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
+        WIResponse::success([
+            'message' => 'User banned.',
+        ]);
+    }
+
+    private function handleUnbanUser(): never
+    {
+        $this->requireAdmin();
+
+        $userId = WIRequest::postInt('userId');
+
+        if ($userId <= 0) {
+            WIResponse::error('Invalid user id.', 422);
+        }
+
+        $user = new WIUser($userId);
         $user->updateInfo(['banned' => 'N']);
-        jsonSuccess();
-        break;
 
-    case 'getUser':
-        onlyAdmin();
-        $user = new WIUser(postInt('userId'));
-        jsonResponse($user->getAll());
-        break;
+        WIResponse::success([
+            'message' => 'User unbanned.',
+        ]);
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | Calendar / bookings
+    | Legacy passthrough kept for active front-end usage
     |--------------------------------------------------------------------------
     */
 
-    case 'dayPicker':
-        $ma = new WIMartialArts();
-        $ma->dayPicker(postInt('id'));
-        exit;
-
-    case 'getDayCalendar':
-        $calendar = new WICalendar();
-        $calendar->getDayCalendar();
-        exit;
-
-    case 'getWeekCalendar':
-        $calendar = new WICalendar();
-        $calendar->getWeekCalendar();
-        exit;
-
-    case 'getCalendar':
-        $calendar = new WICalendar();
-        $calendar->getCalendar(postInt('year'), postInt('month'));
-        exit;
-
-    case 'addEvent':
-        $calendar = new WICalendar();
-        $calendar->addEvent(postString('date'));
-        exit;
-
-    case 'addEventBtn':
-        $calendar = new WICalendar();
-        $calendar->addEventBtn((array) postValue('appointment', []));
-        exit;
-
-    case 'getEvents':
-        $calendar = new WICalendar();
-        $calendar->getEvents(postString('date'));
-        exit;
-
-    case 'getEventTypes':
-        $calendar = new WICalendar();
-        $calendar->getEventTypes();
-        exit;
-
-    case 'showPaymentExecute':
-        $calendar = new WICalendar();
-        $calendar->showPaymentExecute(
-            postValue('response'),
-            postValue('ord')
-        );
-        exit;
-
-    case 'showPaymentGet':
-        $calendar = new WICalendar();
-        $calendar->showPaymentGet(postValue('response'));
-        exit;
-
-    case 'createOrder':
-        $calendar = new WICalendar();
-        $calendar->createOrder(
-            postValue('item_amt'),
-            postValue('item_qty'),
-            postValue('item_title'),
-            postValue('total_amt'),
-            postValue('duration'),
-            postValue('type'),
-            postValue('place'),
-            postValue('name'),
-            postValue('selectedtime'),
-            postValue('contact_no'),
-            postValue('notes'),
-            postValue('eventDate')
-        );
-        exit;
-
-    case 'appointmentFinish':
-        $calendar = new WICalendar();
-        $calendar->appointmentfinish(
-            postString('email'),
-            postValue('docReceipt')
-        );
-        exit;
-
-    case 'timeslots':
-        $calendar = new WICalendar();
-        $calendar->timeSlots(postString('date'), postString('type'));
-        exit;
-
-    case 'training':
-        $calendar = new WICalendar();
-        $calendar->trainingType(postString('date'), postValue('class'));
-        exit;
-
-    case 'details':
-        $calendar = new WICalendar();
-        $calendar->completeDetails(postString('date'), postString('type'));
-        exit;
-
-    case 'paypalpayment':
-        $calendar = new WICalendar();
-        $calendar->paypalPayment(
-            postString('date'),
-            postString('type'),
-            postValue('duration'),
-            postValue('startTime'),
-            postValue('placement'),
-            postValue('contact_no'),
-            postValue('name'),
-            postValue('notes')
-        );
-        exit;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Contact / misc
-    |--------------------------------------------------------------------------
-    */
-
-    case 'send':
-        $contact = new WIContact();
-        $contact->Contact((array) postValue('info', []));
-        exit;
-
-    case 'nextSlider':
+    private function legacyNextSlider(): never
+    {
         $pagin = new WIPagination();
-        $pagin->SlideNextPagination(
-            postValue('ele'),
-            postValue('pagin'),
-            postValue('clas'),
-            postValue('item_per_page'),
-            postValue('current_page'),
-            postValue('total_records'),
-            postValue('total_pages')
-        );
-        exit;
 
-    default:
-        jsonError('Unknown action', 404);
+        $result = $pagin->SlideNextPagination(
+            WIRequest::post('ele'),
+            WIRequest::post('pagin'),
+            WIRequest::post('clas'),
+            WIRequest::post('item_per_page'),
+            WIRequest::post('current_page'),
+            WIRequest::post('total_records'),
+            WIRequest::post('total_pages')
+        );
+
+        /*
+         * Some legacy methods echo directly, some may return content.
+         * If returned, wrap it in JSON for the new JS contract.
+         */
+        if ($result !== null) {
+            WIResponse::success([
+                'html' => (string) $result,
+            ]);
+        }
+
+        exit;
+    }
 }
+
+$ajax = new WIAjax();
+$ajax->handle();

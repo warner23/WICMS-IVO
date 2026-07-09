@@ -1,10 +1,28 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Logger Service
- * WICMS Core
- */
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| Class: WILogger
+| File: WILogger.php
+| Location: /WIAdmin/WICore/WIClass/WILogger.php
+| Type: Logger Service
+| Layer: Shared Core
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Purpose
+|--------------------------------------------------------------------------
+| Structured file logger for system, security, compliance, and admin events.
+|--------------------------------------------------------------------------
+*/
 
 final class WILogger
 {
@@ -34,21 +52,21 @@ final class WILogger
     {
         $logDir = self::getLogDirectory();
 
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0775, true);
+        if (!is_dir($logDir) && !mkdir($logDir, 0775, true) && !is_dir($logDir)) {
+            return;
         }
 
-        $filePath = $logDir . '/' . self::sanitizeChannel($channel) . '-' . date('Y-m-d') . '.log';
+        $filePath = $logDir . DIRECTORY_SEPARATOR . self::sanitizeChannel($channel) . '-' . date('Y-m-d') . '.log';
 
         $entry = [
-            'timestamp' => date('Y-m-d H:i:s'),
-            'level' => $level,
-            'channel' => $channel,
-            'message' => $message,
-            'context' => self::normalizeContext($context),
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+            'timestamp'  => date('Y-m-d H:i:s'),
+            'level'      => $level,
+            'channel'    => $channel,
+            'message'    => $message,
+            'context'    => self::normalizeContext($context),
+            'ip'         => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            'user_id' => WISession::get('user_id', null),
+            'user_id'    => class_exists('WISession') ? WISession::get('user_id', null) : null,
         ];
 
         $line = json_encode($entry, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -60,13 +78,15 @@ final class WILogger
 
     private static function getLogDirectory(): string
     {
-        $configured = WIConfig::get('LOG_PATH');
+        if (class_exists('WIConfig') && method_exists('WIConfig', 'get')) {
+            $configured = WIConfig::get('LOG_PATH');
 
-        if (is_string($configured) && $configured !== '') {
-            return rtrim($configured, '/\\');
+            if (is_string($configured) && $configured !== '') {
+                return rtrim($configured, '/\\');
+            }
         }
 
-        return dirname(__DIR__) . '/logs';
+        return dirname(__DIR__) . DIRECTORY_SEPARATOR . 'logs';
     }
 
     private static function sanitizeChannel(string $channel): string
@@ -79,7 +99,7 @@ final class WILogger
 
     private static function normalizeContext(array $context): array
     {
-        array_walk_recursive($context, function (&$value): void {
+        array_walk_recursive($context, static function (&$value): void {
             if (is_object($value)) {
                 $value = method_exists($value, '__toString') ? (string) $value : get_class($value);
                 return;
@@ -94,7 +114,8 @@ final class WILogger
                 return;
             }
 
-            $value = json_encode($value);
+            $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $value = $encoded !== false ? $encoded : 'unserializable';
         });
 
         return $context;

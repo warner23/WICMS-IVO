@@ -1,65 +1,43 @@
 <?php
+declare(strict_types=1);
 
-function redirect($url)
-{
-    $url = rtrim(SCRIPT_URL, '/') . '/' . ltrim($url, '/');
-    //echo $url;
-    if ( ! headers_sent() )
-    {    
-        echo header('Location: '.$url); //, TRUE, 302
-        exit;
-    }
-    else
+/**
+ * File Information
+ * Written By: Jules Warner / Warner Infinity
+ * Company: Warner Infinity
+ * Product: WICMS
+ * Project: WIMembers
+ * File: WIHelperFunctions.php
+ * Location: WIMembers/WICore/WIClass/
+ * Type: Helpers
+ * Layer: Core
+ * Purpose Area: Member workspace, profile, account, settings, payments, forms and training
+ * Version: 1.0.0
+ * Created: 2026-05-24
+ * Last Updated: 2026-05-24
+ * Status: Refactored
+ * Summary: WICMS-compatible WIMembers modernisation. Keeps WI-prefixed classes, database-driven modules, sessions and page rendering.
+ */
+
+
+if (!function_exists('wi_e')) {
+    function wi_e($value): string
     {
-        echo '<script type="text/javascript">';
-        echo 'window.location.href="'.$url.'";';
-        echo '</script>';
-        echo '<noscript>';
-        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
-        echo '</noscript>';
-        exit;
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 }
 
-function unauthorized_Redirect($url)
-{
-    //$url = SCRIPT_URL . '/' . $url;
-    if( !headers_sent() ){
-                echo header('Location: '.$url); //, TRUE, 302
-        exit;
-    }else{
-         echo '<script type="text/javascript">';
-        echo 'window.location.href="/'.$url.'";';
-        echo '</script>';
-        echo '<noscript>';
-        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
-        echo '</noscript>';
-        exit;
-    }
-}
-
-function get_redirect_page()
-{
-    $login = new WILogin();
-
-    if ( $login->isLoggedIn() )
+if (!function_exists('unauthorized_Redirect')) {
+    function unauthorized_Redirect(string $url = '../login.php'): void
     {
-        $user = new WIUser(WISession::get("user_id"));
-        $role = $user->getRole();
+        header('Location: ' . $url);
+        exit;
     }
-    else
-        $role = 'default';
-
-    $redirect = unserialize(SUCCESS_LOGIN_REDIRECT);
-
-    if ( ! isset($redirect['default']) )
-        $redirect['default'] = 'index.php';
-
-    return isset($redirect[$role]) ? $redirect[$role] : $redirect['default'];
 }
 
-
-function e($value)
-{
-    return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+if (!function_exists('wi_member_asset')) {
+    function wi_member_asset(string $path): string
+    {
+        return '../' . ltrim($path, '/');
+    }
 }

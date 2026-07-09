@@ -53,12 +53,36 @@ var WIMenu = (function ($) {
         }
     }
 
-    function normaliseMenuPayload(data) {
-        if (data && data.menu) {
-            return data.menu;
+    function responsePayload(response) {
+        if (response && response.menu) {
+            return response.menu;
+        }
+        if (response && response.data && response.data.menu) {
+            return response.data.menu;
+        }
+        if (response && response.data) {
+            return response.data;
+        }
+        return response || {};
+    }
+
+    function csrfFor(action) {
+        if (!window.WICMS_MENU_CSRF || !Object.prototype.hasOwnProperty.call(window.WICMS_MENU_CSRF, action)) {
+            return "";
         }
 
-        return data || {};
+        return window.WICMS_MENU_CSRF[action] || "";
+    }
+
+    function attachCsrf(action, data) {
+        data = data || {};
+        var token = csrfFor(action);
+
+        if (token) {
+            data.csrf_token = token;
+        }
+
+        return data;
     }
 
     function renderMessage(target, type, message) {
@@ -67,7 +91,8 @@ var WIMenu = (function ($) {
         }
 
         var safeType = type === "success" ? "success" : "danger";
-        var html = '<div class="alert alert-' + safeType + '">' + (message || "") + "</div>";
+        var safeMessage = String(message || "");
+        var html = '<div class="alert alert-' + safeType + '">' + safeMessage + "</div>";
 
         $(target).html(html);
     }
@@ -102,11 +127,12 @@ var WIMenu = (function ($) {
         return $.ajax({
             url: ajaxUrl,
             type: "POST",
-            data: $.extend({ action: action }, data || {})
+            data: $.extend({ action: action }, attachCsrf(action, data || {}))
         }).done(function (result) {
             var response = parseResponse(result);
+            var status = response.status || (response.success ? "success" : "error");
 
-            if ((response.status || "") === "success" || (response.status || "") === "completed") {
+            if (status === "success" || status === "completed") {
                 if (target) {
                     renderMessage(target, "success", response.message || "Saved successfully.");
                 }
@@ -138,6 +164,21 @@ var WIMenu = (function ($) {
         });
     }
 
+    function buildOrder(selector) {
+        var ids = [];
+
+        $(selector).each(function () {
+            var id = $(this).attr("data-menu-id") || $(this).attr("data-sidebar-id") || $(this).attr("id") || "";
+            id = parseInt(id, 10);
+
+            if (id > 0 && ids.indexOf(id) === -1) {
+                ids.push(id);
+            }
+        });
+
+        return ids;
+    }
+
     return {
         newItem: function (e) {
             preventEvent(e);
@@ -156,12 +197,14 @@ var WIMenu = (function ($) {
                 }
             }).done(function (result) {
                 var response = parseResponse(result);
-                var menu = normaliseMenuPayload(response);
+                var menu = responsePayload(response);
+                var status = response.status || (response.success ? "success" : "error");
 
-                if ((response.status || "") === "success" || (response.status || "") === "completed") {
+                if (status === "success" || status === "completed") {
                     $("#edit_menu_id").val(menu.id || "");
-                    $("#edit_menu_name").val(menu.name || "");
+                    $("#edit_menu_name").val(menu.label || menu.lang || "");
                     $("#edit_menu_link").val(menu.link || "");
+                    $("#edit_menu_lang").val(menu.lang || menu.label || "");
                     openModal("menu-edit");
                 } else {
                     renderMessage("#mresults", "error", response.message || "Unable to load menu item.");
@@ -174,22 +217,16 @@ var WIMenu = (function ($) {
         },
 
         menuEdit: function () {
-            var payload = {
+            post("menuEdit", {
                 menu: {
                     MenuData: {
                         id: $("#edit_menu_id").val(),
-                        name: $("#edit_menu_name").val(),
+                        label: $("#edit_menu_name").val(),
+                        lang: $("#edit_menu_lang").val() || $("#edit_menu_name").val(),
                         link: $("#edit_menu_link").val()
-                    },
-                    FieldId: {
-                        id: "id",
-                        name: "name",
-                        link: "link"
                     }
                 }
-            };
-
-            post("menuEdit", payload, {
+            }, {
                 target: "#mresults",
                 loadingLabel: "Saving",
                 onSuccess: function () {
@@ -200,20 +237,15 @@ var WIMenu = (function ($) {
         },
 
         menunew: function () {
-            var payload = {
+            post("newmenuitem", {
                 menu: {
                     MenuData: {
-                        name: $("#new_menu_name").val(),
+                        label: $("#new_menu_name").val(),
+                        lang: $("#new_menu_lang").val() || $("#new_menu_name").val(),
                         link: $("#new_menu_link").val()
-                    },
-                    FieldId: {
-                        name: "name",
-                        link: "link"
                     }
                 }
-            };
-
-            post("newmenuitem", payload, {
+            }, {
                 target: "#mresults",
                 loadingLabel: "Adding",
                 onSuccess: function () {
@@ -256,12 +288,10 @@ var WIMenu = (function ($) {
         },
 
         menuLink: function () {
-            var name = $("#new_menu_name").val();
-            var link = $("#new_menu_link").val();
-
             post("menuLink", {
-                name: name,
-                link: link
+                name: $("#sidebar_new_menu_name").val(),
+                link: $("#sidebar_new_menu_link").val(),
+                parent: $("#sidebar_new_menu_parent").val()
             }, {
                 target: "#sbmresults",
                 loadingLabel: "Creating",
@@ -270,17 +300,22 @@ var WIMenu = (function ($) {
                     refreshPage();
                 }
             });
-        }
+        },
 
-         saveSidebarMenu: function () {
+        saveSidebarMenu: function () {
             var form = $("#wi-sidebar-menu-form");
+            var button = $("#save_sidebar_menu");
+            var token = csrfFor("saveSidebarMenu");
+            var data = "action=saveSidebarMenu&" + form.serialize();
 
             if (!form.length) {
                 renderMessage("#sbmresults", "error", "Sidebar form not found.");
                 return;
             }
 
-            var button = $("#save_sidebar_menu");
+            if (token) {
+                data += "&csrf_token=" + encodeURIComponent(token);
+            }
 
             clearMessages();
             showLoader();
@@ -292,11 +327,12 @@ var WIMenu = (function ($) {
             $.ajax({
                 url: ajaxUrl,
                 type: "POST",
-                data: form.serialize() + "&action=saveSidebarMenu"
+                data: data
             }).done(function (result) {
                 var response = parseResponse(result);
+                var status = response.status || (response.success ? "success" : "error");
 
-                if ((response.status || "") === "success" || (response.status || "") === "completed") {
+                if (status === "success" || status === "completed") {
                     renderMessage("#sbmresults", "success", response.message || "Sidebar saved successfully.");
                     refreshPage();
                 } else {
@@ -312,7 +348,6 @@ var WIMenu = (function ($) {
                 }
             });
         },
-
 
         newAdminMenuItem: function (e) {
             preventEvent(e);
@@ -331,13 +366,14 @@ var WIMenu = (function ($) {
                 }
             }).done(function (result) {
                 var response = parseResponse(result);
-                var menu = normaliseMenuPayload(response);
+                var menu = responsePayload(response);
+                var status = response.status || (response.success ? "success" : "error");
 
-                if ((response.status || "") === "success" || (response.status || "") === "completed") {
+                if (status === "success" || status === "completed") {
                     $("#edit_admin_menu_id").val(menu.id || "");
-                    $("#edit_admin_menu_name").val(menu.label || menu.name || "");
+                    $("#edit_admin_menu_name").val(menu.label || menu.lang || "");
                     $("#edit_admin_menu_link").val(menu.link || "");
-                    $("#edit_admin_menu_lang").val(menu.lang || "");
+                    $("#edit_admin_menu_lang").val(menu.lang || menu.label || "");
                     openModal("admin-menu-edit");
                 } else {
                     renderMessage("#admresults", "error", response.message || "Unable to load admin menu item.");
@@ -350,19 +386,16 @@ var WIMenu = (function ($) {
         },
 
         adminMenuEdit: function () {
-            var payload = {
+            post("adminMenuEdit", {
                 menu: {
                     MenuData: {
                         id: $("#edit_admin_menu_id").val(),
-                        name: $("#edit_admin_menu_name").val(),
                         label: $("#edit_admin_menu_name").val(),
-                        link: $("#edit_admin_menu_link").val(),
-                        lang: $("#edit_admin_menu_lang").val()
+                        lang: $("#edit_admin_menu_lang").val() || $("#edit_admin_menu_name").val(),
+                        link: $("#edit_admin_menu_link").val()
                     }
                 }
-            };
-
-            post("adminMenuEdit", payload, {
+            }, {
                 target: "#admresults",
                 loadingLabel: "Saving",
                 onSuccess: function () {
@@ -373,19 +406,16 @@ var WIMenu = (function ($) {
         },
 
         adminMenuNew: function () {
-            var payload = {
+            post("newAdminMenuItem", {
                 menu: {
                     MenuData: {
-                        name: $("#new_admin_menu_name").val(),
                         label: $("#new_admin_menu_name").val(),
+                        lang: $("#new_admin_menu_lang").val() || $("#new_admin_menu_name").val(),
                         link: $("#new_admin_menu_link").val(),
-                        lang: $("#new_admin_menu_lang").val(),
                         sort: $("#new_admin_menu_sort").val()
                     }
                 }
-            };
-
-            post("newAdminMenuItem", payload, {
+            }, {
                 target: "#admresults",
                 loadingLabel: "Adding",
                 onSuccess: function () {
@@ -418,11 +448,28 @@ var WIMenu = (function ($) {
             });
         },
 
+        saveMenuOrder: function (table, selector, target) {
+            var order = buildOrder(selector);
 
+            if (!order.length) {
+                renderMessage(target, "error", "No menu items were found to save.");
+                return;
+            }
 
+            post("saveMenuOrder", {
+                table: table,
+                order: order
+            }, {
+                target: target,
+                loadingLabel: "Saving order",
+                onSuccess: function () {
+                    refreshPage();
+                }
+            });
+        }
     };
 })(jQuery);
 
 $(document).ready(function () {
-    // Reserved for future menu-specific bindings.
+    // Menu-specific bindings live in /WITheme/WICMS/admin/js/core-admin-menus.js.
 });

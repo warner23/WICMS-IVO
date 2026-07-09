@@ -1,144 +1,180 @@
-$(document).ready(function()
-{
-	// button register click below
-	$("#btn-register").click(function()
-	{
-		if(register.validateRegistration() == true)
-		{
-			// validation has been passed
-			var RegMail            = $("#reg-email").val(),
-			 RegUser               = $("#reg-username").val(),
-			 RegPass               = $("#reg-password").val(),
-			 RegPassCon            = $("#reg-repeat-password").val(),
-			 RegBotSom             = $("#reg-bot-sum").val();
-
-			 //create data that will be sent over server
-
-			 var data =
-			 {
-			 	UserData:
-			 	{
-			 	    email           : RegMail,
-                    username        : RegUser,
-                    password        : RegPass,
-                    confirm_password: RegPassCon,
-                    bot_sum         : RegBotSom	
-			 	},
-			 	FieldId:
-			 	{
-			 		email           : "reg-email",
-			 		username        : "reg-username",
-                    password        : "reg-password",
-                    confirm_password: "reg-repeat-password",
-                    bot_sum         : "reg-bot-sum"
-			 	}
-			 };
-			 // send data to server
-			 register.registerUser(data);
-		}
-	});
-});
-
-
-
-
-
-var register ={};
-
-// register a new user
-register.registerUser = function(data)
-{
-	// get register btn
-	var btn = $("#btn-register");
-
-	// put button into the loading state
-	WICore.loadingButton(btn, $_lang.creating_Account);
-
-	//hash the passowrds before sending them over the network
-    data.UserData.password = CryptoJS.SHA512(data.UserData.password).toString();
-    data.UserData.confirm_password = CryptoJS.SHA512(data.UserData.confirm_password).toString();
-
-    // send the data to the server
-    $.ajax({
-    	url: "WICore/WIClass/WIAjax.php",
-    	type: "POST",
-    	data: {
-    		action : "registerUser",
-    		User   : data
-    	},
-    	success: function(result)
-    	{
-    		// return the button to normasl state
-    		WICore.removeLoadingButton(btn);
-    		console.log(result);
-            //window.alert(result);
-    		//parse the data to json
-            //var res = JSON.stringify(result);
-    		var res = JSON.parse(result);
-            //var res = $.parseJSON(result);
-            console.log(res);
-    		if(res.status === "error")
-    		{
-    			/// display all errors
-    			 for(var i=0; i<res.errors.length; i++) 
-    			 {
-                    var error = res.errors[i];
-                    WICore.displayErrorMessage($("#"+error.id), error.msg);
-                }
-    		}
-    		else
-    		{
-    			// dispaly success message
-    			WICore.displaySuccessMessage($(".register-form fieldset"), res.msg);
-                //WICore.displaySuccessMessage($(".msg"), res.msg);
-    		}
-    	}
+$(document).ready(function () {
+    $('.register-form').on('submit', function (e) {
+        e.preventDefault();
+        register.handleSubmit($(this));
     });
 
+    $('#btn-register').on('click', function (e) {
+        e.preventDefault();
+        register.handleSubmit($(this).closest('form'));
+    });
+});
+
+var register = {};
+
+register.handleSubmit = function (form) {
+    if (register.validateRegistration() !== true) {
+        return false;
+    }
+
+    var data = {
+        UserData: {
+            email: $('#reg-email').val(),
+            username: $('#reg-username').val(),
+            password: $('#reg-password').val(),
+            confirm_password: $('#reg-repeat-password').val(),
+            bot_sum: $('#reg-bot-sum').length ? $('#reg-bot-sum').val() : ''
+        },
+        FieldId: {
+            email: 'reg-email',
+            username: 'reg-username',
+            password: 'reg-password',
+            confirm_password: 'reg-repeat-password',
+            bot_sum: 'reg-bot-sum'
+        },
+        csrf_token: register.getCsrfToken(form)
+    };
+
+    register.registerUser(data, form);
+
+    return false;
 };
 
-// validate registration form
-register.validateRegistration = function()
-{
-	var valid = true;
+register.registerUser = function (data, form) {
+    var btn = $('#btn-register');
+    var ajaxUrl = register.getAjaxUrl(form);
 
-	// remove all previous error messages
-	WICore.removeErrorMessages();
+    if (typeof WICore !== 'undefined' && typeof WICore.loadingButton === 'function') {
+        WICore.loadingButton(btn, $_lang.creating_account || 'Creating account...');
+    }
 
-	// check if all fields are filled
-	$(".register-form").find("input").each(function()
-	{
-		var el = $(this);
-		 if($.trim(el.val()) === "") 
-		 {
-            WICore.displayErrorMessage(el);
-            valid = false;
+    $.ajax({
+        url: ajaxUrl,
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            action: 'registerUser',
+            User: {
+                UserData: data.UserData,
+                FieldId: data.FieldId
+            },
+            csrf_token: data.csrf_token
+        },
+        success: function (result) {
+            register.resetButton(btn);
+            WICore.removeErrorMessages();
+
+            if (result && result.status === 'success') {
+                var successMessage = result.message || result.msg || 'Registration successful.';
+                WICore.displaySuccessMessage($('.register-form fieldset'), successMessage);
+                return;
+            }
+
+            if (result && $.isArray(result.errors)) {
+                for (var i = 0; i < result.errors.length; i++) {
+                    var error = result.errors[i];
+
+                    if (error && error.id) {
+                        WICore.displayErrorMessage($('#' + error.id), error.msg || 'Invalid value');
+                    }
+                }
+                return;
+            }
+
+            WICore.displayErrorMessage($('#reg-password'), (result && result.message) ? result.message : 'Registration failed.');
+        },
+        error: function (xhr) {
+            register.resetButton(btn);
+            WICore.removeErrorMessages();
+
+            var message = 'Something went wrong. Please try again.';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            }
+
+            WICore.displayErrorMessage($('#reg-password'), message);
         }
-	});
+    });
+};
 
-	// get email, pass, and confirm pass for further validation
-	var RegMail           = $("#reg-email"),
-	    RegPass           = $("#reg-password"),
-	    RegPassCon        = $("#reg-repeat-password");
+register.validateRegistration = function () {
+    var valid = true;
 
-    //check if email is valid
-    if(!WICore.validateEmail(RegMail.val()) && RegMail.val() != "") {
+    WICore.removeErrorMessages();
+
+    var emailField = $('#reg-email');
+    var usernameField = $('#reg-username');
+    var passwordField = $('#reg-password');
+    var confirmField = $('#reg-repeat-password');
+
+    if ($.trim(emailField.val()) === '') {
+        WICore.displayErrorMessage(emailField, $_lang.email_required || 'Email is required');
         valid = false;
-        WICore.displayErrorMessage(RegMail,$_lang.email_wrong_format);
+    } else if (!WICore.validateEmail(emailField.val())) {
+        WICore.displayErrorMessage(emailField, $_lang.email_wrong_format || 'Email format is invalid');
+        valid = false;
     }
 
-    //check if password and confirm password fields are equal
-    if(RegPass.val() !== RegPassCon.val() && RegPass.val() != "" && RegPassCon.val() != "") {
+    if ($.trim(usernameField.val()) === '') {
+        WICore.displayErrorMessage(usernameField, $_lang.username_required || 'Username is required');
         valid = false;
-        WICore.displayErrorMessage(RegPassCon, $_lang.passwords_dont_match);
     }
 
-    //check password length
-    if($.trim(RegPass.val()).length <= 5) {
+    if ($.trim(passwordField.val()) === '') {
+        WICore.displayErrorMessage(passwordField, $_lang.password_required || 'Password is required');
         valid = false;
-        WICore.displayErrorMessage(RegPass, $_lang.password_length);
+    } else if ($.trim(passwordField.val()).length < 8) {
+        WICore.displayErrorMessage(passwordField, $_lang.password_length || 'Password is too short');
+        valid = false;
     }
 
-    return valid;       
+    if ($.trim(confirmField.val()) === '') {
+        WICore.displayErrorMessage(confirmField, $_lang.password_required || 'Please confirm your password');
+        valid = false;
+    } else if (passwordField.val() !== confirmField.val()) {
+        WICore.displayErrorMessage(confirmField, $_lang.passwords_dont_match || 'Passwords do not match');
+        valid = false;
+    }
 
-}
+/*    if ($('#reg-bot-sum').length && $.trim($('#reg-bot-sum').val()) === '') {
+        WICore.displayErrorMessage($('#reg-bot-sum'));
+        valid = false;
+    }*/
+
+    return valid;
+};
+
+register.getCsrfToken = function (form) {
+    var token = '';
+
+    if (form && form.length) {
+        token = form.find('input[name="csrf_token"]').val() || '';
+    }
+
+    if (!token) {
+        token = $('input[name="csrf_token"]').first().val() || '';
+    }
+
+    if (!token) {
+        token = $('meta[name="csrf-token"]').attr('content') || '';
+    }
+
+    return token;
+};
+
+register.getAjaxUrl = function (form) {
+    var defaultUrl = 'WICore/WIClass/WIAjax.php';
+
+    if (!form || !form.length) {
+        return defaultUrl;
+    }
+
+    return form.data('ajax') || defaultUrl;
+};
+
+register.resetButton = function (btn) {
+    if (typeof WICore !== 'undefined' && typeof WICore.removeLoadingButton === 'function') {
+        WICore.removeLoadingButton(btn);
+    }
+};

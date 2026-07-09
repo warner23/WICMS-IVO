@@ -1,0 +1,191 @@
+
+/* =========================================================
+   WICMS Menu CSS Tabs + Builder Sortable Cleanup
+   ---------------------------------------------------------
+   CSS-backed tabs avoid jQuery UI dependency for the Site /
+   Admin / Sidebar panels. Sortable styling uses WIBuilder /
+   WIDragDrop data attributes.
+========================================================= */
+
+.wi-menu-hidden-csrf,
+.wi-menu-tab-radio {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+}
+
+.wi-menu-tabs-css .wi-menu-tab-rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 12px;
+    background: var(--wi-menu-panel, #fff);
+    border: 1px solid var(--wi-menu-border, #e5e7eb);
+    border-radius: 20px;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+}
+
+.wi-menu-tabs-css .wi-menu-tab-link {
+    position: relative;
+    display: inline-flex;
+    min-width: 160px;
+    min-height: 76px;
+    flex: 1 1 160px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    color: var(--wi-menu-text, #344054);
+    background: transparent;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease, transform .18s ease;
+}
+
+.wi-menu-tabs-css .wi-menu-tab-link:hover {
+    color: var(--wi-menu-blue, #0b5cff);
+    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+    transform: translateY(-1px);
+}
+
+.wi-menu-tab-panels .wi-menu-tab-panel {
+    display: none;
+}
+
+#wi-menu-tab-site-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-site-menu"],
+#wi-menu-tab-admin-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-admin-menu"],
+#wi-menu-tab-sidebar-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-sidebar-menu"] {
+    color: var(--wi-menu-blue, #0b5cff);
+    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+}
+
+#wi-menu-tab-site-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-site-menu"]::after,
+#wi-menu-tab-admin-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-admin-menu"]::after,
+#wi-menu-tab-sidebar-menu:checked ~ .wi-menu-tab-rail label[for="wi-menu-tab-sidebar-menu"]::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 0;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: var(--wi-menu-blue, #0b5cff);
+}
+
+#wi-menu-tab-site-menu:checked ~ .wi-menu-tab-panels #site-menu,
+#wi-menu-tab-admin-menu:checked ~ .wi-menu-tab-panels #admin-menu,
+#wi-menu-tab-sidebar-menu:checked ~ .wi-menu-tab-panels #sidebar-menu {
+    display: block;
+}
+
+.wi-menu-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #1d4ed8;
+    cursor: grab;
+    font-weight: 900;
+    user-select: none;
+}
+
+.wi-menu-drag-handle:active {
+    cursor: grabbing;
+}
+
+.wi-menu-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid #bfdbfe;
+    border-radius: 13px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.wi-menu-secondary-btn:hover,
+.wi-menu-secondary-btn:focus {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.wi-menu-sortable-list-site,
+.wi-menu-sortable-list-admin,
+.wi-menu-sortable-list-sidebar {
+    min-height: 48px;
+}
+
+.wi-menu-sortable-list-site > li,
+.wi-admin-menu-list > .wi-admin-menu-item,
+.sidebar-editor-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wi-menu-sortable-list-site > li {
+    margin: 0 0 10px;
+    padding: 13px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #fff;
+    color: #101828;
+    list-style: none;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.wi-admin-menu-item .wi-menu-drag-handle,
+.sidebar-editor-item .wi-menu-drag-handle {
+    align-self: flex-start;
+    margin-top: 4px;
+}
+
+.is-menu-order-updated {
+    outline: 2px dashed rgba(37, 99, 235, 0.35);
+    outline-offset: 5px;
+}
+
+.wi-builder-sort-placeholder {
+    min-height: 54px;
+    margin: 0 0 10px;
+    border: 2px dashed #60a5fa;
+    border-radius: 14px;
+    background: #eff6ff;
+}
+
+@media (max-width: 991px) {
+    .wi-menu-tabs-css .wi-menu-tab-rail {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .wi-menu-tabs-css .wi-menu-tab-link {
+        flex: 0 0 150px;
+    }
+}

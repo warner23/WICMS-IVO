@@ -15,7 +15,7 @@ final class Migration_20260313_001_initialize_wicms_update_system extends Migrat
 
     public function up(): void
     {
-        $this->db->exec("
+        $this->WIdb->exec("
             CREATE TABLE IF NOT EXISTS `wi_migrations` (
                 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 `version` VARCHAR(190) NOT NULL,
@@ -26,7 +26,7 @@ final class Migration_20260313_001_initialize_wicms_update_system extends Migrat
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
-        $this->db->exec("
+        $this->WIdb->exec("
             CREATE TABLE IF NOT EXISTS `wi_system_versions` (
                 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 `component` VARCHAR(100) NOT NULL,

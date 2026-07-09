@@ -1,62 +1,21 @@
 <?php
-$page = "About_Us";
-
-include_once "WIInc/WI_StartUp.php";
-
-$ref = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "";
-
-$agent = $_SERVER["HTTP_USER_AGENT"];
-$ip = $_SERVER["REMOTE_ADDR"];
+declare(strict_types=1);
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+ini_set('log_errors', '1');
 
 
-$tracking_page = $_SERVER["SCRIPT_NAME"];
+require_once 'WICore/WIClass/WI.php';
 
-$country = $maint->ip_info($ip, "country");
-$location = $maint->ip_info($ip, "location");
-$city = $location['city'];
-if($country === null){
-  $country = "localhost";
-}
+$page = 'about_us';
+$startup = new WIStartUp();
 
-$maint->visitors_log($page, $ip, $country, $ref, $agent, $tracking_page, $city);
+$startup->boot($page);
+$startup->header($page);
+//die('WI loaded');
+$modules = new WIModules();
+$moduleName = $modules->getModuleNameByPage($page) ?? 'notfound';
+$modules->getModMain($moduleName, $page);
 
-$panelPower = $web->pageModPower($page, "panel");
-
-$Panel = $web->PageMod($page, "panel");
-if ($panelPower > 0) {
-  $mod->getMod($Panel);
-}
-
-$topPower = $web->pageModPower($page, "top_head");
-$top_head = $web->PageMod($page, "top_head");
-if ($topPower > 0) {
-  $mod->getMod($top_head);
-}
-
-$headerPower = $web->pageModPower($page, "header");
-if ($headerPower > 0) {
-$web->MainHeader();
-}
-
-
-$web->MainMenu();
-
-$contents = $web->pageModPower($page, "contents");
-$mod->getModMain($contents, $page, $contents);
-
-$footerPower = $web->pageModPower($page, "footer");
-
-if ($footerPower > 0) {
-  
-$web->footer();
-}
-
-$web->backendJs();
-
-?>
-     <!-- Start Style Switcher -->
-    <div class="switcher"></div>
-    <!-- End Style Switcher -->
-
-</body>
-</html>
+$startup->footer();

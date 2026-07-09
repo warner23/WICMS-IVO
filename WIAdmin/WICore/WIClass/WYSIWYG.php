@@ -52,7 +52,6 @@ class WYSIWYG
     </p>
 </div>';
 	}
-}
 
 public function test()
 {
@@ -260,5 +259,6 @@ public function test()
 </div>';
 }
 
+}
 
 ?>

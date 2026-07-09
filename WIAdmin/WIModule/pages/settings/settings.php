@@ -1,263 +1,130 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* 
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIProfile
+| Project: WI Ecosystem
+| File: settings.php
+| Location: /WIAdmin/WIModule/pages/settings/settings.php
+| Type: Module
+| Layer: Front-Side UI Module
+| Purpose Area: Member preferences/settings
+| Version: 2.1.0
+| Created: 2026-05-24
+| Last Updated: 2026-06-14
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Renders the member settings workspace through the canonical WIModules flow.
+| The module is UI-only and safely falls back to default preferences when the
+| settings service/table is not available in a fresh install.
 */
-class settings 
+
+final class WISettingsModule
 {
-	
+    public static function moduleMeta(): array
+    {
+        return [
+            'code' => 'settings',
+            'name' => 'Member Settings',
+            'type' => 'page',
+            'area' => 'member',
+            'version' => '2.1.0',
+            'description' => 'Member notification and appearance preferences.',
+        ];
+    }
 
-	function __construct()
-	{
-		$this->WIdb = WIdb::getInstance();
-		$this->Web  = new WIWebsite();
-		$this->site = new WISite();
-		$this->mod  = new WIModules();
-		$this->page = new WIPage();
-		$this->Slide = new WISlideshow();
-	}
+    public function Install(string $moduleName = 'settings', array $context = []): array
+    {
+        return ['success' => true, 'message' => 'Settings module ready.', 'module' => $moduleName];
+    }
 
-		public function editMod()
-	{
-		echo '<div id="remove">
-      <a href="#">
-      <button id="delete" onclick="WIMod.delete(event);">Delete</button>
-      </a>
-       <div id="dialog-confirm" title="Remove Module?" class="hide">
-  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;">
-  </span>Are you sure?</p>
-  <p> This will remove the module and any unsaved data.</p>
-  <span><button class="btn btn-danger" onclick="WIMod.remove(event);">Remove</button> <button class="btn" onclick="WIMod.close(event);">Close</button></span>
-</div>
-';
+    public function editMod(array $context = []): void
+    {
+        $this->adminPanel('Settings module', 'Member preferences module. Rendering is handled by the front-side module runtime.');
+    }
 
-echo '<div class="container-fluid text-center">    
-  <div class="row content">
+    public function editPageContent(string|int $page = 'settings', array $context = []): void
+    {
+        $this->adminPanel('Settings page content', 'Settings are rendered from WISettings/user preference payloads.');
+    }
 
-	<div class="col-lg-12 col-md-12 col-sm-12" >
-						<div class="col-lg-12 col-md-12 col-sm-12" >
+    public function mod_name(string $module = 'settings', string $page = 'settings', array $payload = []): void
+    {
+        $settings = $this->settingsPayload();
 
-						 <div class="col-lg-12 col-md-12 col-sm-12 text-left"> 
-							<div class="intro_box">
-<h1>' .WILang::get("welcome_") . '<span>'. $this->site->Website_Info('site_name') . '</span></h1>
-							<p>' . WILang::get("main_title") . '</p>
-							</div>
-						</div>
-					</div>
-				
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-laptop"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("community") . '</h3>
-								<p>' . WILang::get("learn") . '
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-trophy"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("software") . '</h3>
-								<p>' .WILang::get("software") . '
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-cogs"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("it") . '</h3>
-								<p>' . WILang::get("it_title")  . '
-</p>
-							</div>
-						</div>
-					</div>
-					</div>
-					
+        $this->openShell($page);
+        echo '<section class="wi-profile-hero wi-profile-hero--compact"><div class="wi-profile-hero__content"><p class="wi-kicker">Preferences</p><h2>Settings and notifications</h2><p>Control member-side preferences, notification channels and visual defaults.</p></div></section>';
+        echo '<section class="wi-member-panel"><form class="wi-member-form" data-wi-ajax-form="member_settings_save">';
+        echo $this->csrfField();
+        $this->check('email_notifications', 'Email notifications', $settings);
+        $this->check('training_notifications', 'Training reminders', $settings);
+        $this->check('marketing_updates', 'Product and membership updates', $settings);
+        echo '<label>Appearance<select name="appearance">';
+        foreach (['dark' => 'Dark', 'light' => 'Light', 'system' => 'System'] as $value => $label) {
+            $selected = (string) ($settings['appearance'] ?? 'dark') === $value ? ' selected' : '';
+            echo '<option value="' . wi_e($value) . '"' . $selected . '>' . wi_e($label) . '</option>';
+        }
+        echo '</select></label><button type="submit">Save settings</button><div data-wi-form-message></div></form></section>';
+        $this->closeShell();
+    }
 
+    /** @return array<string,mixed> */
+    private function settingsPayload(): array
+    {
+        $defaults = [
+            'email_notifications' => 1,
+            'training_notifications' => 1,
+            'marketing_updates' => 0,
+            'appearance' => 'dark',
+        ];
 
-    
-				</div>
-			</div>';
+        try {
+            if (class_exists('WISettings')) {
+                $settings = (new WISettings())->getForUser((int) WISession::get('user_id', 0));
+                return is_array($settings) ? array_merge($defaults, $settings) : $defaults;
+            }
+        } catch (Throwable $e) {
+            return $defaults;
+        }
 
+        return $defaults;
+    }
 
-		echo '</div>';
-	}
+    /** @param array<string,mixed> $settings */
+    private function check(string $name, string $label, array $settings): void
+    {
+        $checked = (int) ($settings[$name] ?? 0) === 1 ? ' checked' : '';
+        echo '<label class="wi-check"><input type="checkbox" name="' . wi_e($name) . '" value="1"' . $checked . '> ' . wi_e($label) . '</label>';
+    }
 
-	public function editPageContent($page_id)
-	{
-		// include_once '../../WIInc/WI_StartUp.php';
-		 echo '		 <style type="text/css">
-	
-		.content {
-		    padding: 32px 0;
-		    position: relative;
-		    margin-top: 58px;
-		}
+    private function openShell(string $page): void
+    {
+        $modules = new WIModules();
+        echo '<div class="wi-member-shell">';
+        $modules->renderComponent('member_sidebar', ['page' => $page]);
+        echo '<main class="wi-member-main">';
+        $modules->renderComponent('member_topbar', ['page' => $page]);
+    }
 
-		.text-left{
-			text-align: center;
-		}
-		.edit{
-			width:21%;
-		}
+    private function closeShell(): void
+    {
+        echo '</main></div>';
+    }
 
-		</style>
+    private function csrfField(): string
+    {
+        return class_exists('WICsrf') && method_exists('WICsrf', 'inputField') ? WICsrf::inputField() : '';
+    }
 
-		<div class="container-fluid text-center" id="col"> ';  
-
-		  $lsc = $this->page->GetColums($page_id, "left_sidebar");
-		  $rsc = $this->page->GetColums($page_id, "right_sidebar");
-		if ($lsc > 0) {
-
-			  echo '<div class="col-sm-1 col-lg-2 col-md-2 col-xl-2 col-xs-2 sidenav" id="sidenavL">';
-		 $this->mod->getMod("left_sidebar");  
-
-		    echo '</div>
-		    <div class=" col-lg-10 col-md-8 col-sm-8 block" id="block">
-		    <div class="col-lg-10 col-md-8 col-sm-8" id="Mid">';
-		}
-
-		if ($lsc && $rsc > 0) {
-			echo '<div class="col-lg-10 col-md-8 col-sm-8 block" id="block"><div class="col-lg-12 col-md-8 col-sm-8" id="Mid">';
-		}else if($rsc > 0){
-			echo '<div class="col-lg-10 col-md-8 col-sm-8 block" id="block"><div class="col-lg-12 col-md-8 col-sm-8" id="Mid">';
-
-		 }else{
-		echo '<div class="col-lg-12 col-md-12 col-sm-12 block" id="block"><div class="col-lg-12 col-md-12 col-sm-12" id="Mid">';
-		}
-
-			echo '<div class="col-lg-12 col-md-12 col-sm-12" >
-
-						 <div class="col-lg-12 col-md-12 col-sm-12 text-left"> 
-							<input type="text" class="edit" value="' .WILang::get("welcome_") . '"><span>'. $this->site->Website_Info('site_name') . '</span></h1>
-							<p><input class="edit" type="text" value="' . WILang::get("main_title") . '>"</p>
-							</div>
-						</div>
-					</div>
-				
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-laptop"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("community") . '"></h3>
-								<p><input type="text" class="edit" value="' . WILang::get("learn") . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-trophy"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("software") . '"></h3>
-								<p><input type="text" class="edit" value="' .WILang::get("software") . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-cogs"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("it") . '"></h3>
-								<p><input type="text" class="edit" value="' . WILang::get("it_title")  . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					</div>
-					
-
-
-    
-				</div>
-			</div>';
-							
-
-		  
-		if ($rsc > 0) {
-
-			  echo '</div><div class="col-sm-1 col-lg-2 cool-md-2 col-xl-2 col-xs-2 sidenav" id="sidenavR">';
-		  $this->mod->getMod("right_sidebar");  
-
-		    echo '</div></div>';
-		}
-
-		echo '</div>
-			</div>';
- 
-
-	}
-
-	public function mod_name()
-	{
-		if(isset($page)){
-		$left_sidePower = $this->Web->pageModPower($page, "left_sidebar");
-		$leftSideBar = $this->Web->PageMod($page, "left_sidebar");
-		//echo $Panel;
-		if ($left_sidePower === 0) {
-			
-		}else{
-
-			$this->mod->getMod($leftSideBar);
-		}
-		}
-
-		echo '<div class="container-fluid text-center bg-index">    
-    <div class="row content">
-
-	<div class="col-lg-12 col-md-12 col-sm-12" >
-       <div class="col-lg-12 col-md-12 col-sm-12 text-left"> 
-							<div class="intro_box">
-<h1>' .WILang::get("welcome_") . '<span>'. $this->site->Website_Info('site_name') . '</span></h1>
-				<p><h1>Martial Arts Coach</h1></p>
-							<p></p>
-							</div>
-						</div>
-					
-
-					<!-- Slideshow container -->';
-					$this->Slide->SlideShow();
-
-					
-
-		if(isset($page)){			
-		$right_sidePower = $this->Web->pageModPower($page, "right_sidebar");
-		$rightSideBar = $this->Web->PageMod($page, "right_sidebar");
-		//echo $Panel;
-		if ($right_sidePower === 0) {
-			
-		}else{
-
-			$this->mod->getMod($rightSideBar);
-		}
-
-		}			
-					
-
-	echo '</div>
-			</div></div>';
-	}
-
-
+    private function adminPanel(string $title, string $body): void
+    {
+        echo '<section class="wi-admin-module-editor"><h2>' . wi_e($title) . '</h2><p>' . wi_e($body) . '</p></section>';
+    }
 }

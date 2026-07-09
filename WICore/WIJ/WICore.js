@@ -1,69 +1,178 @@
-///   WICore NAMESPACe
+/**
+ * FILE:
+ * WICMS-IVO/WICore/WIJ/WICore.js
+ *
+ * Canonical front/core JS helper for WICMS.
+ * Handles UI + AJAX + validation in a clean, reusable way.
+ */
 
-var WICore = {};
+var WICore = (function () {
 
-
-// put the button into loading state
-WICore.loadingButton = function(button, LoadingText)
-{
-	oldText = button.text();
-	button.attr("rel", oldText)
-		.text(LoadingText)
-        .addClass("disabled")
-        .attr('disabled', "disabled");
-}
-
-// this returns the button back to normal state
-
-WICore.removeLoadingButton = function (button)
-{
-	var oldText = button.attr('rel');
-	button.text(oldText)
-                     .removeClass("disabled")
-                     .removeAttr("disabled")
-                     .removeAttr("rel");
-}
-
-// append the success message to provided parent client
-WICore.displaySuccessMessage = function(parentElement, message)
-{
-  $(".alert-success").remove();
-  var div = ("<div class='alert alert-success'>"+message+"</div>");
-    parentElement.append(div);
-}
-
-// append error message to an input element
-WICore.displayErrorMessage = function(element, message)
-{
-    var controlGroup = element.parents(".control-group");
-    controlGroup.addClass("error").addClass("has-error");
-    if(typeof message !== "undefined") {
-        var helpBlock = $("<span class='help-inline text-error'>"+message+"</span>");
-        controlGroup.find(".controls").append(helpBlock);
+    function e(value) {
+        return String(value ?? '');
     }
-}
 
-// remove all error messages from all input fields
-WICore.removeErrorMessages = function()
-{
-    $(".control-group").removeClass("error").removeClass("has-error");
-    $(".help-inline").remove();
-}
+    /* =========================
+       BUTTON STATE
+    ========================= */
 
-// validate email format
-WICore.validateEmail = function (email)
-{
-  var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  return regex.test(email);
-}
+    function loadingButton(button, loadingText = 'Loading...') {
+        if (!button || button.length === 0) return;
 
-//get a parameter from the url
+        const oldText = button.text();
 
-WICore.urlParam = function(name)
-{
-  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
-}
+        button
+            .data('old-text', oldText)
+            .text(loadingText)
+            .prop('disabled', true)
+            .addClass('wi-loading');
+    }
 
-WICore.Refresh = function(){
-  window.location.reload();
-}
+    function removeLoadingButton(button) {
+        if (!button || button.length === 0) return;
+
+        const oldText = button.data('old-text');
+
+        if (oldText) {
+            button.text(oldText);
+        }
+
+        button
+            .prop('disabled', false)
+            .removeClass('wi-loading')
+            .removeData('old-text');
+    }
+
+    /* =========================
+       ALERTS (MODERN)
+    ========================= */
+
+    function displaySuccessMessage(parent, message) {
+        clearAlerts(parent);
+
+        const html = `
+            <div class="wi-alert wi-alert-success">
+                ${e(message)}
+            </div>
+        `;
+
+        parent.append(html);
+    }
+
+    function displayErrorMessage(input, message) {
+        const group = input.closest('.wi-form-group');
+
+        group.addClass('wi-error');
+
+        if (message) {
+            const error = $(`<div class="wi-error-text">${e(message)}</div>`);
+            group.append(error);
+        }
+    }
+
+    function removeErrorMessages() {
+        $('.wi-form-group')
+            .removeClass('wi-error')
+            .find('.wi-error-text')
+            .remove();
+    }
+
+    function clearAlerts(parent) {
+        parent.find('.wi-alert').remove();
+    }
+
+    /* =========================
+       VALIDATION
+    ========================= */
+
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    /* =========================
+       URL HELPERS
+    ========================= */
+
+    function urlParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function refresh() {
+        window.location.reload();
+    }
+
+    /* =========================
+       AJAX HELPER (IMPORTANT)
+    ========================= */
+
+    function ajax(options) {
+        const defaults = {
+            url: "WICore/WIClass/WIAjax.php",
+            method: "POST",
+            dataType: "json",
+            timeout: 10000,
+            data: {},
+            onSuccess: function () {},
+            onError: function () {},
+            onComplete: function () {}
+        };
+
+        const settings = Object.assign({}, defaults, options);
+
+        $.ajax({
+            url: settings.url,
+            type: settings.method,
+            dataType: settings.dataType,
+            data: settings.data,
+            timeout: settings.timeout,
+
+            success: function (response) {
+                if (response && response.status === 'success') {
+                    settings.onSuccess(response);
+                } else {
+                    settings.onError(response || { message: 'Unknown error' });
+                }
+            },
+
+            error: function (xhr) {
+                settings.onError({
+                    message: 'Network or server error',
+                    xhr: xhr
+                });
+            },
+
+            complete: function () {
+                settings.onComplete();
+            }
+        });
+    }
+
+    /* =========================
+       CSRF HELPER
+    ========================= */
+
+    function getCSRF() {
+        const token = $('input[name="csrf_token"]').val();
+        return token || '';
+    }
+
+    /* =========================
+       PUBLIC API
+    ========================= */
+
+    return {
+        loadingButton,
+        removeLoadingButton,
+        displaySuccessMessage,
+        displayErrorMessage,
+        removeErrorMessages,
+        validateEmail,
+        urlParam,
+        refresh,
+        ajax,
+        getCSRF
+    };
+
+})();

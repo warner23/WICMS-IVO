@@ -144,8 +144,8 @@ if (!function_exists('wi_dashboard_health_badge')) {
             : wi_dashboard_badge('Check', 'warning');
     }
 }
-?>
 
+?>
 <aside class="right-side">
     <section class="content-header">
         <h1>

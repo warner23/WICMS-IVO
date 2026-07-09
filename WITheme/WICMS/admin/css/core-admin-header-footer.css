@@ -1,0 +1,63 @@
+
+/* WICMS Core Header/Footer Settings */
+.wi-core-header-footer-page{background:#f5f7fb;min-height:100vh;color:#111827;}
+.wi-hf-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:0 0 22px 22px;margin:0 18px 20px;padding:24px;box-shadow:0 18px 42px rgba(15,23,42,.22);}
+.wi-hf-hero h2{margin:4px 0 8px;font-size:28px;font-weight:800;color:#fff;}
+.wi-hf-hero p{margin:0;color:rgba(255,255,255,.78);max-width:780px;}
+.wi-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;}
+.wi-core-badge{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;border-radius:999px;padding:8px 12px;font-weight:800;font-size:12px;white-space:nowrap;}
+.wi-hf-shell{padding:0 18px 28px;}
+.wi-admin-panel{background:#fff;border:1px solid #e5e7eb;border-radius:22px;box-shadow:0 16px 40px rgba(15,23,42,.08);padding:20px;}
+.wi-hf-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid #e5e7eb;padding-bottom:18px;margin-bottom:18px;}
+.wi-hf-section-head h3,.wi-header-tab-head h3{margin:0 0 6px;font-size:20px;font-weight:800;color:#111827;}
+.wi-hf-section-head p,.wi-header-tab-head p{margin:0;color:#6b7280;}
+.wi-hf-storage-note{display:flex;flex-direction:column;gap:4px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:12px;min-width:310px;color:#374151;font-size:12px;}
+.wi-hf-storage-note strong{font-size:13px;color:#111827;}
+.wi-hf-storage-note code{background:#eef2ff;color:#3730a3;border-radius:8px;padding:2px 6px;font-size:11px;}
+.wi-hf-tabs{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+.wi-hf-tab{border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:18px;padding:14px 18px;min-width:140px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.06);transition:transform .15s ease,border-color .15s ease,background .15s ease,color .15s ease;}
+.wi-hf-tab:hover{transform:translateY(-1px);border-color:#c7d2fe;}
+.wi-hf-tab.is-active{background:#111827;color:#fff;border-color:#111827;box-shadow:0 12px 26px rgba(17,24,39,.22);}
+.wi-hf-tab-icon{font-size:20px;line-height:1;}
+.wi-hf-panel[hidden]{display:none!important;}
+.wi-hf-card{border:1px solid #e5e7eb;border-radius:20px;background:#fff;padding:18px;}
+.wi-header-tab-head{padding-bottom:14px;border-bottom:1px solid #eef2f7;margin-bottom:18px;}
+.wi-hf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+.wi-hf-grid-single{grid-template-columns:minmax(0,1fr);max-width:720px;}
+.wi-hf-card-panel{background:#f8fafc;border:1px solid #e5e7eb;border-radius:18px;padding:18px;}
+.wi-hf-card-title h4{margin:0 0 6px;font-size:17px;font-weight:900;color:#111827;}
+.wi-hf-card-title p{margin:0 0 14px;color:#6b7280;font-size:13px;line-height:1.45;}
+.wi-hf-upload-zone{border:2px dashed #cbd5e1;background:#fff;border-radius:18px;padding:16px;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;cursor:pointer;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;}
+.wi-hf-upload-zone.is-dragover{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 4px rgba(37,99,235,.1);}
+.wi-hf-upload-zone.is-uploading{opacity:.75;pointer-events:none;}
+.wi-hf-preview{display:flex;align-items:center;justify-content:center;width:100%;min-height:130px;border:1px solid #e5e7eb;background:linear-gradient(135deg,#f9fafb,#eef2ff);border-radius:14px;overflow:hidden;color:#6b7280;font-weight:800;}
+.wi-hf-preview img{display:block;max-width:100%;max-height:190px;object-fit:contain;}
+.wi-hf-preview-logo{min-height:150px;}
+.wi-hf-preview-logo img{max-height:135px;}
+.wi-hf-preview-wide{min-height:160px;}
+.wi-hf-preview-favicon{width:150px;height:150px;min-height:150px;margin:auto;}
+.wi-hf-preview-favicon img{max-width:96px;max-height:96px;}
+.wi-hf-drop-copy strong{display:block;color:#111827;font-size:15px;}
+.wi-hf-drop-copy span{display:block;color:#6b7280;font-size:13px;margin-top:3px;}
+.wi-hf-btn{border:0;border-radius:12px;padding:11px 16px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+.wi-hf-btn:hover{transform:translateY(-1px);}
+.wi-hf-btn-primary{background:#2563eb;color:#fff;box-shadow:0 10px 22px rgba(37,99,235,.24);}
+.wi-hf-btn-secondary{background:#111827;color:#fff;}
+.wi-hf-form{margin-top:18px;}
+.wi-hf-form-panel{display:grid;gap:14px;}
+.wi-hf-field{display:grid;gap:7px;margin:0;}
+.wi-hf-field span{font-weight:900;color:#374151;font-size:13px;}
+.wi-hf-field input,.wi-hf-field textarea{width:100%;border:1px solid #d1d5db;border-radius:12px;padding:12px 13px;background:#fff;color:#111827;outline:none;transition:border-color .15s ease,box-shadow .15s ease;}
+.wi-hf-field input:focus,.wi-hf-field textarea:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.1);}
+.wi-hf-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;}
+.wi-hf-result{font-weight:800;font-size:13px;}
+.wi-hf-result.is-success{color:#047857;}
+.wi-hf-result.is-error{color:#b91c1c;}
+.wi-hf-footer-preview-card{display:flex;flex-direction:column;}
+.wi-hf-footer-preview{margin-top:auto;background:#111827;color:#fff;border-radius:18px;padding:22px;display:grid;gap:8px;min-height:190px;align-content:center;}
+.wi-hf-footer-preview strong{font-size:22px;}
+.wi-hf-footer-preview p{margin:0;color:#cbd5e1;}
+.wi-hf-footer-preview small{color:#93c5fd;}
+.wi-hf-footer-preview span{color:#9ca3af;font-size:12px;}
+@media(max-width:900px){.wi-hf-hero,.wi-hf-section-head{flex-direction:column}.wi-hf-storage-note{min-width:0;width:100%}.wi-hf-grid{grid-template-columns:1fr}.wi-hf-tab{min-width:calc(33.33% - 8px);flex:1}.wi-hf-hero{margin:0 10px 16px}.wi-hf-shell{padding:0 10px 20px}}
+@media(max-width:560px){.wi-hf-tab{min-width:100%;}.wi-hf-card,.wi-admin-panel{padding:14px}.wi-hf-hero h2{font-size:24px}}

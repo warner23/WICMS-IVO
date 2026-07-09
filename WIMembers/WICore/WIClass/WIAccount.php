@@ -1,108 +1,78 @@
 <?php
-#[\AllowDynamicProperties]
+declare(strict_types=1);
+
+/**
+ * File Information
+ * Written By: Jules Warner / Warner Infinity
+ * Company: Warner Infinity
+ * Product: WICMS
+ * Project: WIMembers
+ * File: WIAccount.php
+ * Location: WIMembers/WICore/WIClass/
+ * Type: Class
+ * Layer: Account
+ * Purpose Area: Member workspace, profile, account, settings, payments, forms and training
+ * Version: 1.0.0
+ * Created: 2026-05-24
+ * Last Updated: 2026-05-24
+ * Status: Refactored
+ * Summary: WICMS-compatible WIMembers modernisation. Keeps WI-prefixed classes, database-driven modules, sessions and page rendering.
+ */
+
+
 class WIAccount
 {
+    private WIUser $user;
+    private WIdb $WIdb;
 
-  private $userId;
+    public function __construct(?int $userId = null)
+    {
+        $this->user = new WIUser($userId);
+        $this->WIdb = WIdb::getInstance();
+    }
 
-  private $WIdb;
+    public function updateAccount(array $data): array
+    {
+        $info = [];
+        $email = trim((string) ($data['email'] ?? ''));
+        $username = trim((string) ($data['username'] ?? ''));
 
-  function __construct()
-  {
-    $this->WIdb = WIdb::getInstance();
-    $this->Reg  = new WIRegister();
-    $this->site = new WISite();
-  }
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $info['email'] = $email;
+        }
 
-  public function myAccount()
-  {
-    echo '<div class="col-lg-8 orders">
+        if ($username !== '') {
+            $info['username'] = preg_replace('/[^a-zA-Z0-9_.@-]/', '', $username);
+        }
 
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4 box">
-        <a href="transactions.php">
-        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 bor">
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4">
-        <div class="img">
-        <img src="../WIAdmin/WIMedia/Img/profile/orders.png">
-        </div>
-        </div>
-        <div class="col-8 col-sm-8 col-xs-8 col-md-8">
-        <div class="top"><h3>Your Orders</h3></div>
-        <div class="">Transactions, orders placed</div>
-        </div>
-      </div></a>
-      </div>
+        if ($info !== []) {
+            $this->user->updateInfo($info);
+        }
 
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4 box">
-        <a href="usersecurity.php">
-        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 bor">
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4">
-        <div class="img">
-        <img src="../WIAdmin/WIMedia/Img/profile/login.jpg">
-        </div>
-        </div>
-        <div class="col-8 col-sm-8 col-xs-8 col-md-8">
-        <div class="top"><h3>Login and Security</h3></div>
-        <div class="">User Security</div>
-        </div>
-        </div></a>
-        </div>
-        
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4 box">
-        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 bor">
-        <a href="membership.php">
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4">
-        <div class="img">
-        <img src="../WIAdmin/WIMedia/Img/profile/membership.jpg">
-        </div>
-        </div>
-        <div class="col-8 col-sm-8 col-xs-8 col-md-8">
-        <div class="top"><h3>Membership</h3></div>
-        <div class="">
-         Transactions, orders placed
-        </div>
-        </div>
-        </div></a>
-          </div>
+        return ['success' => true, 'message' => 'Account details saved.'];
+    }
 
-      <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4 box">
-          <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 bor">
-          <a href="userpayments.php">
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4">
-        <div class="img">
-        <img src="../WIAdmin/WIMedia/Img/profile/payments.png">
-        </div>
-        </div>
-        <div class="col-8 col-sm-8 col-xs-8 col-md-8">
-        <div class="top"><h3>Your Payments</h3></div>
-        <div class="">
-         Transactions, orders placed
-        </div>
-        </div>
-        </div></a>
-          </div>
+    public function updatePassword(array $data): array
+    {
+        $current = (string) ($data['current_password'] ?? '');
+        $new = (string) ($data['new_password'] ?? '');
+        $confirm = (string) ($data['confirm_password'] ?? '');
 
+        if ($new === '' || strlen($new) < 10) {
+            return ['success' => false, 'message' => 'New password must be at least 10 characters.'];
+        }
 
+        if ($new !== $confirm) {
+            return ['success' => false, 'message' => 'The new password confirmation does not match.'];
+        }
 
+        $info = $this->user->getInfo();
+        $register = new WIRegister();
+        if (!$register->verifyPassword($current, (string) ($info['password'] ?? ''))) {
+            return ['success' => false, 'message' => 'Current password was incorrect.'];
+        }
 
-          <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4 box">
-          <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 bor">
-          <a href="support.php">
-        <div class="col-lg-4 col-sm-4 col-xs-4 col-md-4">
-        <div class="img">
-        <img src="../WIAdmin/WIMedia/Img/profile/help.png">
-        </div>
-        </div>
-        <div class="col-8 col-sm-8 col-xs-8 col-md-8">
-        <div class="top"><h3>Help and Support</h3></div>
-        <div class="">Transactions, orders placed</div>
-        </div>
-          </div></a>
-          </div>
-
-          </div>';
-  }
-
+        $this->user->updateInfo(['password' => $register->hashPassword($new)]);
+        return ['success' => true, 'message' => 'Password updated.'];
+    }
 }
-
-?>

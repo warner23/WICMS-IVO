@@ -1,0 +1,335 @@
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WI Ecosystem
+| Project: WICMS / WICOS / WIKitchenCompli
+| File: WIMediaHooks.css
+| Location: /root/WIAdmin/WIInc/css/WIMediaHooks.css
+| Type: CSS
+| Layer: Shared Admin UI
+| Purpose Area: WIMedia Hook Modal Styling
+| Version: 1.0.0
+| Created: 2026-05-11
+| Last Updated: 2026-05-11
+| Status: WM-HOOK-01 Production Batch
+|--------------------------------------------------------------------------
+*/
+
+.wi-media-hook-open {
+    overflow: hidden;
+}
+
+.wi-media-hook-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+}
+
+.wi-media-hook-modal.is-open {
+    display: block;
+}
+
+.wi-media-hook-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.78);
+    backdrop-filter: blur(8px);
+}
+
+.wi-media-hook-dialog {
+    position: relative;
+    width: min(1040px, calc(100vw - 28px));
+    max-height: calc(100vh - 36px);
+    margin: 18px auto;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+    color: #e5e7eb;
+}
+
+.wi-media-hook-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.wi-media-hook-kicker {
+    margin: 0 0 4px;
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.wi-media-hook-header h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.wi-media-hook-header small {
+    display: block;
+    margin-top: 5px;
+    color: rgba(226, 232, 240, 0.68);
+}
+
+.wi-media-hook-close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(148, 163, 184, 0.20);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.80);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.wi-media-hook-body {
+    max-height: calc(100vh - 150px);
+    overflow: auto;
+    padding: 20px 22px 22px;
+}
+
+.wi-media-hook-options {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.wi-media-hook-option {
+    display: grid;
+    gap: 4px;
+    padding: 16px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.70);
+    color: #e5e7eb;
+    text-align: left;
+    cursor: pointer;
+}
+
+.wi-media-hook-option:hover {
+    border-color: rgba(56, 189, 248, 0.50);
+    background: rgba(14, 116, 144, 0.18);
+}
+
+.wi-media-hook-option span {
+    font-size: 26px;
+}
+
+.wi-media-hook-option strong {
+    color: #fff;
+    font-size: 14px;
+}
+
+.wi-media-hook-option small {
+    color: rgba(226, 232, 240, 0.64);
+}
+
+.wi-media-hook-panel {
+    margin-bottom: 18px;
+    padding: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.50);
+}
+
+.wi-media-hook-panel h4,
+.wi-media-hook-attached-head h4,
+.wi-media-hook-library-head h4 {
+    margin: 0 0 6px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.wi-media-hook-panel p,
+.wi-media-hook-library-head p {
+    margin: 0 0 12px;
+    color: rgba(226, 232, 240, 0.64);
+    font-size: 13px;
+}
+
+.wi-media-hook-panel input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.45);
+    color: #e5e7eb;
+}
+
+.wi-media-hook-dropzone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 6px;
+    min-height: 150px;
+    border: 2px dashed rgba(56, 189, 248, 0.35);
+    border-radius: 18px;
+    background: rgba(8, 47, 73, 0.22);
+    color: #e5e7eb;
+    cursor: pointer;
+}
+
+.wi-media-hook-dropzone.is-dragging {
+    border-color: rgba(34, 197, 94, 0.85);
+    background: rgba(20, 83, 45, 0.24);
+}
+
+.wi-media-hook-dropzone input {
+    display: none !important;
+}
+
+.wi-media-hook-library-head,
+.wi-media-hook-attached-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.wi-media-hook-library,
+.wi-media-hook-attached {
+    display: grid;
+    gap: 10px;
+}
+
+.wi-media-hook-library-card,
+.wi-media-hook-attached-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.42);
+}
+
+.wi-media-hook-library-card strong,
+.wi-media-hook-attached-card strong {
+    display: block;
+    color: #fff;
+    font-size: 13px;
+}
+
+.wi-media-hook-library-card span,
+.wi-media-hook-attached-card span {
+    display: block;
+    margin-top: 3px;
+    color: rgba(226, 232, 240, 0.60);
+    font-size: 12px;
+}
+
+.wi-media-hook-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.wi-media-hook-card-actions button,
+.wi-media-hook-attached-head button,
+.wi-media-hook-library-head button {
+    border: 1px solid rgba(148, 163, 184, 0.20);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.82);
+    color: #e5e7eb;
+    padding: 8px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.wi-media-hook-card-actions button:hover,
+.wi-media-hook-attached-head button:hover,
+.wi-media-hook-library-head button:hover {
+    border-color: rgba(56, 189, 248, 0.48);
+}
+
+.wi-media-hook-attached-wrap {
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.38);
+}
+
+.wi-media-hook-empty {
+    padding: 12px;
+    border: 1px dashed rgba(148, 163, 184, 0.24);
+    border-radius: 12px;
+    color: rgba(226, 232, 240, 0.66);
+    font-size: 13px;
+}
+
+.wi-media-hook-empty.is-error {
+    border-color: rgba(248, 113, 113, 0.45);
+    color: #fecaca;
+}
+
+.wi-media-hook-status {
+    min-height: 18px;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.wi-media-hook-status.is-info {
+    color: #bae6fd;
+}
+
+.wi-media-hook-status.is-success {
+    color: #bbf7d0;
+}
+
+.wi-media-hook-status.is-warning {
+    color: #fde68a;
+}
+
+.wi-media-hook-status.is-error {
+    color: #fecaca;
+}
+
+@media (max-width: 900px) {
+    .wi-media-hook-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .wi-media-hook-library-card,
+    .wi-media-hook-attached-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 560px) {
+    .wi-media-hook-options {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-media-hook-dialog {
+        width: calc(100vw - 16px);
+        margin: 8px auto;
+        border-radius: 16px;
+    }
+
+    .wi-media-hook-body {
+        padding: 14px;
+    }
+}

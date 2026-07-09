@@ -1,0 +1,422 @@
+/*
+|--------------------------------------------------------------------------
+| WICMS Core Roles & Permissions Manager
+|--------------------------------------------------------------------------
+*/
+
+.wi-rp-page {
+    padding-bottom: 42px;
+}
+
+.wi-rp-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+}
+
+.wi-rp-stats article,
+.wi-rp-list-card,
+.wi-rp-form-card,
+.wi-rp-assignment-card,
+.wi-rp-health-list li {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.wi-rp-stats article {
+    padding: 16px 18px;
+}
+
+.wi-rp-stats span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.wi-rp-stats strong {
+    color: #0f172a;
+    font-size: 28px;
+    line-height: 1;
+}
+
+.wi-rp-shell {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.wi-rp-tabs {
+    position: sticky;
+    top: 18px;
+}
+
+.wi-rp-main {
+    min-width: 0;
+}
+
+.wi-rp-panel-head,
+.wi-rp-list-head,
+.wi-rp-form-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.wi-rp-panel-head h2,
+.wi-rp-list-head h3,
+.wi-rp-form-head h3 {
+    margin: 0 0 5px;
+    color: #0f172a;
+}
+
+.wi-rp-panel-head p,
+.wi-rp-list-head p,
+.wi-rp-form-head p,
+.wi-rp-item small,
+.wi-rp-item span {
+    color: #64748b;
+}
+
+.wi-rp-feedback {
+    margin-bottom: 14px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    background: rgba(37, 99, 235, 0.08);
+    color: #1e3a8a;
+}
+
+.wi-rp-feedback.is-error {
+    border-color: rgba(220, 38, 38, 0.25);
+    background: rgba(220, 38, 38, 0.08);
+    color: #991b1b;
+}
+
+.wi-rp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.wi-rp-list-card,
+.wi-rp-form-card,
+.wi-rp-assignment-card {
+    padding: 18px;
+}
+
+.wi-rp-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 610px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wi-rp-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    background: rgba(248, 250, 252, 0.78);
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.wi-rp-item.is-hidden {
+    display: none;
+}
+
+.wi-rp-item-main {
+    min-width: 0;
+}
+
+.wi-rp-item-main strong {
+    display: block;
+    color: #0f172a;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.wi-rp-item-main span,
+.wi-rp-item-main small {
+    display: block;
+    font-size: 13px;
+}
+
+.wi-rp-badges,
+.wi-rp-actions,
+.wi-rp-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.wi-rp-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.wi-rp-badge.is-system {
+    background: rgba(59, 130, 246, 0.12);
+    color: #1d4ed8;
+}
+
+.wi-rp-badge.is-custom,
+.wi-rp-badge.is-active {
+    background: rgba(22, 163, 74, 0.12);
+    color: #166534;
+}
+
+.wi-rp-badge.is-muted {
+    background: rgba(100, 116, 139, 0.14);
+    color: #475569;
+}
+
+.wi-rp-actions button,
+.wi-rp-primary,
+.wi-rp-secondary {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+}
+
+.wi-rp-actions button:hover,
+.wi-rp-primary:hover,
+.wi-rp-secondary:hover {
+    transform: translateY(-1px);
+}
+
+.wi-rp-primary {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+}
+
+.wi-rp-secondary,
+.wi-rp-actions button {
+    background: #eef2ff;
+    color: #1e3a8a;
+}
+
+.wi-rp-actions button.is-danger {
+    background: rgba(220, 38, 38, 0.1);
+    color: #991b1b;
+}
+
+.wi-rp-form-card form,
+.wi-rp-filters {
+    display: grid;
+    gap: 13px;
+}
+
+.wi-rp-form-card label,
+.wi-rp-filters label,
+.wi-rp-list-head label,
+.wi-rp-role-picker {
+    display: grid;
+    gap: 6px;
+    color: #334155;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.wi-rp-form-card input,
+.wi-rp-form-card select,
+.wi-rp-form-card textarea,
+.wi-rp-filters input,
+.wi-rp-filters select,
+.wi-rp-list-head input,
+.wi-rp-role-picker select {
+    width: 100%;
+    border: 1px solid rgba(15, 23, 42, 0.13);
+    border-radius: 13px;
+    padding: 11px 12px;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+}
+
+.wi-rp-form-card textarea {
+    resize: vertical;
+}
+
+.wi-rp-filters {
+    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.6fr) minmax(160px, 0.5fr) auto;
+    align-items: end;
+    margin-bottom: 16px;
+}
+
+.wi-rp-group-label {
+    list-style: none;
+    padding: 10px 2px 4px;
+    color: #0f172a;
+    font-weight: 900;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.wi-rp-switch-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 15px;
+    padding: 13px;
+    background: rgba(248, 250, 252, 0.82);
+}
+
+.wi-rp-switch-row strong,
+.wi-rp-switch-row small {
+    display: block;
+}
+
+.wi-rp-switch-row small {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.wi-rp-switch-row input[type="checkbox"] {
+    appearance: none;
+    width: 52px;
+    min-width: 52px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    background: #cbd5e1;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.wi-rp-switch-row input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    transition: transform 0.15s ease;
+}
+
+.wi-rp-switch-row input[type="checkbox"]:checked {
+    background: #2563eb;
+}
+
+.wi-rp-switch-row input[type="checkbox"]:checked::after {
+    transform: translateX(22px);
+}
+
+.wi-rp-permission-groups {
+    display: grid;
+    gap: 14px;
+    max-height: 660px;
+    overflow: auto;
+    margin-top: 16px;
+}
+
+.wi-rp-permission-group {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 18px;
+    padding: 14px;
+    background: rgba(248, 250, 252, 0.7);
+}
+
+.wi-rp-permission-group h3 {
+    margin: 0 0 10px;
+    color: #0f172a;
+}
+
+.wi-rp-permission-group ul,
+.wi-rp-health-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.wi-rp-health-list li {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.wi-rp-health-list strong {
+    color: #0f172a;
+}
+
+.wi-rp-health-list span {
+    color: #64748b;
+    text-align: right;
+}
+
+@media (max-width: 1100px) {
+    .wi-rp-shell,
+    .wi-rp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-rp-tabs {
+        position: static;
+    }
+
+    .wi-rp-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .wi-rp-stats,
+    .wi-rp-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-rp-item {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-rp-badges,
+    .wi-rp-actions {
+        justify-content: flex-start;
+    }
+
+    .wi-rp-panel-head,
+    .wi-rp-list-head,
+    .wi-rp-health-list li {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wi-rp-health-list span {
+        text-align: left;
+    }
+}

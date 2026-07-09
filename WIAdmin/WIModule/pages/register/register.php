@@ -1,261 +1,85 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* 
-*/
-class register 
+declare(strict_types=1);
+
+class register
 {
-	
+    private WISite $site;
+    private WIModules $mod;
+    private WIPage $page;
+    private WIBootStrap $Boot;
+    private WILogin $login;
+    private WIRegister $register;
 
-	function __construct()
-	{
-		$this->WIdb = WIdb::getInstance();
-		$this->Web  = new WIWebsite();
-		$this->site = new WISite();
-		$this->mod  = new WIModules();
-		$this->page = new WIPage();
-		$this->login = new WILogin();
-		$this->Reg = new WIRegister();
-	}
+    public function __construct()
+    {
+       $this->site = new WISite();
+       $this->Boot = new WIBootStrap();
+       $this->login = new WILogin();
+    }
 
-		public function editMod()
-	{
-		echo '<div id="remove">
-      <a href="#">
-      <button id="delete" onclick="WIMod.delete(event);">Delete</button>
-      </a>
-       <div id="dialog-confirm" title="Remove Module?" class="hide">
-  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;">
-  </span>Are you sure?</p>
-  <p> This will remove the module and any unsaved data.</p>
-  <span><button class="btn btn-danger" onclick="WIMod.remove(event);">Remove</button> <button class="btn" onclick="WIMod.close(event);">Close</button></span>
-</div>
-';
+    public function mod_name($page): void
+    {
+        if ($this->login->isLoggedIn()) {
+            header('Location: index.php');
+            exit;
+        }
 
-echo '<div class="container-fluid text-center">    
-  <div class="row content">
+        $siteName = htmlspecialchars((string) $this->site->Website_Info('site_name'), ENT_QUOTES, 'UTF-8');
 
-	<div class="col-lg-12 col-md-12 col-sm-12" >
-						<div class="col-lg-12 col-md-12 col-sm-12" >
+        $this->Boot->startMod($page);
+        $this->Boot->startContentsHolder();
 
-						 <div class="col-lg-12 col-md-12 col-sm-12 text-left"> 
-							<div class="intro_box">
-<h1>' .WILang::get("welcome_") . '<span>'. $this->site->Website_Info('site_name') . '</span></h1>
-							<p>' . WILang::get("main_title") . '</p>
-							</div>
-						</div>
-					</div>
-				
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-laptop"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("community") . '</h3>
-								<p>' . WILang::get("learn") . '
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-trophy"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("software") . '</h3>
-								<p>' .WILang::get("software") . '
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-cogs"></i>
-							</div>
-							<div class="serv_detail">
-								<h3>' . WILang::get("it") . '</h3>
-								<p>' . WILang::get("it_title")  . '
-</p>
-							</div>
-						</div>
-					</div>
-					</div>
-					
+        echo '
+        <section class="wi-auth-page wi-auth-register">
+            <div class="wi-auth-shell">
+                <div class="wi-auth-card">
+                    <h2>Create account</h2>
+                    <p>Complete the form below to register your account.</p>
 
+                    <form class="register-form" method="post" action="#" data-ajax="WICore/WIClass/WIAjax.php" novalidate>
+                        <fieldset>
+                            ' . WIToken::csrfField('register') . '
 
-    
-				</div>
-			</div>';
+                            <div class="wi-auth-grid">
+                                <div class="form-group">
+                                    <label for="reg-email">Email address</label>
+                                    <input type="email" class="form-control" id="reg-email" name="email" autocomplete="email" required>
+                                </div>
 
+                                <div class="form-group">
+                                    <label for="reg-username">Username</label>
+                                    <input type="text" class="form-control" id="reg-username" name="username" autocomplete="username" required>
+                                </div>
+                            </div>
 
-		echo '</div>';
-	}
+                            <div class="wi-auth-grid">
+                                <div class="form-group">
+                                    <label for="reg-password">Password</label>
+                                    <input type="password" class="form-control" id="reg-password" name="password" autocomplete="new-password" required>
+                                </div>
 
-	public function editPageContent($page_id)
-	{
-		// include_once '../../WIInc/WI_StartUp.php';
-		 echo '		 <style type="text/css">
-	
-		.content {
-		    padding: 32px 0;
-		    position: relative;
-		    margin-top: 58px;
-		}
+                                <div class="form-group">
+                                    <label for="reg-repeat-password">Confirm password</label>
+                                    <input type="password" class="form-control" id="reg-repeat-password" name="confirm_password" autocomplete="new-password" required>
+                                </div>
+                            </div>
 
-		.text-left{
-			text-align: center;
-		}
-		.edit{
-			width:21%;
-		}
+                            <button type="submit" id="btn-register" class="wi-auth-submit">
+                                Create secure account
+                            </button>
 
-		</style>
+                            <div class="wi-auth-footer">
+                                Already have an account? <a href="login.php">Sign in</a>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <script src="WICore/WIJ/WICore.js"></script>
+        <script src="WICore/WIJ/WIRegister.js"></script>';
 
-		<div class="container-fluid text-center" id="col"> ';  
-
-		  $lsc = $this->page->GetColums($page_id, "left_sidebar");
-		  $rsc = $this->page->GetColums($page_id, "right_sidebar");
-		if ($lsc > 0) {
-
-			  echo '<div class="col-sm-1 col-lg-2 col-md-2 col-xl-2 col-xs-2 sidenav" id="sidenavL">';
-		 $this->mod->getMod("left_sidebar");  
-
-		    echo '</div>
-		    <div class=" col-lg-10 col-md-8 col-sm-8 block" id="block">
-		    <div class="col-lg-10 col-md-8 col-sm-8" id="Mid">';
-		}
-
-		if ($lsc && $rsc > 0) {
-			echo '<div class="col-lg-10 col-md-8 col-sm-8 block" id="block"><div class="col-lg-12 col-md-8 col-sm-8" id="Mid">';
-		}else if($rsc > 0){
-			echo '<div class="col-lg-10 col-md-8 col-sm-8 block" id="block"><div class="col-lg-12 col-md-8 col-sm-8" id="Mid">';
-
-		 }else{
-		echo '<div class="col-lg-12 col-md-12 col-sm-12 block" id="block"><div class="col-lg-12 col-md-12 col-sm-12" id="Mid">';
-		}
-
-			echo '<div class="col-lg-12 col-md-12 col-sm-12" >
-
-						 <div class="col-lg-12 col-md-12 col-sm-12 text-left"> 
-							<input type="text" class="edit" value="' .WILang::get("welcome_") . '"><span>'. $this->site->Website_Info('site_name') . '</span></h1>
-							<p><input class="edit" type="text" value="' . WILang::get("main_title") . '>"</p>
-							</div>
-						</div>
-					</div>
-				
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-laptop"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("community") . '"></h3>
-								<p><input type="text" class="edit" value="' . WILang::get("learn") . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-trophy"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("software") . '"></h3>
-								<p><input type="text" class="edit" value="' .WILang::get("software") . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4" >
-						<div class="services">
-							<div class="icon">
-								<i class="fa fa-cogs"></i>
-							</div>
-							<div class="serv_detail">
-								<h3><input type="text" class="edit" value="' . WILang::get("it") . '"></h3>
-								<p><input type="text" class="edit" value="' . WILang::get("it_title")  . '">"
-</p>
-							</div>
-						</div>
-					</div>
-					</div>
-					
-
-
-    
-				</div>
-			</div>';
-							
-
-		  
-		if ($rsc > 0) {
-
-			  echo '</div><div class="col-sm-1 col-lg-2 cool-md-2 col-xl-2 col-xs-2 sidenav" id="sidenavR">';
-		  $this->mod->getMod("right_sidebar");  
-
-		    echo '</div></div>';
-		}
-
-		echo '</div>
-			</div>';
- 
-
-	}
-
-
-	public function mod_name($page)
-	{
-		echo '<div class=" col-lg-12 col-md-12 col-sm-12 col-xs-12 bg-index">';
-		if(isset($page)){
-		$left_sidePower = $this->Web->pageModPower($page, "left_sidebar");
-		$leftSideBar = $this->Web->PageMod($page, "left_sidebar");
-		//echo "side". $leftSideBar;
-		if ($left_sidePower === "0") {
-			echo '<div class="regin col-lg-12 col-md-12 col-sm-12 col-xs-12">';
-		}else{
-
-			$this->mod->getMod($leftSideBar,$page);
-			echo '<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">';
-		}
-		}
-
-		echo '<div class="container-fluid text-center">    
-  <div class="row content">';
-$this->Reg->registerForm();
-  echo '<div class="col-sm-2"></div></div>
-		</div>
-		</div>
-		 <script type="text/javascript" src="WICore/WIJ/sha512.js"></script>
-              <script type="text/javascript" src="WICore/WIJ/WICore.js"></script>
-              <script type="text/javascript" src="WICore/WIJ/WIRegister.js"></script>
-            <script type="text/javascript" src="WICore/WIJ/WIPasswordReset.js"></script>
-     <script src="WICore/WIJ/WIUsers.js" type="text/javascript" charset="utf-8"></script>';
-
-		if(isset($page)){			
-		$right_sidePower = $this->Web->pageModPower($page, "right_sidebar");
-		$rightSideBar = $this->Web->PageMod($page, "right_sidebar");
-		//echo "righ". $right_sidePower;
-		if ($right_sidePower === "0") {
-			
-		}else{
-
-			$this->mod->getMod($rightSideBar,$page);
-		}
-
-		}			
-					
-
-	echo '</div>
-			</div>';
-	}
-
-
+        $this->Boot->endContentsHolder();
+        $this->Boot->endMod($page);
+    }
 }

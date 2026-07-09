@@ -1,0 +1,16 @@
+{
+  "manifest_version": "1.1.0",
+  "name": "ExamplePlugin",
+  "slug": "ExamplePlugin",
+  "canonical_code": "example_plugin",
+  "display_name": "Example Plugin",
+  "version": "1.0.0",
+  "author": "Warner Infinity",
+  "plugin_type": "operational_plugin",
+  "description": "Short customer-facing description.",
+  "requires": ["WICMS"],
+  "optional_integrations": ["WICompliance", "WIHR", "WIOrg", "WINotifications", "WITaskEngine"],
+  "provides": ["tasks.provider", "notifications.consumer", "reports.provider"],
+  "install_class": "ExamplePluginInstall",
+  "install_file": "Install/ExamplePluginInstall.php"
+}

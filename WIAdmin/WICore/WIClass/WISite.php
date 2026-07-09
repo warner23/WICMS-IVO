@@ -1,6 +1,34 @@
 <?php
 declare(strict_types=1);
 
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| Class: WISite
+| File: WISite.php
+| Location: /WIAdmin/WICore/WIClass/WISite.php
+| Type: Site Settings / Shared Site Service
+| Layer: Shared Core
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Purpose
+|--------------------------------------------------------------------------
+| Shared site settings and small dashboard-count helper class.
+|
+| Notes:
+| - Uses WIdb only
+| - Keeps existing public method names for compatibility
+| - Leaves environment-controlled secrets out of wi_site updates
+|--------------------------------------------------------------------------
+*/
+
 class WISite
 {
     private WIdb $WIdb;
@@ -15,7 +43,7 @@ class WISite
 
     /*
     |--------------------------------------------------------------------------
-    | Shared settings helpers
+    | Settings helpers
     |--------------------------------------------------------------------------
     */
 
@@ -30,13 +58,26 @@ class WISite
 
     private function updateSiteSettings(array $data): bool
     {
-        if ($data === []) {
+        if ($data === [] || !$this->WIdb->tableExists('wi_site')) {
             return false;
+        }
+
+        $filtered = $this->filterDataForTable('wi_site', $data, ['id']);
+
+        if ($filtered === []) {
+            return false;
+        }
+
+        $exists = $this->WIdb->exists('wi_site', '`id` = :id', ['id' => $this->settingsRowId]);
+
+        if (!$exists) {
+            $filtered['id'] = $this->settingsRowId;
+            return $this->WIdb->insert('wi_site', $filtered);
         }
 
         return $this->WIdb->update(
             'wi_site',
-            $data,
+            $filtered,
             '`id` = :id',
             ['id' => $this->settingsRowId]
         );
@@ -44,25 +85,52 @@ class WISite
 
     private function logSettingsChange(string $message): void
     {
-        $userId = (string) WISession::get('user_id', '0');
+        $userId = (string) (class_exists('WISession') ? WISession::get('user_id', '0') : '0');
         $this->maint->Notifications($userId, $message);
+
+        if (class_exists('WILogger')) {
+            WILogger::info($message, [], 'site_settings');
+        }
     }
 
     private function settingsResult(bool $success, string $successMessage = ''): array
     {
         if ($success) {
             return [
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => $successMessage !== ''
                     ? $successMessage
-                    : WILang::get('successfully_updated_site_settings'),
+                    : (class_exists('WILang') ? (string) WILang::get('successfully_updated_site_settings') : 'Settings updated successfully.'),
             ];
         }
 
         return [
-            'status' => 'error',
+            'status'  => 'error',
             'message' => 'Unable to update settings.',
         ];
+    }
+
+    private function filterDataForTable(string $table, array $data, array $exclude = []): array
+    {
+        $filtered = [];
+
+        foreach ($data as $column => $value) {
+            if (in_array((string) $column, $exclude, true)) {
+                continue;
+            }
+
+            if (!$this->WIdb->columnExists($table, (string) $column)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                continue;
+            }
+
+            $filtered[$column] = is_string($value) ? trim($value) : $value;
+        }
+
+        return $filtered;
     }
 
     /*
@@ -74,7 +142,6 @@ class WISite
     public function Site_Settings(array $settings): array
     {
         $site = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($site);
 
         if ($ok) {
@@ -88,9 +155,18 @@ class WISite
     {
         $database = $this->extractSettingsPayload($settings);
 
-        // keep database values stored in wi_site if you still want them visible/editable
-        // but do NOT recreate db.php anymore
-        unset($database['TYPE'], $database['HOST'], $database['USER'], $database['PASS'], $database['NAME']);
+        unset(
+            $database['TYPE'],
+            $database['HOST'],
+            $database['USER'],
+            $database['PASS'],
+            $database['NAME'],
+            $database['DB_TYPE'],
+            $database['DB_HOST'],
+            $database['DB_NAME'],
+            $database['DB_USER'],
+            $database['DB_PASS']
+        );
 
         $ok = $this->updateSiteSettings($database);
 
@@ -101,7 +177,7 @@ class WISite
         return $this->settingsResult(
             $ok,
             $ok
-                ? 'Database settings saved. Server connection values are now expected from environment configuration.'
+                ? 'Database settings saved. Connection credentials remain environment-controlled.'
                 : ''
         );
     }
@@ -109,7 +185,6 @@ class WISite
     public function Email_settings(array $settings): array
     {
         $email = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($email);
 
         if ($ok) {
@@ -122,7 +197,6 @@ class WISite
     public function Email_Method(array $mailer): array
     {
         $mailerSettings = $this->extractSettingsPayload($mailer);
-
         $ok = $this->updateSiteSettings($mailerSettings);
 
         if ($ok) {
@@ -135,7 +209,6 @@ class WISite
     public function Session_Settings(array $settings): array
     {
         $session = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($session);
 
         if ($ok) {
@@ -149,7 +222,7 @@ class WISite
     {
         $data = [
             'password_encryption' => trim($encryption),
-            'cost' => is_numeric($cost) ? (int) $cost : 0,
+            'cost'                => is_numeric($cost) ? (int) $cost : 0,
         ];
 
         $ok = $this->updateSiteSettings($data);
@@ -164,7 +237,6 @@ class WISite
     public function Login_Settings(array $settings): array
     {
         $loginSettings = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($loginSettings);
 
         if ($ok) {
@@ -177,7 +249,6 @@ class WISite
     public function lang_Settings(array $settings): array
     {
         $lang = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($lang);
 
         if ($ok) {
@@ -190,7 +261,6 @@ class WISite
     public function verification_Settings(array $settings): array
     {
         $verification = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($verification);
 
         if ($ok) {
@@ -203,7 +273,6 @@ class WISite
     public function social_settings(array $settings): array
     {
         $social = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($social);
 
         if ($ok) {
@@ -216,7 +285,6 @@ class WISite
     public function twitter(array $settings): array
     {
         $twitter = $this->extractSettingsPayload($settings);
-
         $ok = $this->updateSiteSettings($twitter);
 
         if ($ok) {
@@ -226,14 +294,13 @@ class WISite
         return $this->settingsResult($ok);
     }
 
-
     public function VersionControl(string $version): array
     {
         $version = trim($version);
 
         if ($version === '') {
             return [
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'No version provided.',
             ];
         }
@@ -241,11 +308,11 @@ class WISite
         $this->logSettingsChange('Checked version control');
 
         return [
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Version control check queued.',
-            'data' => [
+            'data'    => [
                 'current_version' => $version,
-                'system_version' => defined('WICMS_VERSION') ? WICMS_VERSION : null,
+                'system_version'  => defined('WICMS_VERSION') ? WICMS_VERSION : null,
             ],
         ];
     }
@@ -258,27 +325,45 @@ class WISite
 
         if ($lang === '' || $keyword === '' || $translation === '') {
             return [
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Language, keyword and translation are required.',
             ];
         }
 
-        $this->WIdb->insert('wi_multi_lang', [
-            'lang' => $lang,
-            'keyword' => $keyword,
+        if (!$this->WIdb->tableExists('wi_multi_lang')) {
+            return [
+                'status'  => 'error',
+                'message' => 'Translation table is not available.',
+            ];
+        }
+
+        $insert = $this->filterDataForTable('wi_multi_lang', [
+            'lang'        => $lang,
+            'keyword'     => $keyword,
             'translation' => $translation,
         ]);
 
+        if ($insert === []) {
+            return [
+                'status'  => 'error',
+                'message' => 'No valid translation fields were provided.',
+            ];
+        }
+
+        $this->WIdb->insert('wi_multi_lang', $insert);
         $this->logSettingsChange('Added multi-language translation');
 
         return [
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Translation added successfully.',
         ];
     }
 
-
-
+    /*
+    |--------------------------------------------------------------------------
+    | Shared info helpers
+    |--------------------------------------------------------------------------
+    */
 
     public function Website_Info(string $column): mixed
     {
@@ -304,70 +389,85 @@ class WISite
         return $settings->membership($column);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy count helpers
+    |--------------------------------------------------------------------------
+    */
 
-    //old stuff
     public function notifications_badge(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_notifications`");
-        echo count($result);
+        echo $this->notifications_badge_count();
     }
 
     public function notifications_badge_count(): int
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_notifications`");
-        return count($result);
+        return $this->countRows('wi_notifications');
     }
 
     public function MessageBagde(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_admin_msg`");
-        echo count($result);
+        echo $this->messageBadgeCount();
     }
 
     public function messageBadgeCount(): int
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_admin_msg`");
-        return count($result);
+        return $this->countRows('wi_admin_msg');
     }
 
     public function TaskBagde(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_tasks`");
-        echo count($result);
+        echo $this->taskBadgeCount();
     }
 
     public function taskBadgeCount(): int
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_tasks`");
-        return count($result);
+        return $this->countRows('wi_tasks');
     }
 
     public function ActiveChatCount(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_active_chat`");
-        echo count($result);
+        echo $this->activeChatCountValue();
     }
 
     public function activeChatCountValue(): int
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_active_chat`");
-        return count($result);
+        return $this->countRows('wi_active_chat');
     }
 
     public function RegisteredUsers(): void
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_members`");
-        echo count($result);
+        echo $this->registeredUsersCount();
     }
 
     public function registeredUsersCount(): int
     {
-        $result = $this->WIdb->bindfree("SELECT * FROM `wi_members`");
-        return count($result);
+        return $this->countRows('wi_members');
     }
+
+    private function countRows(string $table): int
+    {
+        if (!$this->WIdb->tableExists($table)) {
+            return 0;
+        }
+
+        $result = $this->WIdb->bindfree("SELECT COUNT(*) AS count_value FROM `{$table}`");
+        return (int) ($result[0]['count_value'] ?? 0);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy task renderer
+    |--------------------------------------------------------------------------
+    */
 
     public function tasks(): void
     {
+        if (!$this->WIdb->tableExists('wi_tasks')) {
+            echo '<ul class="todo-list"></ul>';
+            return;
+        }
+
         $result = $this->WIdb->bindfree("SELECT * FROM `wi_tasks` ORDER BY `id` DESC");
 
         echo '<ul class="todo-list">';
@@ -390,7 +490,56 @@ class WISite
         echo '</ul>';
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy media/display compatibility stubs
+    |--------------------------------------------------------------------------
+    */
 
+    public function headerDisplay(): void
+    {
+        $this->renderLegacyUploadBox('header');
+    }
 
-    
+    public function AddLangDisplay(): void
+    {
+        $this->renderLegacyUploadBox('add-lang');
+    }
+
+    public function EditLangDisplay(): void
+    {
+        $this->renderLegacyUploadBox('edit-lang');
+    }
+
+    public function pageDisplay(): void
+    {
+        $this->renderLegacyUploadBox('page');
+    }
+
+    public function pageModuleDisplay(): void
+    {
+        $this->renderLegacyUploadBox('page-module');
+    }
+
+    public function ProductDisplay(): void
+    {
+        $this->renderLegacyUploadBox('product');
+    }
+
+    public function UploadTeamPics(): void
+    {
+        $this->renderLegacyUploadBox('team');
+    }
+
+    public function faviconDisplay(): void
+    {
+        $this->renderLegacyUploadBox('favicon');
+    }
+
+    private function renderLegacyUploadBox(string $scope): void
+    {
+        echo '<div class="wi-upload-placeholder" data-scope="' . htmlspecialchars($scope, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<p>Upload area ready.</p>';
+        echo '</div>';
+    }
 }

@@ -1,60 +1,55 @@
 <?php
+declare(strict_types=1);
+
+$footerData = is_array($headerFooterData['footer'] ?? null) ? $headerFooterData['footer'] : [];
+$tokens = is_array($headerFooterData['tokens'] ?? null) ? $headerFooterData['tokens'] : [];
+$saveToken = (string)($tokens['save'] ?? (class_exists('WIToken') ? WIToken::getToken('wicms_header_footer_save') : ''));
 ?>
-<div class="wi-menu-section wi-footer-settings-section">
-    <div class="wi-menu-toolbar">
-        <div>
-            <h4>Site Footer</h4>
-            <p>Manage the footer presentation and site name shown in the copyright area.</p>
-        </div>
-    </div>
+<form class="wi-hf-form" data-wi-hf-form data-result="#wi-hf-footer-result">
+    <input type="hidden" name="action" value="wicms_header_footer_save">
+    <input type="hidden" name="section" value="footer">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($saveToken, ENT_QUOTES, 'UTF-8'); ?>" data-wi-hf-save-token>
 
-    <div class="wi-menu-workspace">
-        <div class="wi-menu-preview-card">
-            <div class="wi-menu-card-head">
-                <h5>Footer Settings</h5>
-                <span>Update the footer display while keeping the current structure intact.</span>
+    <div class="wi-hf-grid">
+        <div class="wi-hf-card-panel wi-hf-form-panel">
+            <div class="wi-hf-card-title">
+                <h4>Footer Identity</h4>
+                <p>Controls the public footer name and optional supporting copy.</p>
             </div>
 
-            <div class="wi-menu-card-body wi-footer-preview-body">
-                <?php $web->edit_footer(); ?>
+            <label class="wi-hf-field">
+                <span>Website / Footer Name</span>
+                <input type="text" name="website_name" maxlength="255" value="<?php echo htmlspecialchars((string)($footerData['website_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+            </label>
+
+            <label class="wi-hf-field">
+                <span>Footer Content</span>
+                <textarea name="footer_content" maxlength="255" rows="3"><?php echo htmlspecialchars((string)($footerData['footer_content'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+            </label>
+
+            <label class="wi-hf-field">
+                <span>Footer Links / Supporting Text</span>
+                <textarea name="footer_linking" maxlength="255" rows="3"><?php echo htmlspecialchars((string)($footerData['footer_linking'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+            </label>
+        </div>
+
+        <div class="wi-hf-card-panel wi-hf-footer-preview-card">
+            <div class="wi-hf-card-title">
+                <h4>Footer Preview</h4>
+                <p>Simple preview using the current saved values.</p>
+            </div>
+
+            <div class="wi-hf-footer-preview">
+                <strong data-wi-hf-preview-name><?php echo htmlspecialchars((string)($footerData['website_name'] ?? 'WICMS'), ENT_QUOTES, 'UTF-8'); ?></strong>
+                <p data-wi-hf-preview-content><?php echo htmlspecialchars((string)($footerData['footer_content'] ?? 'Core WICMS website footer.'), ENT_QUOTES, 'UTF-8'); ?></p>
+                <small data-wi-hf-preview-links><?php echo htmlspecialchars((string)($footerData['footer_linking'] ?? 'All rights reserved.'), ENT_QUOTES, 'UTF-8'); ?></small>
+                <span>&copy; <?php echo htmlspecialchars(date('Y'), ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
         </div>
     </div>
 
-    <div class="wi-menu-toolbar" style="margin-top:16px; border-bottom:0; padding-bottom:0;">
-        <div></div>
-        <div class="wi-menu-toolbar-actions">
-            <button type="button" id="footer_btn" class="btn btn-success">
-                <i class="fa fa-save"></i> Save Footer
-            </button>
-        </div>
+    <div class="wi-hf-actions">
+        <button type="submit" class="wi-hf-btn wi-hf-btn-primary">Save Footer Settings</button>
+        <span class="wi-hf-result" id="wi-hf-footer-result" aria-live="polite"></span>
     </div>
-
-    <div class="wi-menu-results">
-        <div class="results" id="fresults"></div>
-        <div class="results" id="results"></div>
-    </div>
-</div>
-
-<script>
-$(function () {
-    var footerInputs = $(".wi-footer-preview-body input[type='text']");
-
-    if (footerInputs.length > 0) {
-        footerInputs.eq(0)
-            .attr("id", "footer_year")
-            .attr("name", "footer_year")
-            .addClass("form-control")
-            .prop("readonly", true);
-
-        if (footerInputs.length > 1) {
-            footerInputs.eq(1)
-                .attr("id", "website_name")
-                .attr("name", "website_name")
-                .addClass("form-control");
-        }
-    }
-
-    $(".wi-footer-preview-body .copyright").addClass("wi-footer-edit-row");
-});
-</script>
+</form>

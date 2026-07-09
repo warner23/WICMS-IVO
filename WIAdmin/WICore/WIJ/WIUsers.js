@@ -1,54 +1,141 @@
-var WIUsers = {};
+/**
+ * FILE:
+ * WICMS-IVO/WIAdmin/WICore/WIJ/WIUsers.js
+ *
+ * Canonical admin user management handler for WICMS.
+ */
 
-WIUsers.deleteUser = function(id)
-{
+var users = (function () {
 
-if(!confirm("Delete this user?"))
-return;
+    function displayInfo(userId) {
+        var username = $("#modal-username");
+        var email = $("#modal-email");
+        var firstName = $("#modal-first-name");
+        var lastName = $("#modal-last-name");
+        var address = $("#modal-address");
+        var phone = $("#modal-phone");
+        var lastLogin = $("#modal-last-login");
+        var ajaxLoading = $("#ajax-loading");
+        var detailsBody = $("#details-body");
+        var modal = $("#modal-user-details");
 
-$.post(
+        modal.modal("show");
+        username.text($_lang.loading || "Loading...");
+        ajaxLoading.show();
+        detailsBody.hide();
 
-"WICore/WIClass/WIAjax.php",
+        WICore.ajax({
+            url: "WICore/WIClass/WIAjax.php",
+            data: {
+                action: "getUserDetails",
+                userId: userId,
+                csrf_token: WICore.getCSRF()
+            },
 
-{
-action:"deleteUser",
-id:id
-},
+            onSuccess: function (res) {
+                username.text(res.username || "");
+                email.text(res.email || "");
+                firstName.text(res.first_name || "");
+                lastName.text(res.last_name || "");
+                address.text(res.address || "");
+                phone.text(res.phone || "");
+                lastLogin.text(res.last_login || "");
 
-function(result)
-{
+                ajaxLoading.hide();
+                detailsBody.show();
+            },
 
-var res = JSON.parse(result);
+            onError: function (response) {
+                ajaxLoading.hide();
+                detailsBody.show();
+                username.text(response.message || "Unable to load user.");
+            }
+        });
+    }
 
-if(res.status==="success")
-{
+    function deleteUser(element, userId) {
+        var userRow = $(element).closest(".user-row");
+        var confirmed = confirm($_lang.are_you_sure || "Are you sure?");
 
-$("#user-row-"+id).remove();
+        if (!confirmed) {
+            return;
+        }
 
-}
+        WICore.ajax({
+            url: "WICore/WIClass/WIAjax.php",
+            data: {
+                action: "deleteUser",
+                userId: userId,
+                csrf_token: WICore.getCSRF()
+            },
 
-}
+            onSuccess: function () {
+                userRow.fadeOut(300, function () {
+                    $(this).remove();
+                });
+            },
 
-);
+            onError: function (response) {
+                alert(response.message || "Unable to delete user.");
+            }
+        });
+    }
 
-};
+    function changeRole(element, role, userId) {
+        WICore.ajax({
+            url: "WICore/WIClass/WIAjax.php",
+            data: {
+                action: "changeRole",
+                userId: userId,
+                role: role,
+                csrf_token: WICore.getCSRF()
+            },
 
-$(document).on("change",".user-role-select",function(){
+            onSuccess: function (response) {
+                element.text(response.role || role);
+            },
 
-var user_id=$(this).data("user-id");
+            onError: function (response) {
+                alert(response.message || "Unable to update role.");
+            }
+        });
+    }
 
-var role_id=$(this).val();
+    function roleChanger(element, userId) {
+        $("#modal-change-role").modal({
+            keyboard: false,
+            backdrop: "static",
+            show: true
+        });
 
-$.post(
+        var userRoleSpan = $(element).closest(".btn-group").find(".user-role");
 
-"WICore/WIClass/WIAjax.php",
+        $("#change-role-button").off("click").on("click", function () {
+            var newRole = $("#select-user-role").val();
+            changeRole(userRoleSpan, newRole, userId);
+        });
+    }
 
-{
-action:"updateUserRole",
-user_id:user_id,
-role_id:role_id
-}
+    function showAddUserModal() {
+        $("#modal-add-edit-user").modal({
+            keyboard: false,
+            backdrop: "static",
+            show: true
+        });
+    }
 
-);
+    function resetAddEditForm() {
+        $("#modal-add-edit-user").find("input, textarea").val("");
+        WICore.removeErrorMessages();
+    }
 
-});
+    return {
+        displayInfo: displayInfo,
+        deleteUser: deleteUser,
+        changeRole: changeRole,
+        roleChanger: roleChanger,
+        showAddUserModal: showAddUserModal,
+        resetAddEditForm: resetAddEditForm
+    };
+
+})();

@@ -9,7 +9,7 @@ class Install
 	public function Installer($name, $dom, $script, $session_secure, $http, $session_regenerate, $cookieonly, $login_fingerprint, $max_login_attempts, $redirect_after_login, $encryption, $cost, $mailer,  $db_host, $db_name,  $db_pass, $db_username, $bootstrap_version, $salt, $admin_password, $admin_username, $email_address)
 	{
 
-       $Version = "1.2";
+       $Version = "3.0";
 
    $multi_lang = "on";
 
@@ -32,22 +32,25 @@ class Install
     $reset_key_life = "24";
 
    $dat = date("Y-m-d H:i:s");
+   $dateOnly = date("Y-m-d");
    $ip = getenv('REMOTE_ADDR');
-   $role = "7";
+   $role = "91";
 
    
 
     try{
-      //$pdo = new PDO('mysql:host=' . $db_host . ';dbname=' .$db_name, $db_pass,$db_username );
-      $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_username, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $this->WIdb = WIdb::createInstallServerConnection($db_host, $db_username, $db_pass);
+      $this->WIdb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }catch (PDOException $e) {
             die ( 'Connection failed: ' . $e->getMessage() );
         }
 
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $db_name)) {
+            die(json_encode(array('status' => 'error', 'message' => 'Database name may only contain letters, numbers and underscores.')));
+        }
 		$dbname = "`" . str_replace("`", "``", $db_name) . "`";
-		$pdo->query("CREATE DATABASE IF NOT EXISTS $dbname");
-		$pdo->query("use $dbname");
+		$this->WIdb->query("CREATE DATABASE IF NOT EXISTS $dbname CHARACTER SET utf8 COLLATE utf8_unicode_ci");
+		$this->WIdb->query("use $dbname");
 		$q = "CREATE TABLE IF NOT EXISTS `wi_admin_info_box` 
 (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -716,6 +719,26 @@ INSERT INTO `wi_site` (`id`,`site_name`, `site_domain`, `site_url`, `favicon`, `
 VALUES
 ( 1,'$name', '$dom', '$script', 'wi_cms_logo.PNG', '$db_host', '$db_username', '$db_pass', '$db_name', '25', 'mysql', '$session_secure', '$http', '$session_regenerate' , '$cookieonly', '$login_fingerprint', '$max_login_attempts', '$redirect_after_login', '$encryption', '$cost', '35000', '$salt', '$reset_key_life', '$mail_confirm_required', '$register_confirm','$reg_pass_reset', '$mailer', '', '', '', '', '', '$social_callback_url',  '$google_enabled' , '', '',  '$facebook_enabled', '', '',  '$twitter_enabled', '', '', '$default_lang', '$multi_lang', '$bootstrap_version', '$Version');
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wi_social`
+--
+
+CREATE TABLE IF NOT EXISTS `wi_social` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `href` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `wi_social` (`id`, `href`, `name`) VALUES
+(1, '#', 'facebook'),
+(2, '#', 'twitter'),
+(3, '#', 'instagram')
+ON DUPLICATE KEY UPDATE `href` = VALUES(`href`), `name` = VALUES(`name`);
+
 -- --------------------------------------------------------
 
 --
@@ -1271,25 +1294,84 @@ CREATE TABLE IF NOT EXISTS `wi_visitors_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ";
-$pdo->exec($q);
-		//$pdo = null;
+$this->installCleanCoreBaselineSql();
+		//$this->WIdb = null;
 
-		$this->createConfig($db_host, $db_name, $db_username, $db_pass);
+		$this->createConfig(array(
+            'site_name' => $name,
+            'site_domain' => $dom,
+            'site_url' => $script,
+            'session_secure' => $session_secure,
+            'http_only' => $http,
+            'session_regenerate' => $session_regenerate,
+            'cookie_only' => $cookieonly,
+            'login_fingerprint' => $login_fingerprint,
+            'max_login_attempts' => $max_login_attempts,
+            'redirect_after_login' => $redirect_after_login,
+            'password_encryption' => $encryption,
+            'password_cost' => $cost,
+            'mailer' => $mailer,
+            'db_host' => $db_host,
+            'db_name' => $db_name,
+            'db_username' => $db_username,
+            'db_pass' => $db_pass,
+            'bootstrap_version' => $bootstrap_version,
+            'password_salt' => $salt,
+            'default_lang' => $default_lang,
+            'wicms_version' => $Version,
+            'reset_key_life' => $reset_key_life,
+            'mail_confirm_required' => $mail_confirm_required,
+            'register_confirm' => $register_confirm,
+            'reg_pass_reset' => $reg_pass_reset
+        ));
 
-    $admin_pass = $this->hashingPassword($admin_password);
+        $this->seedInstallSiteRow(array(
+            'site_name' => $name,
+            'site_domain' => $dom,
+            'site_url' => $script,
+            'session_secure' => $session_secure,
+            'http_only' => $http,
+            'session_regenerate' => $session_regenerate,
+            'cookie_only' => $cookieonly,
+            'login_fingerprint' => $login_fingerprint,
+            'max_login_attempts' => $max_login_attempts,
+            'redirect_after_login' => $redirect_after_login,
+            'password_encryption' => $encryption,
+            'password_cost' => $cost,
+            'mailer' => $mailer,
+            'db_host' => $db_host,
+            'db_name' => $db_name,
+            'db_username' => $db_username,
+            'db_pass' => $db_pass,
+            'bootstrap_version' => $bootstrap_version,
+            'password_salt' => $salt,
+            'default_lang' => $default_lang,
+            'wicms_version' => $Version,
+            'reset_key_life' => $reset_key_life,
+            'mail_confirm_required' => $mail_confirm_required,
+            'register_confirm' => $register_confirm,
+            'reg_pass_reset' => $reg_pass_reset,
+            'admin_email' => $email_address
+        ));
+
+    $admin_pass = $this->hashingPassword($admin_password, $encryption, $cost, $salt, 35000);
     //echo "ad" . $admin_pass;
-    //generate email confirmation key
-            $key = $this->_generateKey();
+    // generate a confirmation key that fits the legacy wi_members.confirmation_key varchar(40)
+            $key = $this->_generateKey(40);
 
     $admin = "INSERT INTO `wi_members` (`user_id`, `email`, `username`, `password`, `confirmation_key`, `confirmed`, `password_reset_key`, `password_reset_confirmed`,`password_reset_timestamp`,`register_date`,`user_role`,`last_login`,`ip_addr`,`banned`) VALUES
-      (1, '$email_address', '$admin_username', '$admin_pass', '$key', 'N','','N','','$dat','$role', '', '$ip','N');
+      (1, '$email_address', '$admin_username', '$admin_pass', '$key', 'Y','','N','$dat','$dateOnly','$role', '$dat', '$ip','N');
       INSERT INTO `wi_user_details` (`id_user_details`, `user_id`) VALUES
       (1, 1);";
 
-$pdo->exec($admin);
+$this->WIdb->exec($admin);
+
+    $this->seedCoreRuntimeBaseline($name);
 
 
-    $pdo = null;
+    $this->WIdb = null;
+
+    @file_put_contents(dirname(dirname(dirname(__FILE__))) . '/install.lock', 'Installed on ' . date('c') . PHP_EOL);
 
     $results = array(
       "status" => "install_completed"
@@ -1300,232 +1382,902 @@ $pdo->exec($admin);
 
 	}	
 
-	private function createConfig($db_host, $db_name, $db_username, $db_pass)
-	{
-    $path_to_file = fopen(dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIConfig.php', "w");
-		
 
-		$txt = '<?php
-include_once dirname(dirname(dirname(__FILE__))) . "/WIAdmin/WICore/WILib.php";
-
-date_default_timezone_set("UTC");
-
-//Bootstrap
-
-define("BOOTSTRAP_VERSION", $bootstrap_version);
-
-//WEBSITE
-
-define("WEBSITE_NAME", $webName);
-
-define("WEBSITE_DOMAIN", $domain);
-
-//it can be the same as domain (if script is placed on website\'s root folder) 
-//or it can cotain path that include subfolders, if script is located in some subfolder and not in root folder
-define("SCRIPT_URL", $script);
-
-//DATABASE CONFIGURATION
-define("DB_HOST", $dbhost); 
-
-define("DB_TYPE", $dbtype); 
-
-define("DB_USER", $dbusername); 
-
-define("DB_PASS", $dbpass); 
-
-define("DB_NAME", $dbname); 
-
-//SESSION CONFIGURATION
-
-define("SESSION_SECURE", $session);   
-
-define("SESSION_HTTP_ONLY", $http);
-
-define("SESSION_REGENERATE_ID", $regenerate);   
-
-define("SESSION_USE_ONLY_COOKIES", $cookie);
-
-//LOGIN CONFIGURATION
-
-define("LOGIN_MAX_LOGIN_ATTEMPTS", $loginAttemp); 
-
-define("LOGIN_FINGERPRINT", $loginFinger); 
-
-define("SUCCESS_LOGIN_REDIRECT", serialize(array( "default" => $redirect ))); 
-
-//PASSWORD CONFIGURATION
-
-define("PASSWORD_ENCRYPTION", $encryption); 
-//available values: "sha512", "bcrypt"
-
-define("PASSWORD_BCRYPT_COST", $bcrypt); 
-
-define("PASSWORD_SHA512_ITERATIONS", $sha512); 
-
-define("PASSWORD_SALT", $salt); //22 characters to be appended on first 7 characters that will be generated using PASSWORD_ info above
-
-define("PASSWORD_RESET_KEY_LIFE", $keylife); 
-
-//REGISTRATION CONFIGURATION
-
-define("MAIL_CONFIRMATION_REQUIRED", $mailConfirm); 
-
-define("REGISTER_CONFIRM", $regConfirm); 
-
-define("REGISTER_PASSWORD_RESET", $passReset); 
-
-//EMAIL SENDING CONFIGURATION
-
-define("MAILER", $mail); // available options are "mail" for php mail() and "smtp" for using SMTP server for sending emails
-
-define("SMTP_HOST", $smpt_host); 
-
-define("SMTP_PORT", $smpt_port); 
-
-define("SMTP_USERNAME", $smpt_username); 
-
-define("SMTP_PASSWORD", $smpt_password); 
-
-define("SMTP_ENCRYPTION", $smpt_encryption); 
-
-//SOCIAL LOGIN CONFIGURATION
-
-define("SOCIAL_CALLBACK_URI", $social); 
-
-// GOOGLE
-
-define("GOOGLE_ENABLED", $google); 
-
-define("GOOGLE_ID", $google_id); 
-
-define("GOOGLE_SECRET", $google_secret); 
-
-// FACEBOOK
-
-define("FACEBOOK_ENABLED", $fb); 
-
-define("FACEBOOK_ID", $fb_id); 
-
-define("FACEBOOK_SECRET", $fb_secret); 
-
-// TWITTER
-
-// NOTE: Twitter api for authentication doesn\'t provide users email address!
-// So, if you email address is strictly required for all users, consider disabling twitter login option.
-
-define("TWITTER_ENABLED", $tw_enabled); 
-
-define("TWITTER_KEY", $tw_key); 
-
-define("TWITTER_SECRET", $tw_secret); 
-
-
-// TRANSLATION
-
-define("DEFAULT_LANGUAGE", $default_lang); 
-
-// VERSION 
-define("WICMS_VERSION", $version);';
-
-      $newPage = fwrite($path_to_file, $txt);
-      //fclose($newPage);
-  $path_to_Lib = fopen(dirname(dirname(dirname(dirname(__FILE__)))) .'/WIAdmin/WICore/WILib.php', "w");
-
-    
-    $lib_txt = '<?php
-require_once "WIClass/WILib.php";
-require_once "WIClass/WISettings.php";
-//DATABASE CONFIGURATION
-
-define("HOST", "' . $db_host. '"); 
-
-define("TYPE", "mysql"); 
-
-define("USER", "' . $db_username. '"); 
-
-define("PASS", "' . $db_pass. '"); 
-
-define("NAME", "' . $db_name. '"); 
-
-$WIC = WILib::getInstance();
-$config =  new WISettings();
-
-$dbhost          = $config->Website_Info("db_host");
-$dbusername      = $config->Website_Info("db_username");
-$dbpass          = $config->Website_Info("db_pass");
-$dbname          = $config->Website_Info("db_name");
-$dbport          = $config->Website_Info("db_port");
-$dbtype          = $config->Website_Info("db_type");
-
-$webName               = $config->Website_Info("site_name");
-$domain                = $config->Website_Info("site_domain");
-$script                = $config->Website_Info("site_url");
-
-$session               = $config->Website_Info("secure_session");
-$http                  = $config->Website_Info("http_only");
-$regenerate            = $config->Website_Info("regenerate_id");
-$cookie                = $config->Website_Info("use_only_cookie");
-
-$loginAttemp           = $config->Website_Info("max_login_attempts");
-$loginFinger           = $config->Website_Info("login_fingerprint");
-$redirect              = $config->Website_Info("redirect_after_login");
-$encryption            = $config->Website_Info("password_encryption");
-
-$bcrypt                = $config->Website_Info("encryption_cost");
-$sha512                = $config->Website_Info("sha512_iterations");
-$salt                  = $config->Website_Info("password_salt");
-$keylife               = $config->Website_Info("reset_key_life");
-$mailConfirm           = $config->Website_Info("mail_confirm_required");
-$regConfirm            = $config->Website_Info("register_confirm");
-$passReset             = $config->Website_Info("reg_pass_reset");
-$mail                  = $config->Website_Info("mailer");
-$smpt_host             = $config->Website_Info("smpt_host");
-$smpt_port             = $config->Website_Info("smpt_port");
-$smpt_username         = $config->Website_Info("smpt_username");
-$smpt_password         = $config->Website_Info("smpt_password");
-
-$smpt_encryption       = $config->Website_Info("smpt_encryption");
-$social                = $config->Website_Info("social_callback_url");
-$google                = $config->Website_Info("google_enabled");
-$google_id             = $config->Website_Info("google_id");
-$google_secret         = $config->Website_Info("google_secret");
-$fb                    = $config->Website_Info("facebook_enabled");
-$fb_id                 = $config->Website_Info("facebook_id");
-$fb_secret             = $config->Website_Info("facebook_secret");
-$tw_enabled            = $config->Website_Info("twitter_enabled");
-$tw_key                = $config->Website_Info("twitter_key");
-$tw_secret             = $config->Website_Info("twitter_secret");
-$default_lang          = $config->Website_Info("default_lang");
-$multi_lang            = $config->Website_Info("multi_lang");
-$version               = $config->Website_Info("wicms_version");
-$bootstrap_version     = $config->Website_Info("bootstrap_version");
-$favicon               = $config->Website_Info("favicon");
-';
-
-$newLibPage = fwrite($path_to_Lib, $lib_txt);
-      //fclose($newLibPage);
-
-	}
-
-
-    public function hashingPassword($password)
+    private function seedCoreRuntimeBaseline(string $siteName): void
+    {
+        $siteName = trim($siteName) !== '' ? trim($siteName) : 'WICMS';
+        $siteNameSql = str_replace("'", "''", $siteName);
+
+        $baseline = <<<'SQL'
+
+-- -----------------------------------------------------------------------------
+-- WICMS Installer v2.9 runtime baseline seed
+-- Purpose: make a fresh WICMS install usable immediately after database/config
+-- creation by seeding core pages, menus, metadata, CSS/JS registrations,
+-- module power states, footer/header/social defaults, and plugin shell rows.
+-- -----------------------------------------------------------------------------
+
+
+-- Core admin access baseline. Without this, the first admin account can log in
+-- as a member but fails WIAdmin->isAdmin() / WICMSAdminPageGuard.
+INSERT INTO `wi_user_roles` (`role_id`, `role`)
+SELECT 90, 'Super Admin'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_user_roles` WHERE `role_id` = 90);
+
+INSERT INTO `wi_user_roles` (`role_id`, `role`)
+SELECT 91, 'Platform Owner'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_user_roles` WHERE `role_id` = 91);
+
+-- Upgrade the installer-created first account to a true admin role.
+UPDATE `wi_members`
+   SET `user_role` = 91,
+       `confirmed` = 'Y',
+       `banned` = 'N'
+ WHERE `user_id` = 1;
+
+CREATE TABLE IF NOT EXISTS `wi_permissions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `group_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'General',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_wi_permissions_code` (`code`),
+  KEY `idx_wi_permissions_group` (`group_name`),
+  KEY `idx_wi_permissions_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `wi_role_permissions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `role_id` int unsigned NOT NULL,
+  `permission_id` int unsigned NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_wi_role_permissions` (`role_id`,`permission_id`),
+  KEY `idx_wi_role_permissions_role` (`role_id`),
+  KEY `idx_wi_role_permissions_permission` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `wi_permissions` (`name`, `code`, `group_name`, `description`, `is_active`) VALUES
+('View Users','users.view','Users','Can view users list',1),
+('Create Users','users.create','Users','Can create users',1),
+('Edit Users','users.edit','Users','Can edit users',1),
+('Delete Users','users.delete','Users','Can delete/deactivate users',1),
+('View Roles','roles.view','Roles','Can view roles',1),
+('Create Roles','roles.create','Roles','Can create roles',1),
+('Edit Roles','roles.edit','Roles','Can edit roles',1),
+('Delete Roles','roles.delete','Roles','Can delete custom roles',1),
+('View Permissions','permissions.view','Permissions','Can view permissions',1),
+('Create Permissions','permissions.create','Permissions','Can create permissions',1),
+('Edit Permissions','permissions.edit','Permissions','Can edit permissions',1),
+('Delete Permissions','permissions.delete','Permissions','Can delete unused permissions',1),
+('View Settings','settings.view','Settings','Can view WICMS settings',1),
+('Edit Settings','settings.edit','Settings','Can edit WICMS settings',1),
+('View Pages','pages.view','Pages','Can view pages',1),
+('Create Pages','pages.create','Pages','Can create pages',1),
+('Edit Pages','pages.edit','Pages','Can edit pages',1),
+('Delete Pages','pages.delete','Pages','Can delete pages',1),
+('View Media','media.view','Media','Can view media',1),
+('Upload Media','media.upload','Media','Can upload media',1),
+('Delete Media','media.delete','Media','Can delete media',1),
+('Access Admin Area','admin.access','Admin','Can access the WICMS admin area',1),
+('View Admin Dashboard','dashboard.view','Dashboard','Can view the WICMS admin dashboard',1),
+('View Menus','menus.view','Menus','Can view menus',1),
+('Manage Menus','menus.manage','Menus','Can create/edit menus',1),
+('Sort Menus','menus.sort','Menus','Can sort menus',1),
+('View Plugins','plugins.view','Plugins','Can view plugins',1),
+('Manage Plugins','plugins.manage','Plugins','Can manage plugin settings',1),
+('Install Plugins','plugins.install','Plugins','Can install plugins',1),
+('Activate Plugins','plugins.activate','Plugins','Can activate plugins',1),
+('Deactivate Plugins','plugins.deactivate','Plugins','Can deactivate plugins',1),
+('Uninstall Plugins','plugins.uninstall','Plugins','Can uninstall plugins after confirmation',1),
+('Developer Plugin Purge','plugins.developer_purge','Plugins','Can perform local/developer purge',1),
+('View Packages','packages.view','Packages','Can view packages/add-ons',1),
+('Manage Packages','packages.manage','Packages','Can manage package settings',1),
+('Install Packages','packages.install','Packages','Can install packages',1),
+('Activate Packages','packages.activate','Packages','Can activate packages/add-ons',1),
+('Deactivate Packages','packages.deactivate','Packages','Can deactivate packages/add-ons',1),
+('Uninstall Packages','packages.uninstall','Packages','Can uninstall packages after confirmation',1),
+('View Modules','modules.view','Modules','Can view modules',1),
+('Manage Modules','modules.manage','Modules','Can manage modules',1),
+('View Themes','themes.view','Themes','Can view themes',1),
+('Manage Themes','themes.manage','Themes','Can manage themes',1),
+('View Legal & Cookies','legal_cookies.view','Legal & Cookies','Can view consent/legal/cookie settings',1),
+('Manage Legal & Cookies','legal_cookies.manage','Legal & Cookies','Can manage consent/legal/cookie settings',1),
+('View Bug Reports','bug_reports.view','Bug Reports','Can view bug reports',1),
+('Manage Bug Reports','bug_reports.manage','Bug Reports','Can manage bug reports',1),
+('Resolve Bug Reports','bug_reports.resolve','Bug Reports','Can resolve bug reports',1),
+('View Audit Logs','audit_logs.view','System','Can view system/audit logs',1),
+('View System Health','system.health.view','System','Can view system health',1),
+('Manage System Health','system.health.manage','System','Can manage system health/repairs',1),
+('API Access','api.access','API','Can access API routes',1),
+('API Read','api.read','API','Can read through API routes',1),
+('API Write','api.write','API','Can write through API routes',1),
+('API Admin','api.admin','API','Can perform trusted API admin actions',1),
+('View Site Settings','site.view','Site','Can view website/site settings',1),
+('Edit Site Settings','site.edit','Site','Can edit website/site settings',1),
+('View Legal & Cookies','site.legal_cookies.view','Site','Can view legal and cookie settings',1),
+('Manage Legal & Cookies','site.legal_cookies.manage','Site','Can manage legal and cookie settings',1),
+('Delete Modules','modules.delete','Modules','Can uninstall/delete modules and elements',1),
+('Install Themes','themes.install','Themes','Can install themes',1),
+('Activate Themes','themes.activate','Themes','Can activate themes',1),
+('Delete Themes','themes.delete','Themes','Can delete themes',1)
+ON DUPLICATE KEY UPDATE
+  `name` = VALUES(`name`),
+  `group_name` = VALUES(`group_name`),
+  `description` = VALUES(`description`),
+  `is_active` = VALUES(`is_active`);
+
+INSERT INTO `wi_role_permissions` (`role_id`, `permission_id`)
+SELECT 90, p.`id`
+  FROM `wi_permissions` p
+ WHERE NOT EXISTS (
+       SELECT 1 FROM `wi_role_permissions` rp
+        WHERE rp.`role_id` = 90
+          AND rp.`permission_id` = p.`id`
+ );
+
+INSERT INTO `wi_role_permissions` (`role_id`, `permission_id`)
+SELECT 91, p.`id`
+  FROM `wi_permissions` p
+ WHERE NOT EXISTS (
+       SELECT 1 FROM `wi_role_permissions` rp
+        WHERE rp.`role_id` = 91
+          AND rp.`permission_id` = p.`id`
+ );
+
+-- Core social rows used by WIWebsite->Social() and top_head.
+CREATE TABLE IF NOT EXISTS `wi_social` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `href` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '#',
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `wi_social` (`id`, `href`, `name`) VALUES
+(1, '#', 'facebook'),
+(2, '#', 'twitter'),
+(3, '#', 'instagram')
+ON DUPLICATE KEY UPDATE `href` = VALUES(`href`), `name` = VALUES(`name`);
+
+-- Core pages. These map root files to WIAdmin/WIModule/pages/* modules.
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'index', '1', '1', '0', '0', '0', 'welcome_box', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'index');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'alogin', '1', '1', '0', '0', '0', 'alogin', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'alogin');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'login', '1', '1', '0', '0', '0', 'login', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'login');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'register', '1', '1', '0', '0', '0', 'register', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'register');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'confirm', '1', '1', '0', '0', '0', 'confirm', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'confirm');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'passwordreset', '1', '1', '0', '0', '0', 'passwordreset', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'passwordreset');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'forgotpass', '1', '1', '0', '0', '0', 'passwordreset', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'forgotpass');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'reset-password', '1', '1', '0', '0', '0', 'passwordreset', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'reset-password');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'contact_us', '1', '1', '0', '0', '0', 'contact_us', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'contact_us');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'about_us', '1', '1', '0', '0', '0', 'about_us', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'about_us');
+
+INSERT INTO `wi_page` (`name`, `panel`, `top_head`, `header`, `left_sidebar`, `right_sidebar`, `contents`, `footer`)
+SELECT 'profile', '1', '1', '0', '0', '0', 'profile', '1'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_page` WHERE `name` = 'profile');
+
+-- Keep important core modules active enough for fresh runtime.
+UPDATE `wi_mod`
+   SET `mod_status` = 'enabled', `mod_powered` = 'power_on'
+ WHERE `module_name` IN ('top_head', 'Panel', 'welcome_box');
+
+-- Make sure page/modules that exist as files are represented in wi_mod.
+INSERT INTO `wi_mod` (`mod_status`, `mod_powered`, `mod_type`, `mod_author`, `module_name`, `Mod_description`, `mod_font`)
+SELECT 'enabled', 'power_on', 'custom', 'WICMS', 'login', 'Core member login page', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_mod` WHERE `module_name` = 'login');
+
+INSERT INTO `wi_mod` (`mod_status`, `mod_powered`, `mod_type`, `mod_author`, `module_name`, `Mod_description`, `mod_font`)
+SELECT 'enabled', 'power_on', 'custom', 'WICMS', 'register', 'Core member register page', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_mod` WHERE `module_name` = 'register');
+
+INSERT INTO `wi_mod` (`mod_status`, `mod_powered`, `mod_type`, `mod_author`, `module_name`, `Mod_description`, `mod_font`)
+SELECT 'enabled', 'power_on', 'custom', 'WICMS', 'contact_us', 'Core contact page', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_mod` WHERE `module_name` = 'contact_us');
+
+INSERT INTO `wi_mod` (`mod_status`, `mod_powered`, `mod_type`, `mod_author`, `module_name`, `Mod_description`, `mod_font`)
+SELECT 'enabled', 'power_on', 'custom', 'WICMS', 'about_us', 'Core about page', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_mod` WHERE `module_name` = 'about_us');
+
+INSERT INTO `wi_mod` (`mod_status`, `mod_powered`, `mod_type`, `mod_author`, `module_name`, `Mod_description`, `mod_font`)
+SELECT 'enabled', 'power_on', 'custom', 'WICMS', 'passwordreset', 'Core password reset page', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_mod` WHERE `module_name` = 'passwordreset');
+
+-- wi_modules is a looser installed-module inventory used by newer module tools.
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'top_head', (SELECT `mod_id` FROM `wi_mod` WHERE `module_name` = 'top_head' LIMIT 1)
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'top_head');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'welcome_box', (SELECT `mod_id` FROM `wi_mod` WHERE `module_name` = 'welcome_box' LIMIT 1)
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'welcome_box');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'alogin', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'alogin');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'login', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'login');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'register', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'register');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'profile', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'profile');
+
+INSERT INTO `wi_modules` (`name`, `mod_id`)
+SELECT 'contact_us', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `wi_modules` WHERE `name` = 'contact_us');
+
+-- Public menu defaults. Keep this small/generic; ECMA gets its own theme/menu later.
+INSERT INTO `wi_menu` (`label`, `link`, `parent`, `sort`, `lang`)
+SELECT 'Home', 'index.php', 0, 0, 'home'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_menu` WHERE `link` = 'index.php' AND `parent` = 0);
+
+INSERT INTO `wi_menu` (`label`, `link`, `parent`, `sort`, `lang`)
+SELECT 'About', 'about_us.php', 0, 1, 'about_us'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_menu` WHERE `link` = 'about_us.php' AND `parent` = 0);
+
+INSERT INTO `wi_menu` (`label`, `link`, `parent`, `sort`, `lang`)
+SELECT 'Contact', 'contact_us.php', 0, 2, 'contact_us'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_menu` WHERE `link` = 'contact_us.php' AND `parent` = 0);
+
+INSERT INTO `wi_menu` (`label`, `link`, `parent`, `sort`, `lang`)
+SELECT 'Login', 'login.php', 0, 3, 'login'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_menu` WHERE `link` = 'login.php' AND `parent` = 0);
+
+INSERT INTO `wi_menu` (`label`, `link`, `parent`, `sort`, `lang`)
+SELECT 'Register', 'register.php', 0, 4, 'register'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_menu` WHERE `link` = 'register.php' AND `parent` = 0);
+
+-- Global CSS registrations. WIWebsite loads global/all/* plus the current page.
+-- WICMS generic fallback baseline CSS. Loaded before/alongside theme-specific CSS.
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/wicms-baseline.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/wicms-baseline.css' AND `page` = 'global');
+
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/vendor/bootstrap.min.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/vendor/bootstrap.min.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/frameworks/bootstrap.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/frameworks/bootstrap.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/font-awesome.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/font-awesome.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/frameworks/header.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/frameworks/header.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/frameworks/menus.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/frameworks/menus.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/frameworks/footer.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/frameworks/footer.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/login_panel/css/slide.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/login_panel/css/slide.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/style.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/style.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/system.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/system.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'site/css/WIMarketing.css', 'stylesheet', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'site/css/WIMarketing.css' AND `page` = 'global');
+
+INSERT INTO `wi_css` (`href`, `rel`, `page`)
+SELECT 'user/css/profile.css', 'stylesheet', 'profile'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_css` WHERE `href` = 'user/css/profile.css' AND `page` = 'profile');
+
+-- Global JavaScript registrations. These are generic WICMS public assets.
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/wicms-baseline.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/wicms-baseline.js' AND `page` = 'global');
+
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/frameworks/JQuery.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/frameworks/JQuery.js' AND `page` = 'global');
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/frameworks/bootstrap.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/frameworks/bootstrap.js' AND `page` = 'global');
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/login_panel/js/slide.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/login_panel/js/slide.js' AND `page` = 'global');
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/main.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/main.js' AND `page` = 'global');
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/WIMarketing.js', 'global'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/WIMarketing.js' AND `page` = 'global');
+
+-- Page-specific JS that is not theme-based in some builds is still kept in WI_scripts
+-- for backwards compatibility when a theme copy exists.
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/login.js', 'login'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/login.js' AND `page` = 'login');
+
+INSERT INTO `wi_scripts` (`src`, `page`)
+SELECT 'site/js/register.js', 'register'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_scripts` WHERE `src` = 'site/js/register.js' AND `page` = 'register');
+
+-- Global and core-page metadata.
+INSERT INTO `wi_meta` (`page`, `name`, `content`, `author`)
+SELECT 'global', 'viewport', 'width=device-width, initial-scale=1', 'WICMS'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_meta` WHERE `page` = 'global' AND `name` = 'viewport');
+
+INSERT INTO `wi_meta` (`page`, `name`, `content`, `author`)
+SELECT 'global', 'description', 'WICMS content management system', 'WICMS'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_meta` WHERE `page` = 'global' AND `name` = 'description');
+
+INSERT INTO `wi_meta` (`page`, `name`, `content`, `author`)
+SELECT 'login', 'description', 'Login to your WICMS account', 'WICMS'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_meta` WHERE `page` = 'login' AND `name` = 'description');
+
+INSERT INTO `wi_meta` (`page`, `name`, `content`, `author`)
+SELECT 'register', 'description', 'Create your WICMS account', 'WICMS'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_meta` WHERE `page` = 'register' AND `name` = 'description');
+
+INSERT INTO `wi_meta` (`page`, `name`, `content`, `author`)
+SELECT 'passwordreset', 'description', 'Reset your WICMS password', 'WICMS'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_meta` WHERE `page` = 'passwordreset' AND `name` = 'description');
+
+-- Header/footer defaults. Keep copy generic; brand theme can change later.
+UPDATE `wi_footer`
+   SET `website_name` = COALESCE(NULLIF(`website_name`, ''), '__SITE_NAME__')
+ WHERE `footer_id` = 1;
+
+INSERT INTO `wi_footer` (`footer_id`, `footer_content`, `footer_linking`, `website_name`)
+SELECT 1, '', '', '__SITE_NAME__'
+WHERE NOT EXISTS (SELECT 1 FROM `wi_footer` WHERE `footer_id` = 1);
+
+INSERT INTO `wi_header` (`header_id`, `logo`, `bk_header_image`, `header_image`, `header_content`, `header_slogan`)
+SELECT 1, 'wi_cms_logo.jpg', '', 'bk_header', '', ''
+WHERE NOT EXISTS (SELECT 1 FROM `wi_header` WHERE `header_id` = 1);
+
+-- Plugin manager shell must exist but stays empty until plugins are installed.
+CREATE TABLE IF NOT EXISTS `wi_plugin` (
+  `plugin_id` int(11) NOT NULL AUTO_INCREMENT,
+  `plugin` varchar(255) NOT NULL,
+  `activated` enum('true','false') NOT NULL DEFAULT 'false',
+  PRIMARY KEY (`plugin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+SQL;
+
+        $baseline = str_replace('__SITE_NAME__', $siteNameSql, $baseline);
+        $this->WIdb->exec($baseline);
+    }
+
+
+    /**
+     * Install the cleaned WICMS core SQL baseline generated from Aurevia.
+     *
+     * The old installer contains a large legacy hard-coded SQL string. For the
+     * clean base we keep the ECMA installer shell, but use WIInstall/wicms-ivo.sql
+     * as the source of truth so modern core tables, permissions, profile tables,
+     * legal/cookie tables and package-manager schemas are created correctly.
+     */
+    private function installCleanCoreBaselineSql(): void
+    {
+        $sqlPath = dirname(dirname(dirname(__FILE__))) . '/wicms-ivo.sql';
+        if (!is_file($sqlPath)) {
+            throw new RuntimeException('Missing WICMS baseline SQL: ' . $sqlPath);
+        }
+
+        $sql = (string) file_get_contents($sqlPath);
+        if (trim($sql) === '') {
+            throw new RuntimeException('WICMS baseline SQL is empty.');
+        }
+
+        $this->executeSqlBatch($sql, 'WIInstall/wicms-ivo.sql');
+    }
+
+    /**
+     * Execute a SQL dump safely one statement at a time.
+     *
+     * PDO/MySQL can appear to accept a multi-statement dump but stop part-way
+     * through on some localhost stacks. Running each complete statement keeps
+     * the clean installer reliable and reports the exact failing area instead
+     * of leaving a half-created database that only reaches tables such as
+     * wi_tasks.
+     */
+    private function executeSqlBatch(string $sql, string $sourceLabel = 'SQL batch'): void
+    {
+        $statements = $this->splitSqlStatements($sql);
+
+        foreach ($statements as $index => $statement) {
+            $statement = trim($statement);
+            if ($statement === '') {
+                continue;
+            }
+
+            try {
+                $this->WIdb->exec($statement);
+            } catch (PDOException $e) {
+                $preview = preg_replace('/\s+/', ' ', substr($statement, 0, 220));
+                throw new RuntimeException(
+                    $sourceLabel . ' failed at statement ' . ($index + 1) . ': ' . $e->getMessage() . ' | ' . $preview,
+                    0,
+                    $e
+                );
+            }
+        }
+    }
+
+    /**
+     * Split SQL on real statement semicolons while preserving strings/comments.
+     */
+    private function splitSqlStatements(string $sql): array
+    {
+        $statements = [];
+        $buffer = '';
+        $length = strlen($sql);
+        $quote = null;
+        $escape = false;
+        $lineComment = false;
+        $blockComment = false;
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $sql[$i];
+            $next = $i + 1 < $length ? $sql[$i + 1] : '';
+
+            if ($lineComment) {
+                $buffer .= $char;
+                if ($char === "\n") {
+                    $lineComment = false;
+                }
+                continue;
+            }
+
+            if ($blockComment) {
+                $buffer .= $char;
+                if ($char === '*' && $next === '/') {
+                    $buffer .= $next;
+                    $i++;
+                    $blockComment = false;
+                }
+                continue;
+            }
+
+            if ($quote !== null) {
+                $buffer .= $char;
+
+                if ($escape) {
+                    $escape = false;
+                    continue;
+                }
+
+                if ($char === '\\') {
+                    $escape = true;
+                    continue;
+                }
+
+                if ($char === $quote) {
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if (($char === '-' && $next === '-') || $char === '#') {
+                $lineComment = true;
+                $buffer .= $char;
+                if ($char === '-') {
+                    $buffer .= $next;
+                    $i++;
+                }
+                continue;
+            }
+
+            if ($char === '/' && $next === '*') {
+                $blockComment = true;
+                $buffer .= $char . $next;
+                $i++;
+                continue;
+            }
+
+            if ($char === "'" || $char === '"' || $char === '`') {
+                $quote = $char;
+                $buffer .= $char;
+                continue;
+            }
+
+            if ($char === ';') {
+                $statements[] = $buffer;
+                $buffer = '';
+                continue;
+            }
+
+            $buffer .= $char;
+        }
+
+        if (trim($buffer) !== '') {
+            $statements[] = $buffer;
+        }
+
+        return $statements;
+    }
+
+    /**
+     * Seed the first wi_site row after the cleaned baseline creates the table.
+     */
+    private function seedInstallSiteRow(array $settings): void
+    {
+        $rawHost = (string)($settings['db_host'] ?? 'localhost');
+        $dbPort = '3306';
+        if (preg_match('/^(.*);port=([0-9]+)$/', $rawHost, $match)) {
+            $rawHost = $match[1];
+            $dbPort = $match[2];
+        }
+
+        $sql = "INSERT INTO `wi_site` (
+            `id`, `site_name`, `site_domain`, `site_url`, `favicon`,
+            `db_host`, `db_username`, `db_pass`, `db_name`, `db_port`, `db_type`,
+            `secure_session`, `http_only`, `regenerate_id`, `use_only_cookie`, `login_fingerprint`,
+            `max_login_attempts`, `redirect_after_login`, `password_encryption`, `encryption_cost`,
+            `sha512_iterations`, `password_salt`, `reset_key_life`, `mail_confirm_required`,
+            `register_confirm`, `reg_pass_reset`, `mailer`, `smpt_host`, `smpt_port`,
+            `smpt_username`, `smpt_password`, `smpt_encryption`, `social_callback_url`,
+            `google_enabled`, `google_id`, `google_secret`, `google_map_api`, `google_charts_api_key`,
+            `facebook_enabled`, `facebook_id`, `facebook_secret`, `twitter_enabled`, `twitter_key`,
+            `twitter_secret`, `default_lang`, `multi_lang`, `lang_choice`, `bootstrap_version`,
+            `wicms_version`, `left_sidebar`, `right_sidebar`, `contact_email`
+        ) VALUES (
+            1, :site_name, :site_domain, :site_url, '',
+            :db_host, :db_username, :db_pass, :db_name, :db_port, 'mysql',
+            :session_secure, :http_only, :session_regenerate, :cookie_only, :login_fingerprint,
+            :max_login_attempts, :redirect_after_login, :password_encryption, :password_cost,
+            35000, :password_salt, :reset_key_life, :mail_confirm_required,
+            :register_confirm, :reg_pass_reset, :mailer, '', '',
+            '', '', '', 'socialauth',
+            'false', '', '', '', '',
+            'false', '', '', 'false', '',
+            '', :default_lang, 'on', 'wilang', :bootstrap_version,
+            :wicms_version, '0', '0', :admin_email
+        ) ON DUPLICATE KEY UPDATE
+            `site_name` = VALUES(`site_name`),
+            `site_domain` = VALUES(`site_domain`),
+            `site_url` = VALUES(`site_url`),
+            `db_host` = VALUES(`db_host`),
+            `db_username` = VALUES(`db_username`),
+            `db_pass` = VALUES(`db_pass`),
+            `db_name` = VALUES(`db_name`),
+            `db_port` = VALUES(`db_port`),
+            `secure_session` = VALUES(`secure_session`),
+            `http_only` = VALUES(`http_only`),
+            `regenerate_id` = VALUES(`regenerate_id`),
+            `use_only_cookie` = VALUES(`use_only_cookie`),
+            `login_fingerprint` = VALUES(`login_fingerprint`),
+            `max_login_attempts` = VALUES(`max_login_attempts`),
+            `redirect_after_login` = VALUES(`redirect_after_login`),
+            `password_encryption` = VALUES(`password_encryption`),
+            `encryption_cost` = VALUES(`encryption_cost`),
+            `password_salt` = VALUES(`password_salt`),
+            `reset_key_life` = VALUES(`reset_key_life`),
+            `mail_confirm_required` = VALUES(`mail_confirm_required`),
+            `register_confirm` = VALUES(`register_confirm`),
+            `reg_pass_reset` = VALUES(`reg_pass_reset`),
+            `mailer` = VALUES(`mailer`),
+            `default_lang` = VALUES(`default_lang`),
+            `multi_lang` = VALUES(`multi_lang`),
+            `lang_choice` = VALUES(`lang_choice`),
+            `bootstrap_version` = VALUES(`bootstrap_version`),
+            `wicms_version` = VALUES(`wicms_version`),
+            `contact_email` = VALUES(`contact_email`)";
+
+        $stmt = $this->WIdb->prepare($sql);
+        $stmt->execute([
+            'site_name' => (string)($settings['site_name'] ?? 'WICMS'),
+            'site_domain' => (string)($settings['site_domain'] ?? 'localhost'),
+            'site_url' => (string)($settings['site_url'] ?? ''),
+            'db_host' => $rawHost,
+            'db_username' => (string)($settings['db_username'] ?? ''),
+            'db_pass' => (string)($settings['db_pass'] ?? ''),
+            'db_name' => (string)($settings['db_name'] ?? ''),
+            'db_port' => $dbPort,
+            'session_secure' => (string)($settings['session_secure'] ?? 'false'),
+            'http_only' => (string)($settings['http_only'] ?? 'true'),
+            'session_regenerate' => (string)($settings['session_regenerate'] ?? 'true'),
+            'cookie_only' => (string)($settings['cookie_only'] ?? '1'),
+            'login_fingerprint' => (string)($settings['login_fingerprint'] ?? 'false'),
+            'max_login_attempts' => (string)($settings['max_login_attempts'] ?? '5'),
+            'redirect_after_login' => (string)($settings['redirect_after_login'] ?? 'WIMembers/profile.php'),
+            'password_encryption' => (string)($settings['password_encryption'] ?? 'bcrypt'),
+            'password_cost' => (string)($settings['password_cost'] ?? '12'),
+            'password_salt' => (string)($settings['password_salt'] ?? ''),
+            'reset_key_life' => (string)($settings['reset_key_life'] ?? '24'),
+            'mail_confirm_required' => (string)($settings['mail_confirm_required'] ?? 'false'),
+            'register_confirm' => (string)($settings['register_confirm'] ?? 'confirm'),
+            'reg_pass_reset' => (string)($settings['reg_pass_reset'] ?? 'passwordreset'),
+            'mailer' => (string)($settings['mailer'] ?? 'mail'),
+            'default_lang' => (string)($settings['default_lang'] ?? 'en'),
+            'bootstrap_version' => (string)($settings['bootstrap_version'] ?? '4'),
+            'wicms_version' => (string)($settings['wicms_version'] ?? '3.0'),
+            'admin_email' => (string)($settings['admin_email'] ?? ''),
+        ]);
+    }
+
+	private function createConfig(array $settings)
+		{
+            $root = dirname(dirname(dirname(dirname(__FILE__))));
+            $configDir = $root . '/WICore/WIClass';
+            if (!is_dir($configDir)) {
+                @mkdir($configDir, 0755, true);
+            }
+
+            $rawHost = (string)($settings['db_host'] ?? 'localhost');
+            $dbPort = '3306';
+            if (preg_match('/^(.*);port=([0-9]+)$/', $rawHost, $match)) {
+                $rawHost = $match[1];
+                $dbPort = $match[2];
+            }
+
+            $environment = isset($_POST['environment_mode']) ? strtolower((string)$_POST['environment_mode']) : 'local';
+            if (!in_array($environment, array('local', 'staging', 'production'), true)) {
+                $environment = 'local';
+            }
+
+            $securityKey = isset($_POST['security_key']) && trim((string)$_POST['security_key']) !== ''
+                ? trim((string)$_POST['security_key'])
+                : $this->installerRandomHex(32);
+
+            $sessionPrefix = isset($_POST['session_prefix']) ? trim((string)$_POST['session_prefix']) : 'wi_session_';
+            $sessionName = preg_replace('/[^A-Za-z0-9_]/', '', $sessionPrefix);
+            if ($sessionName === '') {
+                $sessionName = 'wi_session_';
+            }
+            $sessionName .= 'sid';
+
+            $sessionTimeout = isset($_POST['session_timeout']) ? max(5, (int)$_POST['session_timeout']) * 60 : 3600;
+            $appDebug = $environment === 'production' ? false : true;
+
+            $env = array(
+                'APP_ENV' => $environment,
+                'APP_DEBUG' => $appDebug ? 'true' : 'false',
+                'APP_KEY' => $securityKey,
+                'WEBSITE_NAME' => (string)($settings['site_name'] ?? 'WICMS'),
+                'WEBSITE_DOMAIN' => (string)($settings['site_domain'] ?? 'localhost'),
+                'SCRIPT_URL' => (string)($settings['site_url'] ?? ''),
+                'BOOTSTRAP_VERSION' => (string)($settings['bootstrap_version'] ?? '1'),
+                'DB_HOST' => $rawHost,
+                'DB_NAME' => (string)($settings['db_name'] ?? ''),
+                'DB_USER' => (string)($settings['db_username'] ?? ''),
+                'DB_PASS' => (string)($settings['db_pass'] ?? ''),
+                'DB_PORT' => $dbPort,
+                'DB_TYPE' => 'mysql',
+                'SESSION_NAME' => $sessionName,
+                'SESSION_SAMESITE' => 'Lax',
+                'SESSION_IDLE_TIMEOUT' => (string)$sessionTimeout,
+                'SESSION_ABSOLUTE_TIMEOUT' => '28800',
+                'SESSION_SECURE' => (string)($settings['session_secure'] ?? 'false'),
+                'SESSION_HTTP_ONLY' => (string)($settings['http_only'] ?? 'true'),
+                'SESSION_REGENERATE_ID' => (string)($settings['session_regenerate'] ?? 'true'),
+                'SESSION_USE_ONLY_COOKIES' => (string)($settings['cookie_only'] ?? '1'),
+                'CSRF_TOKEN_TTL' => '7200',
+                'LOGIN_MAX_LOGIN_ATTEMPTS' => (string)($settings['max_login_attempts'] ?? '5'),
+                'LOGIN_FINGERPRINT' => (string)($settings['login_fingerprint'] ?? 'true'),
+                'SUCCESS_LOGIN_REDIRECT' => (string)($settings['redirect_after_login'] ?? 'WIMembers/profile.php'),
+                'PASSWORD_ENCRYPTION' => (string)($settings['password_encryption'] ?? 'bcrypt'),
+                'PASSWORD_BCRYPT_COST' => (string)($settings['password_cost'] ?? '12'),
+                'PASSWORD_SHA512_ITERATIONS' => '35000',
+                'PASSWORD_SALT' => (string)($settings['password_salt'] ?? ''),
+                'PASSWORD_RESET_KEY_LIFE' => (string)($settings['reset_key_life'] ?? '24'),
+                'MAIL_CONFIRMATION_REQUIRED' => (string)($settings['mail_confirm_required'] ?? 'false'),
+                'REGISTER_CONFIRM' => (string)($settings['register_confirm'] ?? 'confirm'),
+                'REGISTER_PASSWORD_RESET' => (string)($settings['reg_pass_reset'] ?? 'passwordreset'),
+                'MAILER' => (string)($settings['mailer'] ?? 'mail'),
+                'SMTP_HOST' => '',
+                'SMTP_PORT' => '',
+                'SMTP_USERNAME' => '',
+                'SMTP_PASSWORD' => '',
+                'SMTP_ENCRYPTION' => '',
+                'SOCIAL_CALLBACK_URI' => 'socialauth',
+                'GOOGLE_ENABLED' => 'false',
+                'GOOGLE_ID' => '',
+                'GOOGLE_SECRET' => '',
+                'FACEBOOK_ENABLED' => 'false',
+                'FACEBOOK_ID' => '',
+                'FACEBOOK_SECRET' => '',
+                'TWITTER_ENABLED' => 'false',
+                'TWITTER_KEY' => '',
+                'TWITTER_SECRET' => '',
+                'DEFAULT_LANGUAGE' => (string)($settings['default_lang'] ?? 'en'),
+                'WICMS_VERSION' => (string)($settings['wicms_version'] ?? '2.0')
+            );
+
+            $envLines = array();
+            foreach ($env as $key => $value) {
+                $envLines[] = $key . '=' . $this->envQuote((string)$value);
+            }
+            @file_put_contents($root . '/.env', implode(PHP_EOL, $envLines) . PHP_EOL);
+
+            $config = '<?php' . PHP_EOL;
+            $config .= 'declare(strict_types=1);' . PHP_EOL . PHP_EOL;
+            $config .= '/**' . PHP_EOL . ' * Generated by WICMS Installer v3.0.' . PHP_EOL . ' */' . PHP_EOL;
+            $config .= 'final class WIConfig' . PHP_EOL . '{' . PHP_EOL;
+            $config .= '    private static bool $loaded = false;' . PHP_EOL;
+            $config .= '    private static array $env = ' . var_export($env, true) . ';' . PHP_EOL . PHP_EOL;
+            $config .= '    public static function load(): void' . PHP_EOL . '    {' . PHP_EOL;
+            $config .= '        if (self::$loaded) { return; }' . PHP_EOL;
+            $config .= '        self::$loaded = true;' . PHP_EOL;
+            $config .= '        foreach (self::$env as $key => $value) {' . PHP_EOL;
+            $config .= '            $_ENV[$key] = (string)$value; $_SERVER[$key] = (string)$value;' . PHP_EOL;
+            $config .= '            if (function_exists("putenv")) { putenv($key . "=" . $value); }' . PHP_EOL;
+            $config .= '        }' . PHP_EOL;
+            $config .= '        self::defineCoreConstants();' . PHP_EOL;
+            $config .= '    }' . PHP_EOL . PHP_EOL;
+            $config .= '    public static function env(string $key, mixed $default = null): mixed' . PHP_EOL . '    {' . PHP_EOL;
+            $config .= '        self::load();' . PHP_EOL;
+            $config .= '        $server = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);' . PHP_EOL;
+            $config .= '        return self::$env[$key] ?? ($server === false ? $default : ($server ?? $default));' . PHP_EOL;
+            $config .= '    }' . PHP_EOL . PHP_EOL;
+            $config .= '    private static function defineCoreConstants(): void' . PHP_EOL . '    {' . PHP_EOL;
+            $defs = array(
+                'APP_ENV' => '(string) self::env("APP_ENV", "local")',
+                'APP_DEBUG' => 'self::toBool(self::env("APP_DEBUG", true))',
+                'APP_KEY' => '(string) self::env("APP_KEY", "")',
+                'WEBSITE_NAME' => '(string) self::env("WEBSITE_NAME", "WICMS")',
+                'WEBSITE_DOMAIN' => '(string) self::env("WEBSITE_DOMAIN", "localhost")',
+                'SCRIPT_URL' => '(string) self::env("SCRIPT_URL", "")',
+                'BOOTSTRAP_VERSION' => '(string) self::env("BOOTSTRAP_VERSION", "1")',
+                'DB_HOST' => '(string) self::env("DB_HOST", "localhost")',
+                'DB_NAME' => '(string) self::env("DB_NAME", "")',
+                'DB_USER' => '(string) self::env("DB_USER", "root")',
+                'DB_PASS' => '(string) self::env("DB_PASS", "")',
+                'DB_PORT' => '(string) self::env("DB_PORT", "3306")',
+                'DB_TYPE' => '(string) self::env("DB_TYPE", "mysql")',
+                'SESSION_NAME' => '(string) self::env("SESSION_NAME", "WICMSSESSID")',
+                'SESSION_SAMESITE' => '(string) self::env("SESSION_SAMESITE", "Lax")',
+                'SESSION_IDLE_TIMEOUT' => '(int) self::env("SESSION_IDLE_TIMEOUT", 1800)',
+                'SESSION_ABSOLUTE_TIMEOUT' => '(int) self::env("SESSION_ABSOLUTE_TIMEOUT", 28800)',
+                'SESSION_SECURE' => 'self::toBool(self::env("SESSION_SECURE", false))',
+                'SESSION_HTTP_ONLY' => 'self::toBool(self::env("SESSION_HTTP_ONLY", true))',
+                'SESSION_REGENERATE_ID' => 'self::toBool(self::env("SESSION_REGENERATE_ID", true))',
+                'SESSION_USE_ONLY_COOKIES' => 'self::toBool(self::env("SESSION_USE_ONLY_COOKIES", true))',
+                'CSRF_TOKEN_TTL' => '(int) self::env("CSRF_TOKEN_TTL", 7200)',
+                'LOGIN_MAX_LOGIN_ATTEMPTS' => '(int) self::env("LOGIN_MAX_LOGIN_ATTEMPTS", 5)',
+                'LOGIN_FINGERPRINT' => 'self::toBool(self::env("LOGIN_FINGERPRINT", true))',
+                'SUCCESS_LOGIN_REDIRECT' => 'serialize(array("default" => (string) self::env("SUCCESS_LOGIN_REDIRECT", "WIMembers/profile.php")))',
+                'PASSWORD_ENCRYPTION' => '(string) self::env("PASSWORD_ENCRYPTION", "bcrypt")',
+                'PASSWORD_BCRYPT_COST' => '(int) self::env("PASSWORD_BCRYPT_COST", 12)',
+                'PASSWORD_SHA512_ITERATIONS' => '(int) self::env("PASSWORD_SHA512_ITERATIONS", 35000)',
+                'PASSWORD_SALT' => '(string) self::env("PASSWORD_SALT", "")',
+                'PASSWORD_RESET_KEY_LIFE' => '(int) self::env("PASSWORD_RESET_KEY_LIFE", 24)',
+                'MAIL_CONFIRMATION_REQUIRED' => 'self::toBool(self::env("MAIL_CONFIRMATION_REQUIRED", false))',
+                'REGISTER_CONFIRM' => '(string) self::env("REGISTER_CONFIRM", "confirm")',
+                'REGISTER_PASSWORD_RESET' => '(string) self::env("REGISTER_PASSWORD_RESET", "passwordreset")',
+                'MAILER' => '(string) self::env("MAILER", "mail")',
+                'SMTP_HOST' => '(string) self::env("SMTP_HOST", "")',
+                'SMTP_PORT' => '(string) self::env("SMTP_PORT", "")',
+                'SMTP_USERNAME' => '(string) self::env("SMTP_USERNAME", "")',
+                'SMTP_PASSWORD' => '(string) self::env("SMTP_PASSWORD", "")',
+                'SMTP_ENCRYPTION' => '(string) self::env("SMTP_ENCRYPTION", "")',
+                'SOCIAL_CALLBACK_URI' => '(string) self::env("SOCIAL_CALLBACK_URI", "socialauth")',
+                'GOOGLE_ENABLED' => 'self::toBool(self::env("GOOGLE_ENABLED", false))',
+                'GOOGLE_ID' => '(string) self::env("GOOGLE_ID", "")',
+                'GOOGLE_SECRET' => '(string) self::env("GOOGLE_SECRET", "")',
+                'FACEBOOK_ENABLED' => 'self::toBool(self::env("FACEBOOK_ENABLED", false))',
+                'FACEBOOK_ID' => '(string) self::env("FACEBOOK_ID", "")',
+                'FACEBOOK_SECRET' => '(string) self::env("FACEBOOK_SECRET", "")',
+                'TWITTER_ENABLED' => 'self::toBool(self::env("TWITTER_ENABLED", false))',
+                'TWITTER_KEY' => '(string) self::env("TWITTER_KEY", "")',
+                'TWITTER_SECRET' => '(string) self::env("TWITTER_SECRET", "")',
+                'DEFAULT_LANGUAGE' => '(string) self::env("DEFAULT_LANGUAGE", "en")',
+                'WICMS_VERSION' => '(string) self::env("WICMS_VERSION", "2.0")'
+            );
+            foreach ($defs as $name => $expr) {
+                $config .= '        self::defineIfMissing("' . $name . '", ' . $expr . ');' . PHP_EOL;
+            }
+            $config .= '    }' . PHP_EOL . PHP_EOL;
+            $config .= '    private static function defineIfMissing(string $name, mixed $value): void { if (!defined($name)) { define($name, $value); } }' . PHP_EOL;
+            $config .= '    private static function toBool(mixed $value): bool { if (is_bool($value)) { return $value; } $filtered = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE); return $filtered ?? false; }' . PHP_EOL;
+            $config .= '}' . PHP_EOL . PHP_EOL;
+            $config .= 'WIConfig::load();' . PHP_EOL;
+
+            @file_put_contents($configDir . '/WIConfig.php', $config);
+		}
+
+        private function envQuote($value)
+        {
+            $value = str_replace(array("\\", "\n", "\r", '"'), array("\\\\", '', '', '\\"'), (string)$value);
+            return '"' . $value . '"';
+        }
+
+        private function installerRandomHex($bytes)
+        {
+            if (function_exists('random_bytes')) {
+                return bin2hex(random_bytes((int)$bytes));
+            }
+            return md5(uniqid('', true) . mt_rand());
+        }
+
+
+
+    public function hashingPassword($password, $encryption = 'bcrypt', $cost = 12, $salt = '', $sha512Iterations = 35000)
      {
-        include_once dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIConfig.php';
-        include_once dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIRegister.php';
-        include_once dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIEmail.php';
-        include_once dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIMaintenace.php';
+        $password = (string)$password;
+        $encryption = strtolower((string)$encryption);
+        $cost = max(10, (int)$cost);
 
-        $register = new WIRegister();
-        $NewPass = $register->hashPassword($password);
-        //echo $NewPass;
-        return $NewPass;
+        if ($encryption === 'sha512') {
+            $newPassword = $password;
+            $iterations = max(1, (int)$sha512Iterations);
+            for ($i = 0; $i < $iterations; $i++) {
+                $newPassword = hash('sha512', (string)$salt . $newPassword . (string)$salt);
+            }
+            return $newPassword;
+        }
+
+        return password_hash($password, PASSWORD_BCRYPT, array('cost' => $cost));
      }
 
-     private function _generateKey()
+     private function _generateKey($maxLength = 40)
     {
-      include_once dirname(dirname(dirname(dirname(__FILE__)))) .'/WICore/WIClass/WIConfig.php';
-        return md5(time() . PASSWORD_SALT . time());
+        $maxLength = (int)$maxLength;
+        if ($maxLength < 16) {
+            $maxLength = 16;
+        }
+
+        if (function_exists('random_bytes')) {
+            // 20 random bytes = 40 hex chars, matching the legacy confirmation_key column.
+            $key = bin2hex(random_bytes((int)ceil($maxLength / 2)));
+        } else {
+            $key = sha1(uniqid('', true) . mt_rand());
+        }
+
+        return substr($key, 0, $maxLength);
     }
+
 
 
 }

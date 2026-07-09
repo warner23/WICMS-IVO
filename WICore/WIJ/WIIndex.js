@@ -1,72 +1,178 @@
-$(document).ready(function () {
- 
+/**
+ * FILE:
+ * WICMS-IVO/WICore/WIJ/WICore.js
+ *
+ * Canonical front/core JS helper for WICMS.
+ * Handles UI + AJAX + validation in a clean, reusable way.
+ */
 
-    var api = jQuery('.fullwidthbanner').revolution({
-			delay:9000,
-			startwidth:1170,
-			startheight:670,
-			onHoverStop:"off",						// Stop Banner Timet at Hover on Slide on/off
-			thumbWidth:20,							// Thumb With and Height and Amount (only if navigation Tyope set to thumb !)
-			thumbHeight:20,
-			thumbAmount:10,
-			hideThumbs:10,
-			navigationType:"none",				// bullet, thumb, none
-			navigationArrows:"solo",				// nexttobullets, solo (old name verticalcentered), none
-			navigationStyle:"round",				// round,square,navbar,round-old,square-old,navbar-old, or any from the list in the docu (choose between 50+ different item), custom
-			navigationHAlign:"center",				// Vertical Align top,center,bottom
-			navigationVAlign:"bottom",					// Horizontal Align left,center,right
-			navigationHOffset:0,
-			navigationVOffset: 0,
-			soloArrowLeftHalign:"left",
-			soloArrowLeftValign:"center",
-			soloArrowLeftHOffset:0,
-			soloArrowLeftVOffset:0,
-			soloArrowRightHalign:"right",
-			soloArrowRightValign:"center",
-			soloArrowRightHOffset:0,
-			soloArrowRightVOffset:0,
-			touchenabled:"on",						// Enable Swipe Function : on/off
-			stopAtSlide:-1,							// Stop Timer if Slide "x" has been Reached. If stopAfterLoops set to 0, then it stops already in the first Loop at slide X which defined. -1 means do not stop at any slide. stopAfterLoops has no sinn in this case.
-			stopAfterLoops:-1,						// Stop Timer if All slides has been played "x" times. IT will stop at THe slide which is defined via stopAtSlide:x, if set to -1 slide never stop automatic
-			hideCaptionAtLimit:320,					// It Defines if a caption should be shown under a Screen Resolution ( Basod on The Width of Browser)
-			hideAllCaptionAtLilmit:480,				// Hide all The Captions if Width of Browser is less then this value
-			hideSliderAtLimit:0,					// Hide the whole slider, and stop also functions if Width of Browser is less than this value
-			fullWidth:"on",
-			forceFullWidth: "on",
-			lazyLoad:"on",
-			shadow:0								//0 = no Shadow, 1,2,3 = 3 Different Art of Shadows -  (No Shadow in Fullwidth Version !)
-		});
+var WICore = (function () {
 
+    function e(value) {
+        return String(value ?? '');
+    }
 
+    /* =========================
+       BUTTON STATE
+    ========================= */
 
-});
+    function loadingButton(button, loadingText = 'Loading...') {
+        if (!button || button.length === 0) return;
 
-var WIIndex ={};
+        const oldText = button.text();
 
+        button
+            .data('old-text', oldText)
+            .text(loadingText)
+            .prop('disabled', true)
+            .addClass('wi-loading');
+    }
 
+    function removeLoadingButton(button) {
+        if (!button || button.length === 0) return;
 
-WIIndex.NextSlider = function(ele, pagin, clas, item_per_page, page, total_records, total_pages){
+        const oldText = button.data('old-text');
 
-  $.ajax({
-        url: "WICore/WIClass/WIAjax.php",
-        type: "POST",
-        data: {
-              action : "nextSlider",
-              ele   : ele,
-              pagin :pagin,
-              clas : clas,
-              item_per_page : item_per_page,
-              current_page   : page,
-              total_records : total_records,
-              total_pages : total_pages
-            },
-        success: function(result)
-        {
-            console.log($(ele))
-            $('.'+ele).html(result);
-
+        if (oldText) {
+            button.text(oldText);
         }
-    });
-}
 
+        button
+            .prop('disabled', false)
+            .removeClass('wi-loading')
+            .removeData('old-text');
+    }
 
+    /* =========================
+       ALERTS (MODERN)
+    ========================= */
+
+    function displaySuccessMessage(parent, message) {
+        clearAlerts(parent);
+
+        const html = `
+            <div class="wi-alert wi-alert-success">
+                ${e(message)}
+            </div>
+        `;
+
+        parent.append(html);
+    }
+
+    function displayErrorMessage(input, message) {
+        const group = input.closest('.wi-form-group');
+
+        group.addClass('wi-error');
+
+        if (message) {
+            const error = $(`<div class="wi-error-text">${e(message)}</div>`);
+            group.append(error);
+        }
+    }
+
+    function removeErrorMessages() {
+        $('.wi-form-group')
+            .removeClass('wi-error')
+            .find('.wi-error-text')
+            .remove();
+    }
+
+    function clearAlerts(parent) {
+        parent.find('.wi-alert').remove();
+    }
+
+    /* =========================
+       VALIDATION
+    ========================= */
+
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    /* =========================
+       URL HELPERS
+    ========================= */
+
+    function urlParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function refresh() {
+        window.location.reload();
+    }
+
+    /* =========================
+       AJAX HELPER (IMPORTANT)
+    ========================= */
+
+    function ajax(options) {
+        const defaults = {
+            url: "WICore/WIClass/WIAjax.php",
+            method: "POST",
+            dataType: "json",
+            timeout: 10000,
+            data: {},
+            onSuccess: function () {},
+            onError: function () {},
+            onComplete: function () {}
+        };
+
+        const settings = Object.assign({}, defaults, options);
+
+        $.ajax({
+            url: settings.url,
+            type: settings.method,
+            dataType: settings.dataType,
+            data: settings.data,
+            timeout: settings.timeout,
+
+            success: function (response) {
+                if (response && response.status === 'success') {
+                    settings.onSuccess(response);
+                } else {
+                    settings.onError(response || { message: 'Unknown error' });
+                }
+            },
+
+            error: function (xhr) {
+                settings.onError({
+                    message: 'Network or server error',
+                    xhr: xhr
+                });
+            },
+
+            complete: function () {
+                settings.onComplete();
+            }
+        });
+    }
+
+    /* =========================
+       CSRF HELPER
+    ========================= */
+
+    function getCSRF() {
+        const token = $('input[name="csrf_token"]').val();
+        return token || '';
+    }
+
+    /* =========================
+       PUBLIC API
+    ========================= */
+
+    return {
+        loadingButton,
+        removeLoadingButton,
+        displaySuccessMessage,
+        displayErrorMessage,
+        removeErrorMessages,
+        validateEmail,
+        urlParam,
+        refresh,
+        ajax,
+        getCSRF
+    };
+
+})();

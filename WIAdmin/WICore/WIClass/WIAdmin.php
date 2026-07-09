@@ -16,6 +16,11 @@ class WIAdmin
     private $WIdb = null;
 
     /**
+     * @var WICMSPermissionGuard|null Permission guard for the current user.
+     */
+    private ?WICMSPermissionGuard $permissionGuard = null;
+
+    /**
      * Class constructor
      * @param $userId ID of user that will be represented by this class
      */
@@ -196,29 +201,81 @@ class WIAdmin
      */
 
     public function isAdmin() {
-        if ( $this->userId == null )
-            //echo "nill";
+        if ($this->userId == null) {
             return false;
+        }
 
-       $role = $this->getRoleId();
-       // echo $role;
-       if($role > 4){
-        return true;
-       }else{
-        return false;
-       }
+        /*
+        |------------------------------------------------------------------
+        | Preferred permission-based admin check
+        |------------------------------------------------------------------
+        | admin.access means the user may enter the admin shell. Granular
+        | page/action permissions decide what they can view, save, delete,
+        | install, uninstall, purge, export, etc.
+        |------------------------------------------------------------------
+        */
+        if (class_exists('WICMSPermissionGuard')) {
+            try {
+                if ($this->hasPermission('admin.access')) {
+                    return true;
+                }
+            } catch (Throwable $ignored) {
+                // Fall through to legacy role-id check during migration.
+            }
+        }
 
-      /*  if($role === "Administrator"){
-            return true;
-        }elseif($role ===  "Developer"){
-            return true; 
-        }elseif($role ===  "Head Administrator"){
-            return true;
-        }elseif ($role === "Owner") {
-            return true;
-        }else{
+        /*
+        |------------------------------------------------------------------
+        | Temporary legacy fallback
+        |------------------------------------------------------------------
+        | Keep this while Aurevia is being migrated so you do not lock
+        | yourself out before every admin account has admin.access.
+        | Remove after the permission rollout is fully proven.
+        |------------------------------------------------------------------
+        */
+        try {
+            $role = (int)$this->getRoleId();
+            return $role > 70;
+        } catch (Throwable $ignored) {
             return false;
-        }*/
+        }
+    }
+
+    public function permissionGuard(): ?WICMSPermissionGuard
+    {
+        if (!class_exists('WICMSPermissionGuard') || $this->userId == null) {
+            return null;
+        }
+
+        if ($this->permissionGuard === null) {
+            $this->permissionGuard = new WICMSPermissionGuard((int)$this->userId, $this->WIdb);
+        }
+
+        return $this->permissionGuard;
+    }
+
+    public function hasPermission(string $permissionCode): bool
+    {
+        $guard = $this->permissionGuard();
+        return $guard !== null && $guard->has($permissionCode);
+    }
+
+    /**
+     * @param string[] $permissionCodes
+     */
+    public function hasAnyPermission(array $permissionCodes): bool
+    {
+        $guard = $this->permissionGuard();
+        return $guard !== null && $guard->hasAny($permissionCodes);
+    }
+
+    /**
+     * @param string[] $permissionCodes
+     */
+    public function hasAllPermissions(array $permissionCodes): bool
+    {
+        $guard = $this->permissionGuard();
+        return $guard !== null && $guard->hasAll($permissionCodes);
     }
 
     /**

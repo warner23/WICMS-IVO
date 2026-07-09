@@ -1,16 +1,35 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Request Service
- * WICMS Core
- */
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| Class: WIRequest
+| File: WIRequest.php
+| Location: /WIAdmin/WICore/WIClass/WIRequest.php
+| Type: Core Request Helper
+| Layer: Shared Core
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Purpose
+|--------------------------------------------------------------------------
+| Canonical request helper with backward-compatible aliases used across
+| legacy admin AJAX, compliance admin, and newer controller code.
+|--------------------------------------------------------------------------
+*/
 
 final class WIRequest
 {
     public static function method(): string
     {
-        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        return strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     }
 
     public static function isGet(): bool
@@ -25,8 +44,22 @@ final class WIRequest
 
     public static function isAjax(): bool
     {
-        $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+        $requestedWith = (string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '');
         return strtolower($requestedWith) === 'xmlhttprequest';
+    }
+
+    public static function sameOrigin(): bool
+    {
+        $origin = (string) ($_SERVER['HTTP_ORIGIN'] ?? '');
+        $host   = (string) ($_SERVER['HTTP_HOST'] ?? '');
+
+        if ($origin === '' || $host === '') {
+            return true;
+        }
+
+        $originHost = (string) parse_url($origin, PHP_URL_HOST);
+
+        return strtolower($originHost) === strtolower($host);
     }
 
     public static function input(string $key, mixed $default = null): mixed
@@ -75,13 +108,11 @@ final class WIRequest
         $data = [];
 
         foreach ($keys as $key) {
-            $value = match (strtolower($source)) {
-                'post' => self::post($key, null),
-                'get' => self::get($key, null),
-                default => self::input($key, null),
+            $data[$key] = match (strtolower($source)) {
+                'post' => self::post((string) $key, null),
+                'get'  => self::get((string) $key, null),
+                default => self::input((string) $key, null),
             };
-
-            $data[$key] = $value;
         }
 
         return $data;
@@ -91,7 +122,7 @@ final class WIRequest
     {
         return match (strtolower($source)) {
             'post' => array_key_exists($key, $_POST),
-            'get' => array_key_exists($key, $_GET),
+            'get'  => array_key_exists($key, $_GET),
             default => array_key_exists($key, $_POST) || array_key_exists($key, $_GET),
         };
     }
@@ -100,7 +131,7 @@ final class WIRequest
     {
         $value = match (strtolower($source)) {
             'post' => self::post($key, null),
-            'get' => self::get($key, null),
+            'get'  => self::get($key, null),
             default => self::input($key, null),
         };
 
@@ -115,7 +146,7 @@ final class WIRequest
     {
         $value = match (strtolower($source)) {
             'post' => self::post($key, null),
-            'get' => self::get($key, null),
+            'get'  => self::get($key, null),
             default => self::input($key, null),
         };
 
@@ -126,7 +157,7 @@ final class WIRequest
     {
         $value = match (strtolower($source)) {
             'post' => self::post($key, null),
-            'get' => self::get($key, null),
+            'get'  => self::get($key, null),
             default => self::input($key, null),
         };
 
@@ -134,13 +165,13 @@ final class WIRequest
             return $value;
         }
 
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
         if (is_string($value)) {
             $parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             return $parsed ?? $default;
-        }
-
-        if (is_int($value)) {
-            return $value === 1;
         }
 
         return $default;
@@ -150,19 +181,67 @@ final class WIRequest
     {
         $value = match (strtolower($source)) {
             'post' => self::post($key, null),
-            'get' => self::get($key, null),
+            'get'  => self::get($key, null),
             default => self::input($key, null),
         };
 
-        if ($value === null) {
-            return $default;
-        }
-
-        if (is_array($value)) {
+        if ($value === null || is_array($value)) {
             return $default;
         }
 
         return trim((string) $value);
+    }
+
+    public static function float(string $key, float $default = 0.0, string $source = 'both'): float
+    {
+        $value = match (strtolower($source)) {
+            'post' => self::post($key, null),
+            'get'  => self::get($key, null),
+            default => self::input($key, null),
+        };
+
+        return is_numeric($value) ? (float) $value : $default;
+    }
+
+    public static function array(string $key, array $default = [], string $source = 'both'): array
+    {
+        $value = match (strtolower($source)) {
+            'post' => self::post($key, null),
+            'get'  => self::get($key, null),
+            default => self::input($key, null),
+        };
+
+        return is_array($value) ? self::normalizeArray($value) : $default;
+    }
+
+    public static function postInt(string $key, int $default = 0): int
+    {
+        return self::int($key, $default, 'post');
+    }
+
+    public static function getInt(string $key, int $default = 0): int
+    {
+        return self::int($key, $default, 'get');
+    }
+
+    public static function postString(string $key, string $default = ''): string
+    {
+        return self::string($key, $default, 'post');
+    }
+
+    public static function getString(string $key, string $default = ''): string
+    {
+        return self::string($key, $default, 'get');
+    }
+
+    public static function postBool(string $key, bool $default = false): bool
+    {
+        return self::bool($key, $default, 'post');
+    }
+
+    public static function getBool(string $key, bool $default = false): bool
+    {
+        return self::bool($key, $default, 'get');
     }
 
     public static function json(): array
@@ -189,7 +268,6 @@ final class WIRequest
     public static function jsonInput(string $key, mixed $default = null): mixed
     {
         $data = self::json();
-
         return array_key_exists($key, $data) ? $data[$key] : $default;
     }
 

@@ -1,0 +1,7 @@
+# WIMedia uploaded images: block executable/server-side files
+Options -ExecCGI
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .cgi .pl .py .sh
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .cgi .pl .py .sh
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phar|cgi|pl|py|sh|bat|cmd|exe|dll|msi|com|jar)$">
+    Require all denied
+</FilesMatch>

@@ -1,7 +1,7 @@
 <?php
 
 // to do list
-
+?>
                   <li><!-- Task item -->
                     <a href="#">
                       <h3>

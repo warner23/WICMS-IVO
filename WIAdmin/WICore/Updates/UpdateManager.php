@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 final class UpdateManager
 {
-    private WIdb $db;
+    private WIdb $WIdb;
     private MigrationRunner $runner;
 
     public function __construct()
     {
-        $this->db = WIdb::getInstance();
+        $this->WIdb = WIdb::getInstance();
         $this->runner = new MigrationRunner();
     }
 
@@ -30,14 +30,14 @@ final class UpdateManager
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ";
 
-        $this->db->exec($sql);
+        $this->WIdb->exec($sql);
     }
 
     public function getVersion(string $component = 'core'): ?string
     {
         $this->ensureVersionTableExists();
 
-        return $this->db->selectColumn(
+        return $this->WIdb->selectColumn(
             'SELECT * FROM `wi_system_versions` WHERE `component` = :component LIMIT 1',
             ['component' => $component],
             'version'
@@ -48,13 +48,13 @@ final class UpdateManager
     {
         $this->ensureVersionTableExists();
 
-        $exists = $this->db->select(
+        $exists = $this->WIdb->select(
             'SELECT `id` FROM `wi_system_versions` WHERE `component` = :component LIMIT 1',
             ['component' => $component]
         );
 
         if (count($exists) > 0) {
-            $this->db->update(
+            $this->WIdb->update(
                 'wi_system_versions',
                 [
                     'version' => $version,
@@ -66,7 +66,7 @@ final class UpdateManager
             return;
         }
 
-        $this->db->insert('wi_system_versions', [
+        $this->WIdb->insert('wi_system_versions', [
             'component' => $component,
             'version' => $version,
             'updated_at' => date('Y-m-d H:i:s'),

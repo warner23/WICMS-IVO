@@ -1285,8 +1285,8 @@ a:hover {color: #181919;text-decoration: underline;}
     -ms-backface-visibility: hidden;
     backface-visibility: hidden;
     min-height: 40px;
-        height: 112px;
-    margin-top: -72px;
+        height: 30px;
+    margin-top: -2px;
 }
 
 .logo{

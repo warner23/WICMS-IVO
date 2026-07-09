@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 final class MigrationRunner
 {
-    private WIdb $db;
+    private WIdb $WIdb;
     private string $migrationPath;
 
     public function __construct(?string $migrationPath = null)
     {
-        $this->db = WIdb::getInstance();
+        $this->WIdb = WIdb::getInstance();
         $this->migrationPath = $migrationPath ?? __DIR__ . '/migrations';
     }
 
@@ -30,14 +30,14 @@ final class MigrationRunner
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ";
 
-        $this->db->exec($sql);
+        $this->WIdb->exec($sql);
     }
 
     public function getExecutedVersions(): array
     {
         $this->ensureMigrationTableExists();
 
-        $rows = $this->db->select('SELECT `version` FROM `wi_migrations`');
+        $rows = $this->WIdb->select('SELECT `version` FROM `wi_migrations`');
 
         return array_map(
             static fn(array $row): string => (string) $row['version'],
@@ -109,17 +109,17 @@ final class MigrationRunner
     private function runSingle(Migration $migration): void
     {
         try {
-            $this->db->beginTransaction();
+            $this->WIdb->beginTransaction();
 
             $migration->up();
 
-            $this->db->insert('wi_migrations', [
+            $this->WIdb->insert('wi_migrations', [
                 'version' => $migration->version(),
                 'name' => $migration->name(),
                 'executed_at' => date('Y-m-d H:i:s'),
             ]);
 
-            $this->db->commit();
+            $this->WIdb->commit();
 
             WILogger::info('Migration executed', [
                 'version' => $migration->version(),
@@ -127,8 +127,8 @@ final class MigrationRunner
             ], 'updates');
 
         } catch (Throwable $e) {
-            if ($this->db->inTransaction()) {
-                $this->db->rollBack();
+            if ($this->WIdb->inTransaction()) {
+                $this->WIdb->rollBack();
             }
 
             WILogger::error('Migration failed', [

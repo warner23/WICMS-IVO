@@ -1,19 +1,31 @@
 <?php
-define("INCLUDE_CHECK", true);
-include_once 'WICore/init.php';
-$web->StartUp();
-$web->Meta($page);
-$web->Styling($page);
-$web->Scripts($page);
-$web->webSite_icons();
-?>
+declare(strict_types=1);
+
+/**
+ * File Information
+ * Written By: Jules Warner / Warner Infinity
+ * Company: Warner Infinity
+ * Product: WICMS
+ * Project: WIMembers
+ * File: WI_StartUp.php
+ * Location: WIMembers/WIInc/
+ * Type: Include
+ * Layer: Startup
+ * Purpose Area: Member workspace, profile, account, settings, payments, forms and training
+ * Version: 1.0.0
+ * Created: 2026-05-24
+ * Last Updated: 2026-05-24
+ * Status: Refactored
+ * Summary: WICMS-compatible WIMembers modernisation. Keeps WI-prefixed classes, database-driven modules, sessions and page rendering.
+ */
 
 
- <script type="text/javascript" src="WICore/WIJ/jquery.cookie.js"></script>
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script type="text/javascript">
-            var $_lang = <?php echo WILang::all(); ?>;
-        </script> 
+if (!defined('INCLUDE_CHECK')) {
+    define('INCLUDE_CHECK', true);
+}
 
-</head>
-<body>
+require_once dirname(__DIR__) . '/WICore/init.php';
+
+$page = isset($page) && is_string($page) && $page !== '' ? $page : 'profile';
+$startup = $startup ?? new WIStartUp();
+$startup->boot($page);

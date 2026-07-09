@@ -1,54 +1,41 @@
 <?php
-        $page = "forgotpass";
+declare(strict_types=1);
 
-        include_once "WIInc/WI_StartUp.php";
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS
+| Project: WI Ecosystem
+| File: forgotpass.php
+| Location: /
+| Type: PHP Entry Page
+| Layer: Front Controller
+| Purpose Area: Forgotten password public route
+| Version: 2.0.0
+| Created: Legacy
+| Last Updated: 2026-06-21
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Backwards-compatible forgotten-password entry point. The old WICMS startup
+| flow has been replaced with the canonical WIStartUp/WIModules flow while
+| preserving the legacy forgotpass.php URL.
+*/
 
-        $ref = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "";
+require_once __DIR__ . '/WICore/WIClass/WI.php';
 
-        $agent = $_SERVER["HTTP_USER_AGENT"];
-        $ip = $_SERVER["REMOTE_ADDR"];
+$page = 'login';
+$moduleName = 'forgotten_password';
 
-        $tracking_page = $_SERVER["SCRIPT_NAME"];
+$startup = new WIStartUp();
+$startup->boot($page);
+$startup->header($page);
 
-        $country = $maint->ip_info($ip, "country");
-        $location = $maint->ip_info($ip, "location");
-        $city = $location["city"];
-        if($country === null){
-          $country = "localhost";
-        }
+$modules = new WIModules();
+$modules->getModMain($moduleName, $page);
 
-        $maint->visitors_log($page, $ip, $country, $ref, $agent, $tracking_page, $city);
-
-        $panelPower = $web->pageModPower($page, "panel");
-
-        $Panel = $web->PageMod($page, "panel");
-        if ($panelPower > 0) {
-          $mod->getMod($Panel);
-        }
-
-        $topPower = $web->pageModPower($page, "top_head");
-        $top_head = $web->PageMod($page, "top_head");
-        if ($topPower > 0) {
-          $mod->getMod($top_head);
-        }
-
-        $headerPower = $web->pageModPower($page, "header");
-        if ($headerPower > 0) {
-        $web->MainHeader();
-        }
-
-        $web->MainMenu();
-        
-        $contents = $web->pageModPower($page, "contents");
-        $mod->getModMain($contents, $page, $contents);
-
-        $footerPower = $web->pageModPower($page, "footer");
-
-        if ($footerPower >0) {
-        $web->footer();
-        }
-        $web->backendJs();
-        ?>
-        </body>
-        </html>
-        
+$startup->footer();

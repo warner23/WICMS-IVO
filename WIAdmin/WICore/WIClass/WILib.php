@@ -10,11 +10,11 @@ final class WILib
 {
     private static ?self $instance = null;
 
-    private WIdb $db;
+    private WIdb $WIdb;
 
     private function __construct()
     {
-        $this->db = WIdb::getInstance();
+        $this->WIdb = WIdb::getInstance();
     }
 
     public static function getInstance(): self
@@ -28,7 +28,7 @@ final class WILib
 
     public function db(): WIdb
     {
-        return $this->db;
+        return $this->WIdb;
     }
 
     /**
@@ -36,7 +36,7 @@ final class WILib
      */
     public function selectColumn(string $sql, array $params, string $column): mixed
     {
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->WIdb->prepare($sql);
 
         foreach ($params as $key => $value) {
 
@@ -71,7 +71,7 @@ final class WILib
      */
     public function select(string $sql, array $params = []): array
     {
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->WIdb->prepare($sql);
 
         foreach ($params as $key => $value) {
 

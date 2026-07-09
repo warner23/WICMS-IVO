@@ -1,169 +1,263 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* WILang Class
-* Created by Warner Infinity
-* Author Jules Warner
-*/
+declare(strict_types=1);
 
+/**
+ * File Information
+ * Written By: Jules Warner / Warner Infinity
+ * Company: Warner Infinity
+ * Product: WICMS
+ * Project: WIMembers / WIProfile
+ * File: WILang.php
+ * Location: WIMembers/WICore/WIClass/
+ * Type: Class
+ * Layer: Language
+ * Purpose Area: Root-style member language loading
+ * Version: 1.0.1
+ * Created: 2026-06-11
+ * Last Updated: 2026-06-11
+ * Status: Active
+ *
+ * Summary:
+ * WIMembers-compatible language class with the same public API expected by the
+ * root bootstrap, including loadFromSession(). It prefers WIMembers language
+ * files and falls back to the canonical root language folder where available.
+ */
 class WILang
 {
+    private const DEFAULT_LANGUAGE = 'en';
 
-	    function __construct() 
+    private static string $language = self::DEFAULT_LANGUAGE;
+    private static array $translations = [];
+    private static bool $loaded = false;
+
+    private static array $fallback = [
+        'logout' => 'Logout',
+        'admin_panel' => 'Admin Portal',
+        'member_profile' => 'Profile',
+    ];
+
+    public static function setLanguage(string $lang): void
     {
-         $this->WIdb = WIdb::getInstance();
+        $lang = self::sanitizeLanguage($lang);
 
+        if ($lang === '') {
+            return;
+        }
+
+        self::$language = $lang;
+        self::storeSessionLanguage($lang);
+        self::loadLanguage();
     }
 
-    public static function all($jsonEncode = true) {
-        // determine lanuage
-		$language = self::getLanguage();
-		//echo $language;
-
-		$WIdb = WIdb::getInstance();
-			//$file = WILang::getFile($language);
-			//echo $file;
-			//echo $language;
-		if ( ! self::isValidLanguage($language) )
-		die('Language file doesn\'t exist!');
-		else {
-
-			$sql = "SELECT * FROM `wi_trans` WHERE `lang` = :file";
-			$query = $WIdb->prepare($sql);
-			$query->bindParam(':file', $language, PDO::PARAM_STR);
-			$query->execute();
-			while ($result = $query->fetchAll(PDO::FETCH_ASSOC)) {
-				echo "{";
-				$count = 0;
-				$len = count($result);
-				foreach ($result as $res) {
-					$count++;
-					if($count == $len){
-					echo '"' .$res['keyword'] .'":"' . $res['translation'] . '" ';
-					}else{
-				  echo '"' .$res['keyword'] .'":"' . $res['translation'] . '",';
-					}
-				
-				 //return array($res['keyword'] => $res['translation'] ,);
-				 	
-			}
-
-			echo "}";
-			}
-
-			}
-	}
-
-    public static function get($key ) //, $bindings = array()
+    public static function getLanguage(): string
     {
-		// determine language
-		$language = self::getLanguage();
+        if (!self::$loaded) {
+            self::bootstrapLanguage();
+        }
 
-		$WIdb = WIdb::getInstance();
-
-		$sql = "SELECT * FROM `wi_trans` WHERE `keyword`=:key";
-		$query = $WIdb->prepare($sql);
-		$query->bindParam(':key', $key, PDO::PARAM_STR);
-		$query->execute();
-
-		$res = $query->fetch(PDO::FETCH_ASSOC);
-		if($res > 0)
-			return $res['translation'];
-		else
-			return '';
-	}
-
-     public static function setLanguage($language) 
-     {
-
-        // check if language is valid
-		if ( self::isValidLanguage($language) ) {
-			//set language cookie to 1 year
-			setcookie('wi_lang', $language, time() + 60 * 60 * 24 * 365, '/');
-
-            // update session
-			WISession::set('wi_lang', $language);
-
-            //refresh the page
-			header('Location: ' . $_SERVER['PHP_SELF']);
-		}
-	}
-
-		 public static function getLanguage() 
-		 {
-        // check if cookie exist and language value in cookie is valid
-        if ( isset ( $_COOKIE['wi_lang'] ) && self::isValidLanguage ( $_COOKIE['wi_lang'] ) )
-            return $_COOKIE['wi_lang']; // return lang from cookie
-        else
-            return WISession::get('wi_lang', DEFAULT_LANGUAGE);
+        return self::$language;
     }
 
+    public static function get(string $key): string
+    {
+        if (!self::$loaded) {
+            self::bootstrapLanguage();
+        }
 
-        private static function getTrans($language) 
-        {
-        	$WIdb = WIdb::getInstance();
-			//$file = WILang::getFile($language);
-			//echo $file;
-			//echo $language;
-		if ( ! self::isValidLanguage($language) )
-		die('Language file doesn\'t exist!');
-		else {
-			//$language = include $file;
-			//return $language;
+        if (array_key_exists($key, self::$translations)) {
+            return (string) self::$translations[$key];
+        }
 
-			$sql = "SELECT * FROM `wi_trans` WHERE `lang` = :file";
-			$query = $WIdb->prepare($sql);
-			$query->bindParam(':file', $language, PDO::PARAM_STR);
-			$query->execute();
-			//$result = array();
-			while ($result = $query->fetchAll(PDO::FETCH_ASSOC)) {
-				echo "{";
-				foreach ($result as $res) {
-				echo '"' .$res['keyword'] .'":"' . $res['translation'] . '",';
-				 //return array($res['keyword'] => $res['translation'] ,);	
-			}
+        if (array_key_exists($key, self::$fallback)) {
+            return self::$fallback[$key];
+        }
 
-			echo "}";
-			}
+        return ucwords(str_replace('_', ' ', $key));
+    }
 
-			}
-			
-	}
+    public static function getTranslation(string $key): string
+    {
+        return self::get($key);
+    }
 
+    public static function e(string $key): string
+    {
+        return htmlspecialchars(self::get($key), ENT_QUOTES, 'UTF-8');
+    }
 
+    public static function all(): string
+    {
+        if (!self::$loaded) {
+            self::bootstrapLanguage();
+        }
 
-	 private static  function getFile($language) 
-	 {
-	 	$WIdb = WIdb::getInstance();
-		$sql = "SELECT * FROM `wi_lang` WHERE `lang` = :file";
-		$query = $WIdb->prepare($sql);
-		$query->bindParam(':file', $language, PDO::PARAM_STR);
-		$query->execute();
+        $translations = array_merge(self::$fallback, self::$translations);
 
-		$res = $query->fetch(PDO::FETCH_ASSOC);
-		//echo $res['lang'];
-		if ($res > 0)
-			return $res['lang'];
-		else
-			return '';
+        return json_encode(
+            $translations,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        ) ?: '{}';
+    }
 
-		
-	}
+    public static function loadFromSession(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            self::bootstrapLanguage();
+            return;
+        }
 
-	    private static function isValidLanguage($lang) 
-	    {
-		$file = self::getFile($lang);
-		//echo $file;
+        $language = self::sessionLanguage();
 
-		if($file == "")
-		//if ( ! file_exists( $file ) )
-			return false;
-		else
-			return true;
-	}
+        if ($language !== '') {
+            self::setLanguage($language);
+            return;
+        }
 
+        self::bootstrapLanguage();
+    }
 
+    public static function change(string $lang): void
+    {
+        self::setLanguage($lang);
+    }
 
+    public static function exists(string $key): bool
+    {
+        if (!self::$loaded) {
+            self::bootstrapLanguage();
+        }
 
+        return array_key_exists($key, self::$translations) || array_key_exists($key, self::$fallback);
+    }
 
+    public static function raw(): array
+    {
+        if (!self::$loaded) {
+            self::bootstrapLanguage();
+        }
+
+        return array_merge(self::$fallback, self::$translations);
+    }
+
+    private static function bootstrapLanguage(): void
+    {
+        $lang = self::sessionLanguage();
+
+        if ($lang === '') {
+            $lang = self::settingsLanguage();
+        }
+
+        if ($lang === '') {
+            $lang = self::DEFAULT_LANGUAGE;
+        }
+
+        self::$language = $lang;
+        self::loadLanguage();
+    }
+
+    private static function loadLanguage(): void
+    {
+        $translations = [];
+        $languageFile = self::languageFile(self::$language);
+
+        if ($languageFile === '') {
+            $languageFile = self::languageFile(self::DEFAULT_LANGUAGE);
+        }
+
+        if ($languageFile !== '' && is_file($languageFile)) {
+            $lang = [];
+            include $languageFile;
+
+            if (isset($lang) && is_array($lang)) {
+                $translations = $lang;
+            }
+        }
+
+        self::$translations = $translations;
+        self::$loaded = true;
+    }
+
+    private static function languageFile(string $lang): string
+    {
+        $lang = self::sanitizeLanguage($lang);
+
+        if ($lang === '') {
+            return '';
+        }
+
+        $candidateDirs = [
+            dirname(__DIR__) . '/WILang',
+        ];
+
+        if (defined('WI_PUBLIC_ROOT_DIR')) {
+            $candidateDirs[] = rtrim((string) WI_PUBLIC_ROOT_DIR, '/\\') . '/WICore/WILang';
+        }
+
+        if (defined('ROOT_PATH')) {
+            $candidateDirs[] = rtrim((string) ROOT_PATH, '/\\') . '/WICore/WILang';
+        }
+
+        foreach (array_unique($candidateDirs) as $dir) {
+            $file = $dir . '/' . $lang . '.php';
+
+            if (is_file($file)) {
+                return $file;
+            }
+        }
+
+        return '';
+    }
+
+    private static function settingsLanguage(): string
+    {
+        if (!class_exists('WISettings')) {
+            return '';
+        }
+
+        try {
+            $settings = new WISettings();
+
+            if (method_exists($settings, 'website')) {
+                $value = $settings->website('default_lang');
+
+                if ($value === null || trim((string) $value) === '') {
+                    $value = $settings->website('language');
+                }
+
+                return self::sanitizeLanguage((string) $value);
+            }
+        } catch (Throwable $e) {
+            return '';
+        }
+
+        return '';
+    }
+
+    private static function sessionLanguage(): string
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return '';
+        }
+
+        $language = $_SESSION['language'] ?? $_SESSION['lang'] ?? '';
+
+        return self::sanitizeLanguage((string) $language);
+    }
+
+    private static function storeSessionLanguage(string $lang): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+
+        $_SESSION['language'] = $lang;
+        $_SESSION['lang'] = $lang;
+    }
+
+    private static function sanitizeLanguage(string $lang): string
+    {
+        $lang = strtolower(trim($lang));
+
+        return preg_match('/^[a-z]{2}$/', $lang) ? $lang : '';
+    }
 }

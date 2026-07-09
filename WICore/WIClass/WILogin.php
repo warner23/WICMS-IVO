@@ -2,20 +2,29 @@
 declare(strict_types=1);
 
 /**
- * Login Class
- * Created by Warner Infinity
- * Author Jules Warner
+ * WICMS Canonical Login Service
+ * Root core source of truth
  */
 
 class WILogin
 {
     private WIdb $WIdb;
     private ?WIMaintenace $maint;
+    private array $lastResult = [
+        'status'  => 'error',
+        'message' => 'Login not attempted',
+        'errors'  => []
+    ];
 
     public function __construct()
     {
         $this->WIdb = WIdb::getInstance();
         $this->maint = class_exists('WIMaintenace') ? new WIMaintenace() : null;
+    }
+
+    public function getLastResult(): array
+    {
+        return $this->lastResult;
     }
 
     public function byId(int $id): void
@@ -25,33 +34,25 @@ class WILogin
         }
 
         $this->updateLoginDate($id);
-        WISession::set('user_id', $id);
-
-        if ($this->loginFingerprintEnabled()) {
-            WISession::set('login_fingerprint', $this->generateLoginString());
-        }
-
-        WISession::regenerate(true);
+        $this->establishAuthenticatedSession($id);
     }
 
     public function isLoggedIn(): bool
     {
-        $userId = WISession::get('user_id');
+        $userId = (int) WISession::get('user_id', 0);
 
-        if ($userId === null) {
+        if ($userId <= 0) {
             return false;
         }
 
         if ($this->loginFingerprintEnabled()) {
-            $loginString = $this->generateLoginString();
-            $currentString = WISession::get('login_fingerprint');
+            $expected = (string) WISession::get('login_fingerprint', '');
+            $current = $this->generateLoginFingerprint();
 
-            if ($currentString !== null && hash_equals((string) $currentString, $loginString)) {
-                return true;
+            if ($expected === '' || !hash_equals($expected, $current)) {
+                $this->logout();
+                return false;
             }
-
-            $this->logout();
-            return false;
         }
 
         return true;
@@ -59,90 +60,37 @@ class WILogin
 
     public function userLogin(string $username, string $password): bool
     {
-        $errors = $this->validateLoginFields($username, $password);
+        $result = $this->attemptLogin($username, $password);
+        $this->lastResult = $result;
 
-        if ($errors !== []) {
-            $this->jsonError(implode('<br />', $errors));
-            return false;
-        }
+        return $result['status'] === 'success';
+    }
 
-        if ($this->isBruteForce()) {
-            $this->jsonError(WILang::get('brute_force'));
-            return false;
-        }
-
-        $username = trim($username);
-        $password = (string) $password;
-
-        $result = $this->WIdb->select(
-            'SELECT * FROM `wi_members` WHERE `username` = :u LIMIT 1',
-            ['u' => $username]
-        );
-
-        if (count($result) !== 1) {
-            $this->increaseLoginAttempts();
-            $this->jsonError(WILang::get('wrong_username_password'));
-            return false;
-        }
-
-        $user = $result[0];
-        $register = new WIRegister();
-
-        if (!$register->verifyPassword($password, (string) ($user['password'] ?? ''))) {
-            $this->increaseLoginAttempts();
-            $this->jsonError(WILang::get('wrong_username_password'));
-            return false;
-        }
-
-        if ($this->mailConfirmationRequired() && (($user['confirmed'] ?? 'N') === 'N')) {
-            $this->jsonError(WILang::get('user_not_confirmed'));
-            return false;
-        }
-
-        if (($user['banned'] ?? 'N') === 'Y') {
-            $this->increaseLoginAttempts();
-            $this->jsonError(WILang::get('user_banned'));
-            return false;
-        }
-
-        if ($register->needsRehash((string) $user['password'])) {
-            $this->WIdb->update(
-                'wi_members',
-                ['password' => $register->hashPassword($password)],
-                '`user_id` = :id',
-                ['id' => (int) $user['user_id']]
-            );
-        }
-
-        $this->updateLoginDate((int) $user['user_id']);
-        WISession::set('user_id', (int) $user['user_id']);
-
-        if ($this->loginFingerprintEnabled()) {
-            WISession::set('login_fingerprint', $this->generateLoginString());
-        }
-
-        WISession::regenerate(true);
-
-        if ($this->maint !== null) {
-            $this->maint->LogFunction($username, 'Successfully logged in user');
-        }
-
-        return true;
+    public function logout(): void
+    {
+        WISession::destroySession();
     }
 
     public function increaseLoginAttempts(): void
     {
         $date = date('Y-m-d');
-        $userIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $userIp = $this->getClientIp();
 
-        $loginAttempts = $this->getLoginAttempts();
+        if ($userIp === '') {
+            return;
+        }
 
-        if ($loginAttempts > 0) {
+        $attempts = $this->getLoginAttempts();
+
+        if ($attempts > 0) {
             $this->WIdb->update(
                 'wi_login_attempts',
-                ['attempt_number' => $loginAttempts + 1],
+                ['attempt_number' => $attempts + 1],
                 '`ip_addr` = :ip_addr AND `date` = :d',
-                ['ip_addr' => $userIp, 'd' => $date]
+                [
+                    'ip_addr' => $userIp,
+                    'd' => $date
+                ]
             );
             return;
         }
@@ -154,9 +102,22 @@ class WILogin
         ]);
     }
 
-    public function logout(): void
+    public function clearLoginAttempts(): void
     {
-        WISession::destroySession();
+        $userIp = $this->getClientIp();
+
+        if ($userIp === '') {
+            return;
+        }
+
+        $this->WIdb->delete(
+            'wi_login_attempts',
+            '`ip_addr` = :ip_addr AND `date` = :d',
+            [
+                'ip_addr' => $userIp,
+                'd' => date('Y-m-d')
+            ]
+        );
     }
 
     public function isBruteForce(): bool
@@ -164,11 +125,121 @@ class WILogin
         return $this->getLoginAttempts() >= $this->getMaxLoginAttempts();
     }
 
+    private function attemptLogin(string $username, string $password): array
+    {
+        $username = trim($username);
+        $password = (string) $password;
+
+        $errors = $this->validateLoginFields($username, $password);
+
+        if ($errors !== []) {
+            return [
+                'status' => 'error',
+                'message' => implode('<br>', $errors),
+                'errors' => $errors
+            ];
+        }
+
+        if ($this->isBruteForce()) {
+            return [
+                'status' => 'error',
+                'message' => WILang::get('brute_force'),
+                'errors' => [WILang::get('brute_force')]
+            ];
+        }
+
+        $result = $this->WIdb->select(
+            'SELECT * FROM `wi_members` WHERE `username` = :username LIMIT 1',
+            ['username' => $username]
+        );
+
+        if (count($result) !== 1) {
+            $this->increaseLoginAttempts();
+
+            return [
+                'status' => 'error',
+                'message' => WILang::get('wrong_username_password'),
+                'errors' => [WILang::get('wrong_username_password')]
+            ];
+        }
+
+        $user = $result[0];
+        $userId = (int) ($user['user_id'] ?? 0);
+        $storedHash = (string) ($user['password'] ?? '');
+
+        $register = new WIRegister();
+
+        if (!$register->verifyPassword($password, $storedHash)) {
+            $this->increaseLoginAttempts();
+
+            return [
+                'status' => 'error',
+                'message' => WILang::get('wrong_username_password'),
+                'errors' => [WILang::get('wrong_username_password')]
+            ];
+        }
+
+        if ($this->mailConfirmationRequired() && (($user['confirmed'] ?? 'N') === 'N')) {
+            return [
+                'status' => 'error',
+                'message' => WILang::get('user_not_confirmed'),
+                'errors' => [WILang::get('user_not_confirmed')]
+            ];
+        }
+
+        if (($user['banned'] ?? 'N') === 'Y') {
+            $this->increaseLoginAttempts();
+
+            return [
+                'status' => 'error',
+                'message' => WILang::get('user_banned'),
+                'errors' => [WILang::get('user_banned')]
+            ];
+        }
+
+        if ($register->needsRehash($storedHash)) {
+            $this->WIdb->update(
+                'wi_members',
+                ['password' => $register->hashPassword($password)],
+                '`user_id` = :id',
+                ['id' => $userId]
+            );
+        }
+
+        $this->updateLoginDate($userId);
+        $this->establishAuthenticatedSession($userId);
+        $this->clearLoginAttempts();
+
+        if ($this->maint !== null) {
+            $this->maint->LogFunction($username, 'Successfully logged in user');
+        }
+
+        return [
+            'status' => 'success',
+            'message' => 'Login successful',
+            'user_id' => $userId
+        ];
+    }
+
+    private function establishAuthenticatedSession(int $userId): void
+    {
+        WISession::set('user_id', $userId);
+        WISession::set('login_time', time());
+
+        if ($this->loginFingerprintEnabled()) {
+            WISession::set('login_fingerprint', $this->generateLoginFingerprint());
+        } else {
+            WISession::destroy('login_fingerprint');
+        }
+
+        WISession::regenerate(true);
+    }
+
     private function validateLoginFields(string $username, string $password): array
     {
         $errors = [];
 
-        if (trim($username) === '') {
+        if ($username === '') {
             $errors[] = WILang::get('username_required');
         }
 
@@ -179,35 +250,26 @@ class WILogin
         return $errors;
     }
 
-    private function generateLoginString(): string
-    {
-        $userIP = $_SERVER['REMOTE_ADDR'] ?? '';
-        $userBrowser = $_SERVER['HTTP_USER_AGENT'] ?? '';
-
-        return hash('sha512', $userIP . $userBrowser);
-    }
-
     private function getLoginAttempts(): int
     {
-        $date = date('Y-m-d');
-        $userIp = $_SERVER['REMOTE_ADDR'] ?? null;
+        $userIp = $this->getClientIp();
 
-        if (!$userIp) {
+        if ($userIp === '') {
             return PHP_INT_MAX;
         }
 
         $result = $this->WIdb->select(
             'SELECT `attempt_number`
              FROM `wi_login_attempts`
-             WHERE `ip_addr` = :ip AND `date` = :date
+             WHERE `ip_addr` = :ip_addr AND `date` = :d
              LIMIT 1',
             [
-                'ip' => $userIp,
-                'date' => $date
+                'ip_addr' => $userIp,
+                'd' => date('Y-m-d')
             ]
         );
 
-        if (count($result) === 0) {
+        if (count($result) !== 1) {
             return 0;
         }
 
@@ -216,12 +278,29 @@ class WILogin
 
     private function updateLoginDate(int $userId): void
     {
+        if ($userId <= 0) {
+            return;
+        }
+
         $this->WIdb->update(
             'wi_members',
             ['last_login' => date('Y-m-d H:i:s')],
-            'user_id = :u',
+            '`user_id` = :u',
             ['u' => $userId]
         );
+    }
+
+    private function getClientIp(): string
+    {
+        return trim((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+    }
+
+    private function generateLoginFingerprint(): string
+    {
+        $userAgent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+        $sessionSalt = session_id();
+
+        return hash('sha256', $userAgent . '|' . $sessionSalt);
     }
 
     private function getMaxLoginAttempts(): int
@@ -235,7 +314,7 @@ class WILogin
             $value = (int) $settings->website('max_login_attempts');
 
             if ($value > 0) {
-                return $value;
+                return max(1, $value);
             }
         } catch (Throwable $e) {
         }
@@ -251,6 +330,7 @@ class WILogin
 
         try {
             $settings = new WISettings();
+
             return filter_var(
                 (string) $settings->website('login_fingerprint'),
                 FILTER_VALIDATE_BOOLEAN
@@ -268,6 +348,7 @@ class WILogin
 
         try {
             $settings = new WISettings();
+
             return filter_var(
                 (string) $settings->website('mail_confirm_required'),
                 FILTER_VALIDATE_BOOLEAN
@@ -275,13 +356,5 @@ class WILogin
         } catch (Throwable $e) {
             return false;
         }
-    }
-
-    private function jsonError(string $message): void
-    {
-        echo json_encode([
-            'status' => 'error',
-            'message' => $message
-        ]);
     }
 }

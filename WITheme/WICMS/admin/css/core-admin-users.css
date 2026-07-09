@@ -1,0 +1,389 @@
+/*
+|--------------------------------------------------------------------------
+| WICMS Core Users Manager
+|--------------------------------------------------------------------------
+*/
+
+.wi-users-page {
+    --wi-users-bg: #f6f8fb;
+    --wi-users-card: #ffffff;
+    --wi-users-border: #dfe6ef;
+    --wi-users-text: #172033;
+    --wi-users-muted: #657287;
+    --wi-users-primary: #2563eb;
+    --wi-users-primary-dark: #1d4ed8;
+    --wi-users-danger: #dc2626;
+    --wi-users-success: #138a4b;
+    --wi-users-soft: #eef4ff;
+}
+
+.wi-users-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+}
+
+.wi-users-stat-card,
+.wi-users-manager-panel,
+.wi-users-list-card,
+.wi-users-form-card {
+    background: var(--wi-users-card);
+    border: 1px solid var(--wi-users-border);
+    border-radius: 20px;
+    box-shadow: 0 14px 36px rgba(17, 24, 39, 0.07);
+}
+
+.wi-users-stat-card {
+    padding: 18px;
+}
+
+.wi-users-stat-card span {
+    display: block;
+    color: var(--wi-users-muted);
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.wi-users-stat-card strong {
+    color: var(--wi-users-text);
+    font-size: 28px;
+    line-height: 1;
+}
+
+.wi-users-manager-panel {
+    padding: 22px;
+}
+
+.wi-users-toolbar,
+.wi-users-list-head,
+.wi-users-form-head,
+.wi-users-pager,
+.wi-users-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.wi-users-toolbar h2,
+.wi-users-list-head h3,
+.wi-users-form-head h3 {
+    margin: 0;
+    color: var(--wi-users-text);
+}
+
+.wi-users-toolbar p,
+.wi-users-list-head p,
+.wi-users-form-head p {
+    margin: 5px 0 0;
+    color: var(--wi-users-muted);
+}
+
+.wi-users-primary-btn,
+.wi-users-secondary-btn,
+.wi-user-actions button,
+.wi-users-pager button {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.wi-users-primary-btn {
+    background: var(--wi-users-primary);
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, .22);
+}
+
+.wi-users-primary-btn:hover {
+    background: var(--wi-users-primary-dark);
+    transform: translateY(-1px);
+}
+
+.wi-users-secondary-btn,
+.wi-user-actions button,
+.wi-users-pager button {
+    background: #edf2f7;
+    color: var(--wi-users-text);
+}
+
+.wi-user-actions button.is-danger {
+    background: #fee2e2;
+    color: var(--wi-users-danger);
+}
+
+.wi-users-filters {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr .8fr auto;
+    gap: 12px;
+    margin: 20px 0;
+    align-items: end;
+}
+
+.wi-users-filters label,
+.wi-users-form-card label {
+    display: grid;
+    gap: 6px;
+    color: var(--wi-users-text);
+    font-weight: 700;
+}
+
+.wi-users-filters label span,
+.wi-users-form-card label span {
+    color: var(--wi-users-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.wi-users-filters input,
+.wi-users-filters select,
+.wi-users-form-card input,
+.wi-users-form-card select {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--wi-users-border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    color: var(--wi-users-text);
+    background: #ffffff;
+}
+
+.wi-users-feedback {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.wi-users-feedback.is-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.wi-users-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, .9fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.wi-users-list-card,
+.wi-users-form-card {
+    padding: 18px;
+}
+
+.wi-users-list {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.wi-user-row {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e7edf5;
+    border-radius: 18px;
+}
+
+.wi-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: var(--wi-users-soft);
+    color: var(--wi-users-primary-dark);
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.wi-user-main {
+    min-width: 0;
+}
+
+.wi-user-main strong,
+.wi-user-main span,
+.wi-user-main small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wi-user-main strong {
+    color: var(--wi-users-text);
+}
+
+.wi-user-main span {
+    color: #2f3b52;
+    margin-top: 3px;
+}
+
+.wi-user-main small {
+    color: var(--wi-users-muted);
+    margin-top: 4px;
+}
+
+.wi-user-badges {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wi-user-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.wi-user-badge.is-success {
+    background: #dcfce7;
+    color: var(--wi-users-success);
+}
+
+.wi-user-badge.is-danger {
+    background: #fee2e2;
+    color: var(--wi-users-danger);
+}
+
+.wi-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wi-users-empty {
+    margin-top: 16px;
+    padding: 20px;
+    border: 1px dashed var(--wi-users-border);
+    border-radius: 16px;
+    color: var(--wi-users-muted);
+    text-align: center;
+}
+
+.wi-users-pager {
+    margin-top: 16px;
+}
+
+.wi-users-pager span {
+    color: var(--wi-users-muted);
+    font-weight: 700;
+}
+
+.wi-users-form-card form {
+    display: grid;
+    gap: 13px;
+    margin-top: 16px;
+}
+
+.wi-users-two-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.wi-users-switch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.wi-users-switch-row {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--wi-users-border);
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.wi-users-switch-row input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.wi-users-switch-ui {
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    position: relative;
+    transition: background .18s ease;
+}
+
+.wi-users-switch-ui::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform .18s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+}
+
+.wi-users-switch-row input:checked + .wi-users-switch-ui {
+    background: var(--wi-users-primary);
+}
+
+.wi-users-switch-row input:checked + .wi-users-switch-ui::after {
+    transform: translateX(20px);
+}
+
+@media (max-width: 1100px) {
+    .wi-users-content-grid,
+    .wi-users-filters,
+    .wi-users-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-user-row {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .wi-user-badges,
+    .wi-user-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .wi-users-manager-panel,
+    .wi-users-list-card,
+    .wi-users-form-card {
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .wi-users-two-col,
+    .wi-users-switch-grid {
+        grid-template-columns: 1fr;
+    }
+}

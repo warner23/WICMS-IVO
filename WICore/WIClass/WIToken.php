@@ -2,193 +2,191 @@
 declare(strict_types=1);
 
 /**
- * Token Service
- * WICMS Core
+ * FILE: WICore/WIClass/WIToken.php
+ *
+ * Canonical root token / CSRF manager
  */
 
-final class WIToken
+class WIToken
 {
-    private const DEFAULT_TTL = 3600;
+    private const SESSION_KEY = '_wi_csrf_tokens';
+    private const DEFAULT_TTL = 7200; // 2 hours
+    private const POST_FIELD = 'csrf_token';
 
-    /**
-     * Generate a secure random token.
-     */
-    public static function generate(int $length = 32): string
+    public static function generate(string $form): string
     {
-        if ($length < 16) {
-            $length = 16;
-        }
+        WISession::startSession();
+        self::cleanupExpiredCsrfTokens();
 
-        return bin2hex(random_bytes($length));
-    }
+        $token = bin2hex(random_bytes(32));
+        $tokens = WISession::get(self::SESSION_KEY, []);
 
-    /**
-     * Create and store a CSRF token in session.
-     */
-    public static function createCsrfToken(string $form, int $ttl = self::DEFAULT_TTL): string
-    {
-        self::ensureSessionStarted();
-
-        $token = self::generate(32);
-
-        $tokens = WISession::get('wi_csrf_tokens', []);
         if (!is_array($tokens)) {
             $tokens = [];
         }
 
         $tokens[$form] = [
             'token' => $token,
-            'expires' => time() + $ttl,
+            'expires_at' => time() + self::getTtl(),
         ];
 
-        WISession::set('wi_csrf_tokens', $tokens);
+        WISession::set(self::SESSION_KEY, $tokens);
 
         return $token;
     }
 
-    /**
-     * Get existing CSRF token for a form if still valid,
-     * otherwise create a fresh one.
-     */
-    public static function getCsrfToken(string $form, int $ttl = self::DEFAULT_TTL): string
+    public static function getToken(string $form): string
     {
-        self::ensureSessionStarted();
+        WISession::startSession();
+        self::cleanupExpiredCsrfTokens();
 
-        $tokens = WISession::get('wi_csrf_tokens', []);
-        if (!is_array($tokens)) {
-            return self::createCsrfToken($form, $ttl);
-        }
+        $tokens = WISession::get(self::SESSION_KEY, []);
 
         if (
-            isset($tokens[$form]['token'], $tokens[$form]['expires']) &&
-            is_string($tokens[$form]['token']) &&
-            is_int($tokens[$form]['expires']) &&
-            $tokens[$form]['expires'] >= time()
+            is_array($tokens) &&
+            isset($tokens[$form]) &&
+            is_array($tokens[$form]) &&
+            isset($tokens[$form]['token'], $tokens[$form]['expires_at'])
         ) {
-            return $tokens[$form]['token'];
+            $expiresAt = (int) $tokens[$form]['expires_at'];
+
+            if ($expiresAt >= time()) {
+                return (string) $tokens[$form]['token'];
+            }
         }
 
-        return self::createCsrfToken($form, $ttl);
+        return self::generate($form);
     }
 
-    /**
-     * Validate CSRF token.
-     * If valid, token is consumed by default.
-     */
-    public static function validateCsrfToken(string $form, ?string $token, bool $consume = true): bool
+    public static function csrfField(string $form): string
     {
-        self::ensureSessionStarted();
+        $token = self::getToken($form);
 
-        if ($token === null || $token === '') {
+        return '<input type="hidden" name="' . self::POST_FIELD . '" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+    }
+
+    public static function validate(string $form, ?string $submittedToken): bool
+    {
+        WISession::startSession();
+        self::cleanupExpiredCsrfTokens();
+
+        if ($submittedToken === null || trim($submittedToken) === '') {
             return false;
         }
 
-        $tokens = WISession::get('wi_csrf_tokens', []);
-        if (!is_array($tokens) || !isset($tokens[$form])) {
-            return false;
-        }
-
-        $stored = $tokens[$form];
+        $tokens = WISession::get(self::SESSION_KEY, []);
 
         if (
-            !is_array($stored) ||
-            !isset($stored['token'], $stored['expires']) ||
-            !is_string($stored['token']) ||
-            !is_int($stored['expires'])
+            !is_array($tokens) ||
+            !isset($tokens[$form]) ||
+            !is_array($tokens[$form])
         ) {
             return false;
         }
 
-        if ($stored['expires'] < time()) {
-            unset($tokens[$form]);
-            WISession::set('wi_csrf_tokens', $tokens);
+        $storedToken = (string) ($tokens[$form]['token'] ?? '');
+        $expiresAt = (int) ($tokens[$form]['expires_at'] ?? 0);
+
+        if ($storedToken === '' || $expiresAt < time()) {
+            self::remove($form);
             return false;
         }
 
-        $isValid = hash_equals($stored['token'], $token);
+        $valid = hash_equals($storedToken, trim($submittedToken));
 
-        if ($isValid && $consume) {
-            unset($tokens[$form]);
-            WISession::set('wi_csrf_tokens', $tokens);
+        if ($valid) {
+            self::remove($form);
         }
 
-        return $isValid;
+        return $valid;
     }
 
-    /**
-     * Remove a form token manually.
-     */
-    public static function destroyCsrfToken(string $form): void
+    public static function validatePostToken(string $form): bool
     {
-        self::ensureSessionStarted();
+        $submittedToken = $_POST[self::POST_FIELD] ?? null;
 
-        $tokens = WISession::get('wi_csrf_tokens', []);
-        if (!is_array($tokens)) {
-            return;
+        if (is_array($submittedToken)) {
+            return false;
         }
 
-        unset($tokens[$form]);
-        WISession::set('wi_csrf_tokens', $tokens);
+        return self::validate($form, $submittedToken !== null ? (string) $submittedToken : null);
     }
 
-    /**
-     * Clean up expired tokens.
-     */
     public static function cleanupExpiredCsrfTokens(): void
     {
-        self::ensureSessionStarted();
+        WISession::startSession();
 
-        $tokens = WISession::get('wi_csrf_tokens', []);
-        if (!is_array($tokens)) {
+        $tokens = WISession::get(self::SESSION_KEY, []);
+
+        if (!is_array($tokens) || $tokens === []) {
             return;
         }
 
         $now = time();
+        $filtered = [];
 
         foreach ($tokens as $form => $data) {
-            if (
-                !is_array($data) ||
-                !isset($data['expires']) ||
-                !is_int($data['expires']) ||
-                $data['expires'] < $now
-            ) {
-                unset($tokens[$form]);
+            if (!is_array($data)) {
+                continue;
+            }
+
+            $token = (string) ($data['token'] ?? '');
+            $expiresAt = (int) ($data['expires_at'] ?? 0);
+
+            if ($token !== '' && $expiresAt >= $now) {
+                $filtered[$form] = [
+                    'token' => $token,
+                    'expires_at' => $expiresAt,
+                ];
             }
         }
 
-        WISession::set('wi_csrf_tokens', $tokens);
+        WISession::set(self::SESSION_KEY, $filtered);
     }
 
-    /**
-     * Generate a hidden HTML field for forms.
-     */
-    public static function csrfField(string $form, int $ttl = self::DEFAULT_TTL): string
+    public static function remove(string $form): void
     {
-        $token = self::getCsrfToken($form, $ttl);
+        WISession::startSession();
 
-        return '<input type="hidden" name="csrf_token" value="' .
-            htmlspecialchars($token, ENT_QUOTES, 'UTF-8') .
-            '">';
-    }
+        $tokens = WISession::get(self::SESSION_KEY, []);
 
-    /**
-     * Validate request token from POST by default.
-     */
-    public static function validatePostToken(string $form, string $field = 'csrf_token', bool $consume = true): bool
-    {
-        $token = $_POST[$field] ?? null;
-
-        if (!is_string($token)) {
-            return false;
+        if (!is_array($tokens)) {
+            $tokens = [];
         }
 
-        return self::validateCsrfToken($form, $token, $consume);
+        if (isset($tokens[$form])) {
+            unset($tokens[$form]);
+            WISession::set(self::SESSION_KEY, $tokens);
+        }
     }
 
-    private static function ensureSessionStarted(): void
+    public static function clear(): void
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            WISession::startSession();
+        WISession::startSession();
+        WISession::remove(self::SESSION_KEY);
+    }
+
+    public static function token(string $form): string
+    {
+        return self::getToken($form);
+    }
+
+    private static function getTtl(): int
+    {
+        if (defined('CSRF_TOKEN_TTL')) {
+            return max(300, (int) CSRF_TOKEN_TTL);
         }
+
+        try {
+            $settings = new WISettings();
+            $value = (int) $settings->website('csrf_token_ttl');
+
+            if ($value > 0) {
+                return max(300, $value);
+            }
+        } catch (Throwable $e) {
+        }
+
+        return self::DEFAULT_TTL;
     }
 }

@@ -1,0 +1,20 @@
+{
+  "features": [
+    {
+      "feature_key": "example_feature",
+      "feature_label": "Example Feature",
+      "feature_group": "Example Plugin",
+      "description": "What this feature enables.",
+      "source_type": "core",
+      "source_key": "example_plugin",
+      "default_enabled": true,
+      "sort_order": 100,
+      "packages": ["basic", "advanced", "complete"]
+    }
+  ],
+  "package_tiers": {
+    "basic": ["example_feature"],
+    "advanced": ["example_feature"],
+    "complete": ["example_feature"]
+  }
+}

@@ -1,85 +1,93 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* 
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIProfile
+| Project: WI Ecosystem
+| File: support.php
+| Location: /WIAdmin/WIModule/pages/support/support.php
+| Type: Module
+| Layer: Front-Side UI Module
+| Purpose Area: Member support centre
+| Version: 1.0.0
+| Created: 2026-06-14
+| Last Updated: 2026-06-14
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Member-facing support module. This is a safe placeholder workspace that uses
+| existing shared support/bug-report routes where available and keeps business
+| logic out of the UI module.
 */
-class support
+
+final class WISupportModule
 {
-    function __construct()
+    public static function moduleMeta(): array
     {
-        $this->WIdb = WIdb::getInstance();
-        $this->Web  = new WIWebsite();
-        $this->site = new WISite();
-        $this->mod  = new WIModules();
-        $this->page = new WIPage();
-        $this->support = new WISupport();
+        return [
+            'code' => 'support',
+            'name' => 'Support Centre',
+            'type' => 'page',
+            'area' => 'member',
+            'version' => '1.0.0',
+            'description' => 'Member support, help and issue reporting workspace.',
+        ];
     }
 
-    public function editMod()
+    public function Install(string $moduleName = 'support', array $context = []): array
     {
-        
-    $this->Web->EditModTemp();
-     $result = $this->WIdb->select("SELECT `edit_page_mod` FROM `wi_pages` WHERE `page_name` =:page", array("page" => $page,));
-        if(count($result) < 1)
-        {
-            echo "No Page Found.";
-        }
-        else{
-           echo $result[0]["edit_page_mod"];
-        }
- 
+        return ['success' => true, 'message' => 'Support module ready.', 'module' => $moduleName];
     }
 
-    public function editPageContent($page)
+    public function editMod(array $context = []): void
     {
-      $result = $this->WIdb->select("SELECT `edit_page_mod` FROM `wi_pages` WHERE `page_name` =:page", array("page" => $page,));
-        if(count($result) < 1)
-        {
-            echo "No Page Found.";
-        }
-        else{
-           echo $result[0]["edit_page_mod"];
-        }
-
+        $this->adminPanel('Support module', 'Member support centre module.');
     }
 
-    public function mod_name($module, $page)
+    public function editPageContent(string|int $page = 'support', array $context = []): void
     {
-        echo '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 bg-index">';
-        if(isset($page)){
-        $left_sidePower = $this->Web->pageModPower($page, "left_sidebar");
-        $leftSideBar = $this->Web->PageMod($page, "left_sidebar");
-         if ($left_sidePower > 0) {
-      $this->mod->getMod($leftSideBar);
-      echo '<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">';
-    }else{
-      echo '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">';
+        $this->adminPanel('Support page content', 'Support content is rendered from reusable cards and shared issue-reporting routes.');
     }
 
+    public function mod_name(string $module = 'support', string $page = 'support', array $payload = []): void
+    {
+        $this->openShell($page);
+        echo '<section class="wi-profile-hero wi-profile-hero--compact"><div class="wi-profile-hero__content"><p class="wi-kicker">Support</p><h2>Support centre</h2><p>Get help with your account, profile workspace, forms, training or compliance access.</p></div></section>';
+        echo '<section class="wi-member-grid wi-member-grid--cards">';
+        $this->card('Report an issue', 'Tell us about a bug, broken page or missing workflow.', '../WIAdmin/bug-reporter.php', 'Open reporter');
+        $this->card('Account help', 'Need help with login, profile details or access?', 'account.php', 'Open account');
+        $this->card('Member help', 'Open your member workspace and account tools.', '../WIMembers/profile.php', 'Open profile');
+        echo '</section>';
+        $this->closeShell();
     }
 
-        echo '<div class="container-fluid text-center bg-index">    
-    <div class="row content">
+    private function card(string $title, string $body, string $href, string $button): void
+    {
+        echo '<article class="wi-member-card wi-action-card"><h3>' . wi_e($title) . '</h3><p>' . wi_e($body) . '</p><a href="' . wi_e($href) . '">' . wi_e($button) . '</a></article>';
+    }
 
-    <div class="col-lg-12 col-md-12 col-sm-12" >';
-    $this->support->support();
-     echo '</div>
-     <script type="text/javascript" src="WICore/WIJ/WISupport.js"></script>';
-        
+    private function openShell(string $page): void
+    {
+        $modules = new WIModules();
+        echo '<div class="wi-member-shell">';
+        $modules->renderComponent('member_sidebar', ['page' => $page]);
+        echo '<main class="wi-member-main">';
+        $modules->renderComponent('member_topbar', ['page' => $page]);
+    }
 
-      if(isset($page)){         
-        $right_sidePower = $this->Web->pageModPower($page, "right_sidebar");
-        $rightSideBar = $this->Web->PageMod($page, "right_sidebar");
-        //echo $Panel;
-        if ($right_sidePower>0) {
+    private function closeShell(): void
+    {
+        echo '</main></div>';
+    }
 
-            $this->mod->getMod($rightSideBar);
-        }
-
-        }           
-                    
-
-    echo "</div>
-            </div></div>";
-    }  
+    private function adminPanel(string $title, string $body): void
+    {
+        echo '<section class="wi-admin-module-editor"><h2>' . wi_e($title) . '</h2><p>' . wi_e($body) . '</p></section>';
+    }
 }

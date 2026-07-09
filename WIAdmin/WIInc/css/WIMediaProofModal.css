@@ -1,0 +1,379 @@
+/*
+ * File Information
+ * ----------------
+ * Written By: WI Labs
+ * Company: WI Labs
+ * Product: WICMS / WICOS
+ * Project: WIMedia Shared Proof System
+ * File: WIMediaProofModal.css
+ * Location: root/WIAdmin/WIInc/css/WIMediaProofModal.css
+ * Type: CSS
+ * Layer: Shared Admin Media UI
+ * Purpose Area: WIMedia Proof Modal Styling
+ * Version: 1.0.0
+ * Created: 2026-05-14
+ * Last Updated: 2026-05-14
+ * Status: Production-ready first pass
+ */
+
+.wi-media-proof-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 10px;
+    padding: 9px 13px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #f8fafc;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.wi-media-proof-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(56, 189, 248, 0.8);
+    background: rgba(15, 23, 42, 0.96);
+}
+
+.wi-media-proof-btn--primary {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(37, 99, 235, 0.95));
+    border-color: rgba(125, 211, 252, 0.65);
+}
+
+.wi-media-proof-btn--danger {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(153, 27, 27, 0.95));
+    border-color: rgba(252, 165, 165, 0.65);
+}
+
+.wi-media-proof-btn--sm {
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+.wi-media-proof-btn--lg {
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.wi-media-proof-btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wi-media-proof-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+}
+
+.wi-media-proof-modal.is-open {
+    display: block;
+}
+
+.wi-media-proof-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.76);
+    backdrop-filter: blur(5px);
+}
+
+.wi-media-proof-modal__dialog {
+    position: relative;
+    width: min(720px, calc(100vw - 28px));
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    margin: 20px auto;
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 18px;
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+}
+
+.wi-media-proof-modal__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.wi-media-proof-modal__title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.wi-media-proof-modal__subtitle {
+    margin: 6px 0 0;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+.wi-media-proof-modal__close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #f8fafc;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.wi-media-proof-modal__body {
+    padding: 20px;
+}
+
+.wi-media-proof-modal__status {
+    min-height: 22px;
+    margin-bottom: 14px;
+    color: #93c5fd;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.wi-media-proof-modal__options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.wi-media-proof-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-height: 96px;
+    padding: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 15px;
+    background: rgba(30, 41, 59, 0.68);
+    color: #f8fafc;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.wi-media-proof-option:hover {
+    transform: translateY(-1px);
+    border-color: rgba(56, 189, 248, 0.75);
+    background: rgba(30, 41, 59, 0.95);
+}
+
+.wi-media-proof-option__icon {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(14, 165, 233, 0.14);
+    font-size: 20px;
+}
+
+.wi-media-proof-option strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.wi-media-proof-option small {
+    display: block;
+    color: #cbd5e1;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.wi-media-proof-modal__camera {
+    margin: 16px 0;
+    padding: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    background: rgba(2, 6, 23, 0.45);
+}
+
+.wi-media-proof-modal__video {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    border-radius: 14px;
+    background: #020617;
+}
+
+.wi-media-proof-modal__camera-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.wi-media-proof-modal__button {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: rgba(30, 41, 59, 0.95);
+    color: #f8fafc;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.wi-media-proof-modal__button--primary {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(37, 99, 235, 0.95));
+    border-color: rgba(125, 211, 252, 0.65);
+}
+
+.wi-media-proof-modal__attached {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.wi-media-proof-modal__attached h4 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+
+.wi-media-proof-empty {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.wi-media-proof-attached-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.62);
+}
+
+.wi-media-proof-attached-item strong {
+    display: block;
+    font-size: 13px;
+}
+
+.wi-media-proof-attached-item small {
+    display: block;
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.wi-media-proof-attached-item button {
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    border-radius: 9px;
+    padding: 7px 10px;
+    background: rgba(127, 29, 29, 0.35);
+    color: #fecaca;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.wi-media-proof-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #cbd5e1;
+    font-size: 12px;
+}
+
+.wi-media-proof-modal.is-busy .wi-media-proof-modal__dialog {
+    cursor: progress;
+}
+
+@media (max-width: 720px) {
+    .wi-media-proof-modal__options {
+        grid-template-columns: 1fr;
+    }
+
+    .wi-media-proof-modal__dialog {
+        margin: 12px auto;
+        max-height: calc(100vh - 24px);
+    }
+}
+
+
+
+.wi-media-proof-modal__library {
+    margin: 16px 0;
+    padding: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    background: rgba(2, 6, 23, 0.38);
+}
+
+.wi-media-proof-modal__library-head {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.wi-media-proof-modal__library-head input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #f8fafc;
+}
+
+.wi-media-proof-modal__library-head button,
+.wi-media-proof-library-item button,
+.wi-media-proof-attached-actions button {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 9px;
+    padding: 7px 10px;
+    background: rgba(30, 41, 59, 0.95);
+    color: #f8fafc;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.wi-media-proof-library-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.62);
+}
+
+.wi-media-proof-library-item strong {
+    display: block;
+    font-size: 13px;
+}
+
+.wi-media-proof-library-item small {
+    display: block;
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.wi-media-proof-attached-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.wi-media-proof-attached-actions button[data-wimedia-proof-detach] {
+    border-color: rgba(248, 113, 113, 0.4);
+    background: rgba(127, 29, 29, 0.35);
+    color: #fecaca;
+}

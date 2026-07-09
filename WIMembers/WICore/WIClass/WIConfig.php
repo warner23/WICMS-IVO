@@ -1,220 +1,222 @@
 <?php
-
-include_once dirname(dirname(dirname(dirname(__FILE__)))) . '/WIAdmin/WICore/WILib.php';
-
-include_once dirname(dirname(dirname(dirname(__FILE__)))) . '/WIAdmin/WICore/WIMemberLib.php';
-
-date_default_timezone_set('UTC');
-
-//Bootstrap
-
-define('BOOTSTRAP_VERSION', $bootstrap_version);
-
-
-//WEBSITE
-
-define('WEBSITE_NAME', $webName);
-
-define('WEBSITE_DOMAIN', $domain);
-
-
-//it can be the same as domain (if script is placed on website's root folder) 
-//or it can cotain path that include subfolders, if script is located in some subfolder and not in root folder
-define('SCRIPT_URL', $script);
-
-//DATABASE CONFIGURATION
-define('DB_HOST', $dbhost); 
-
-define('DB_TYPE', $dbtype); 
-
-define('DB_USER', $dbusername); 
-
-define('DB_PASS', $dbpass); 
-
-define('DB_NAME', $dbname); 
-
-
-//SESSION CONFIGURATION
-
-define('SESSION_SECURE', $session);   
-
-define('SESSION_HTTP_ONLY', $http);
-
-define('SESSION_REGENERATE_ID', $regenerate);   
-
-define('SESSION_USE_ONLY_COOKIES', $cookie);
-
-
-//LOGIN CONFIGURATION
-
-define('LOGIN_MAX_LOGIN_ATTEMPTS', $loginAttemp); 
-
-define('LOGIN_FINGERPRINT', $loginFinger); 
-
-define('SUCCESS_LOGIN_REDIRECT', serialize(array( 'default' => "WIMembers/profile.php" ))); 
-
-
-//PASSWORD CONFIGURATION
-
-define('PASSWORD_ENCRYPTION', $encryption); //available values: "sha512", "bcrypt"
-
-define('PASSWORD_BCRYPT_COST', $bcrypt); 
-
-define('PASSWORD_SHA512_ITERATIONS', $sha512); 
-
-define('PASSWORD_SALT', $salt); //22 characters to be appended on first 7 characters that will be generated using PASSWORD_ info above
-
-define('PASSWORD_RESET_KEY_LIFE', $keylife); 
-
-
-//REGISTRATION CONFIGURATION
-
-define('MAIL_CONFIRMATION_REQUIRED', $mailConfirm); 
-
-define('REGISTER_CONFIRM', $regConfirm); 
-
-define('REGISTER_PASSWORD_RESET', $passReset); 
-
-
-//EMAIL SENDING CONFIGURATION
-
-define('MAILER', $mail); // available options are 'mail' for php mail() and 'smtp' for using SMTP server for sending emails
-
-define('SMTP_HOST', $smpt_host); 
-
-define('SMTP_PORT', $smpt_port); 
-
-define('SMTP_USERNAME', $smpt_username); 
-
-define('SMTP_PASSWORD', $smpt_password); 
-
-define('SMTP_ENCRYPTION', $smpt_encryption); 
-
-
-//SOCIAL LOGIN CONFIGURATION
-
-define('SOCIAL_CALLBACK_URI', $social); 
-
-
-// GOOGLE
-
-define('GOOGLE_ENABLED', $google); 
-
-define('GOOGLE_ID', $google_id); 
-
-define('GOOGLE_SECRET', $google_secret); 
-
-
-// FACEBOOK
-
-define('FACEBOOK_ENABLED', $fb); 
-
-define('FACEBOOK_ID', $fb_id); 
-
-define('FACEBOOK_SECRET', $fb_secret); 
-
-
-// TWITTER
-
-// NOTE: Twitter api for authentication doesn't provide users email address!
-// So, if you email address is strictly required for all users, consider disabling twitter login option.
-
-define('TWITTER_ENABLED', $tw_enabled); 
-
-define('TWITTER_KEY', $tw_key); 
-
-define('TWITTER_SECRET', $tw_secret); 
-
-
-// TRANSLATION
-
-define('DEFAULT_LANGUAGE', $default_lang); 
-
-// VERSION 
-define('WICMS_VERSION', $version);
-
-
-//membership paypal
-
-//SHOP
-define('SHOP_NAME',$shop_name);
-
-define('BUSINESS_EMAIL', $business_email );
-
-define('PAYPAL_CALLBACK', $paypal_callback);
-
-define('PAYPAL_CANCEL_URL', $cancel_url);
-
-define('PAYPAL_NOTIFY_URL', $notify_url);
-
-define("BASE_URL", $base_url);
-
-define('PAYPAL_PRO',$paypal_pro );
-
-define('CURRENCY',$currency);
-
-define('CURRENCY_SYMBOL',$currency_symbol);
-
-define('CURRENT_URL', $current_url);
-
-define('PAYPAL_ENVIRONMENT', $paypal_environment);
-
-if(PAYPAL_PRO){
-	define("PAYPAL_CLIENT_ID", $paypal_id) ;
-	define("PAYPAL_SECRET", $paypal_secret);
-	define("PAYPAL_BASE_URL", $paypal_pro_base_url);
+declare(strict_types=1);
+
+/**
+ * File Information
+ * Written By: Jules Warner / Warner Infinity
+ * Company: Warner Infinity
+ * Product: WICMS
+ * Project: WIMembers / WIProfile
+ * File: WIConfig.php
+ * Location: WIMembers/WICore/WIClass/
+ * Type: Configuration
+ * Layer: Core
+ * Purpose Area: WIMembers root-style configuration bootstrap
+ * Version: 1.0.1
+ * Created: 2026-06-11
+ * Last Updated: 2026-06-11
+ * Status: Active
+ *
+ * Summary:
+ * Root-style WIMembers config loader. This mirrors the canonical root
+ * WICore/WIClass/WIConfig.php structure while resolving the public root from
+ * the WIMembers folder location so .env and shared constants remain aligned.
+ */
+final class WIConfig
+{
+    private static bool $loaded = false;
+    private static array $env = [];
+
+    public static function load(): void
+    {
+        if (self::$loaded) {
+            return;
+        }
+
+        // Set this first to prevent recursive re-entry via env().
+        self::$loaded = true;
+
+        $rootPath = self::publicRootPath();
+
+        if (!defined('ROOT_PATH')) {
+            define('ROOT_PATH', $rootPath);
+        }
+
+        $candidateFiles = [
+            $rootPath . '/.env',
+            dirname(__DIR__, 2) . '/.env',
+        ];
+
+        foreach ($candidateFiles as $file) {
+            if (is_file($file) && is_readable($file)) {
+                self::loadEnvFile($file);
+                break;
+            }
+        }
+
+        self::defineCoreConstants();
+    }
+
+    public static function env(string $key, mixed $default = null): mixed
+    {
+        self::load();
+
+        if (array_key_exists($key, self::$env)) {
+            return self::$env[$key];
+        }
+
+        $serverValue = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+        if ($serverValue !== false && $serverValue !== null) {
+            return $serverValue;
+        }
+
+        return $default;
+    }
+
+    private static function publicRootPath(): string
+    {
+        if (defined('WI_PUBLIC_ROOT_DIR')) {
+            return rtrim((string) WI_PUBLIC_ROOT_DIR, '/\\');
+        }
+
+        if (defined('ROOT_PATH')) {
+            return rtrim((string) ROOT_PATH, '/\\');
+        }
+
+        // __DIR__ = /WIMembers/WICore/WIClass, so level 3 is the public root.
+        return dirname(__DIR__, 3);
+    }
+
+    private static function loadEnvFile(string $file): void
+    {
+        $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        if (!is_array($lines)) {
+            return;
+        }
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            if (!str_contains($line, '=')) {
+                continue;
+            }
+
+            [$key, $value] = explode('=', $line, 2);
+
+            $key = trim($key);
+            $value = trim($value);
+
+            if ($key === '') {
+                continue;
+            }
+
+            $value = self::normalizeEnvValue($value);
+
+            self::$env[$key] = $value;
+            $_ENV[$key] = (string) $value;
+            $_SERVER[$key] = (string) $value;
+
+            if (function_exists('putenv')) {
+                putenv($key . '=' . $value);
+            }
+        }
+    }
+
+    private static function normalizeEnvValue(string $value): mixed
+    {
+        $value = trim($value);
+
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+            (str_starts_with($value, "'") && str_ends_with($value, "'"))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+
+        $lower = strtolower($value);
+
+        return match ($lower) {
+            'true' => true,
+            'false' => false,
+            'null' => null,
+            'empty' => '',
+            default => $value,
+        };
+    }
+
+    private static function defineCoreConstants(): void
+    {
+        self::defineIfMissing('APP_ENV', (string) self::env('APP_ENV', 'local'));
+        self::defineIfMissing('APP_DEBUG', self::toBool(self::env('APP_DEBUG', true)));
+        self::defineIfMissing('APP_KEY', (string) self::env('APP_KEY', ''));
+
+        self::defineIfMissing('DB_HOST', (string) self::env('DB_HOST', 'localhost'));
+        self::defineIfMissing('DB_NAME', (string) self::env('DB_NAME', ''));
+        self::defineIfMissing('DB_USER', (string) self::env('DB_USER', 'root'));
+        self::defineIfMissing('DB_PASS', (string) self::env('DB_PASS', ''));
+        self::defineIfMissing('DB_PORT', (string) self::env('DB_PORT', '3306'));
+        self::defineIfMissing('DB_TYPE', (string) self::env('DB_TYPE', 'mysql'));
+
+        self::defineIfMissing('SESSION_NAME', (string) self::env('SESSION_NAME', 'WICMSSESSID'));
+        self::defineIfMissing('SESSION_SAMESITE', (string) self::env('SESSION_SAMESITE', 'Lax'));
+        self::defineIfMissing('SESSION_IDLE_TIMEOUT', (int) self::env('SESSION_IDLE_TIMEOUT', 1800));
+        self::defineIfMissing('SESSION_ABSOLUTE_TIMEOUT', (int) self::env('SESSION_ABSOLUTE_TIMEOUT', 28800));
+
+        self::defineIfMissing('CSRF_TOKEN_TTL', (int) self::env('CSRF_TOKEN_TTL', 7200));
+
+        // Legacy site constants used by older panels/modules. WI.php later
+        // refreshes from WISite where available, but these prevent early fatals.
+        self::defineIfMissing('WEBSITE_NAME', (string) self::env('WEBSITE_NAME', 'WICMS'));
+        self::defineIfMissing('WEBSITE_DOMAIN', (string) self::env('WEBSITE_DOMAIN', 'localhost'));
+        self::defineIfMissing('WEBSITE_URL', (string) self::env('WEBSITE_URL', 'http://localhost'));
+        self::defineIfMissing('CONTACT_EMAIL', (string) self::env('CONTACT_EMAIL', ''));
+        self::defineIfMissing('DEFAULT_LANGUAGE', (string) self::env('DEFAULT_LANGUAGE', 'en'));
+        self::defineIfMissing('MULTI_LANGUAGE', (string) self::env('MULTI_LANGUAGE', 'false'));
+        self::defineIfMissing('WICMS_VERSION', (string) self::env('WICMS_VERSION', '1.0.0'));
+
+        self::defineIfMissing('PASSWORD_BCRYPT_COST', (int) self::env('PASSWORD_BCRYPT_COST', 12));
+        self::defineIfMissing('LOGIN_MAX_LOGIN_ATTEMPTS', (int) self::env('LOGIN_MAX_LOGIN_ATTEMPTS', 5));
+
+        // Social-login compatibility constants used by legacy modules such as panel.
+        // Keep these as string flags because existing module code checks === "true".
+        self::defineIfMissing('TWITTER_ENABLED', self::socialFlagString(self::env('TWITTER_ENABLED', 'false')));
+        self::defineIfMissing('FACEBOOK_ENABLED', self::socialFlagString(self::env('FACEBOOK_ENABLED', 'false')));
+        self::defineIfMissing('GOOGLE_ENABLED', self::socialFlagString(self::env('GOOGLE_ENABLED', 'false')));
+    }
+
+    private static function socialFlagString(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, ['1', 'true', 'yes', 'on'], true) ? 'true' : 'false';
+    }
+
+    private static function defineIfMissing(string $name, mixed $value): void
+    {
+        if (!defined($name)) {
+            define($name, $value);
+        }
+    }
+
+    private static function toBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $filtered = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        return $filtered ?? false;
+    }
 }
-else{
-	define("PAYPAL_CLIENT_ID", $paypal_id);
-	define("PAYPAL_SECRET", $paypal_secret);
-	define("PAYPAL_BASE_URL", $paypal_base_url);
-}
 
-
-define("PAYPAL_ACCESS_TOKEN", "A21AAGGnlDrmEJhYh3z4DxtsQm2BV_DdyYrZJp7y6EbRlujb7RcC-0_2q2pcmsvqjWFmKYCDQNN07jDj2fWqi2B5x6keNO1bw");
-
-define("API_VERSION", "V2");
-
-define("URL", array(
-
-    "current" => CURRENT_URL,
-
-    "services" => array(
-        "orderCreate" => BASE_URL.'WICore/WIVendor/paypal/' . API_VERSION.'/api/createOrder.php',
-        "orderGet" => BASE_URL.'WICore/WIVendor/paypal/' . API_VERSION.'/api/getOrderDetails.php',
-		"orderPatch" => BASE_URL.'WICore/WIVendor/paypal/' . API_VERSION.'/api/patchOrder.php',
-		"orderCapture" => BASE_URL.'WICore/WIVendor/paypal/' . API_VERSION.'/api/captureOrder.php'
-    ),
-
-	"redirectUrls" => array(
-        "returnUrl" => BASE_URL.'success.php',
-		"cancelUrl" => BASE_URL.'cancel.php',
-    )
-));
-
-define("PAYPAL_ENDPOINTS", array(
-	"sandbox" => "https://api.sandbox.paypal.com",
-	"production" => "https://api.paypal.com"
-));
-
-// PayPal REST API version
-define("PAYPAL_REST_VERSION", "v2");
-
-// ButtonSource Tracker Code
-define("SBN_CODE", "sb-ubere2307035@personal.example.com");
-
-
-define("PAYPAL_CREDENTIALS", array(
-	"sandbox" => [
-		"client_id" => $paypal_id,
-		"client_secret" => $paypal_secret
-	],
-	"production" => [
-		"client_id" => "",
-		"client_secret" => ""
-	]
-));
-
-
-define("VAT", $VAT);
-
+WIConfig::load();

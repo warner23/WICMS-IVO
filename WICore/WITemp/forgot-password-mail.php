@@ -1,12 +1,14 @@
 <p>A request has been made to reset your password.</p>
 
-<p>Please click on this link below in order to reset your password:</p>
+<p>Please click the link below to reset your password:</p>
 
-{{linkage}} <br/><br/>
+<p>{{linkage}}</p>
 
-<p>If you can't click on that link, just copy and paste following url in your browser's address bar:</p>
+<p>If you cannot click the link, copy and paste this URL into your browser:</p>
 
+<p>{{url}}</p>
 
+<p>If you did not request this password reset, you can ignore this email.</p>
 
-Many Thanks, <br/>
+Many Thanks,<br>
 {{website_name}}

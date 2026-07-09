@@ -1,55 +1,54 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* 
-*/
-class admindash
+declare(strict_types=1);
+
+class admincompdash
 {
-    function __construct()
+    protected WIPage $page;
+    protected WIModules $mod;
+    protected WIBootStrap $Boot;
+    protected WIDashboard $dash;
+
+    public function __construct()
     {
-        $this->WIdb = WIdb::getInstance();
-        $this->Web  = new WIWebsite();
-        $this->site = new WISite();
-        $this->mod  = new WIModules();
         $this->page = new WIPage();
-        $this->Boot = new WIBootstrap();
-        $this->dash  = new WIDashboard();
+        $this->mod = new WIModules();
+        $this->Boot = new WIBootStrap();
+        $this->dash = new WIDashboard();
     }
 
-    public function editMod()
+    public function Install(): void
     {
-        
-    $this->Web->EditModTemp();
-     $result = $this->WIdb->select("SELECT `edit_page_mod` FROM `wi_pages` WHERE `page_name` =:page", array("page" => $page,));
-        if(count($result) < 1)
-        {
-            echo "No Page Found.";
+        if (!method_exists($this->page, 'pageExists') || !method_exists($this->page, 'newPage')) {
+            return;
         }
-        else{
-           echo $result[0]["edit_page_mod"];
+
+        if ($this->page->pageExists('admincompdash')) {
+            return;
         }
- 
+
+        $this->page->newPage('admincompdash');
     }
 
-    public function editPageContent($page)
+    private function renderDashboardPage(string $page): void
     {
-      $result = $this->WIdb->select("SELECT `edit_page_mod` FROM `wi_pages` WHERE `page_name` =:page", array("page" => $page,));
-        if(count($result) < 1)
-        {
-            echo "No Page Found.";
-        }
-        else{
-           echo $result[0]["edit_page_mod"];
-        }
+        $this->Boot->startMod($page);
+        $this->Boot->startContentsHolder();
 
+        $this->dash->dashboard();
+
+        $this->Boot->endContentsHolder();
+        $this->Boot->endMod($page);
     }
 
-    public function mod_name($page)
+    public function editPageContent($page): void
     {
-       $this->Boot->startMod($page);
-       $this->Boot->startContentsHolder();
-       $this->dash->dashboard();
-       $this->Boot->endContentsHolder();  
-       $this->Boot->endMod($page);
-    }  
+        $safePage = is_scalar($page) ? (string) $page : 'admincompdash';
+        $this->renderDashboardPage($safePage);
+    }
+
+    public function mod_name($page): void
+    {
+        $safePage = is_scalar($page) ? (string) $page : 'admincompdash';
+        $this->renderDashboardPage($safePage);
+    }
 }

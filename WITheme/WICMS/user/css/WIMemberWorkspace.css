@@ -1,0 +1,307 @@
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| File: WIMemberWorkspace.css
+| Location: /WIMembers/WICore/WICSS/WIMemberWorkspace.css
+| Type: Stylesheet
+| Layer: Front-Side UI
+| Purpose Area: Adaptive Member Workspace
+| Version: 1.0.0
+| Created: 2026-05-08
+| Last Updated: 2026-05-08
+| Status: Active
+| Batch: MB-01 — WIMembers Adaptive Workspace Shell
+|--------------------------------------------------------------------------
+*/
+
+:root {
+    --wi-bg: #07111f;
+    --wi-panel: #0b1729;
+    --wi-panel-soft: #101f34;
+    --wi-border: rgba(148, 163, 184, 0.2);
+    --wi-text: #e8eef8;
+    --wi-muted: #9fb0c7;
+    --wi-blue: #38bdf8;
+    --wi-green: #22c55e;
+    --wi-amber: #f59e0b;
+    --wi-red: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--wi-bg);
+    color: var(--wi-text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.wi-member-workspace {
+    min-height: 100vh;
+    padding: 26px;
+}
+
+.wi-member-loading,
+.wi-workspace-empty {
+    max-width: 760px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 24px;
+    background: var(--wi-panel);
+    border: 1px solid var(--wi-border);
+    text-align: center;
+}
+
+.wi-workspace-empty h1 {
+    margin: 0 0 10px;
+}
+
+.wi-workspace-empty p {
+    color: var(--wi-muted);
+}
+
+.wi-workspace-empty a {
+    display: inline-flex;
+    margin-top: 12px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: var(--wi-blue);
+    color: #06101d;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.wi-workspace-empty.is-red {
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.wi-workspace-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: center;
+    padding: 30px;
+    border-radius: 26px;
+    border: 1px solid var(--wi-border);
+    background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 34%),
+        linear-gradient(135deg, #0b1729, #101f34);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
+}
+
+.wi-workspace-kicker {
+    margin: 0 0 8px;
+    color: #7dd3fc;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.wi-workspace-hero h1 {
+    margin: 0;
+    font-size: 36px;
+    line-height: 1.1;
+}
+
+.wi-workspace-hero p {
+    max-width: 720px;
+    margin: 12px 0 0;
+    color: var(--wi-muted);
+}
+
+.wi-workspace-avatar {
+    width: 86px;
+    height: 86px;
+    flex: 0 0 86px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--wi-blue), #6366f1);
+    color: #06101d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.wi-workspace-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wi-workspace-notices {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.wi-workspace-notice {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: var(--wi-panel);
+    border: 1px solid var(--wi-border);
+}
+
+.wi-workspace-notice strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.wi-workspace-notice p {
+    margin: 0;
+    color: var(--wi-muted);
+}
+
+.wi-workspace-notice.is-blue {
+    border-color: rgba(56, 189, 248, 0.32);
+}
+
+.wi-workspace-notice.is-amber {
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.wi-workspace-notice.is-red {
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.wi-workspace-context {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.wi-workspace-context-card {
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--wi-panel);
+    border: 1px solid var(--wi-border);
+}
+
+.wi-workspace-context-card span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--wi-muted);
+    font-size: 12px;
+}
+
+.wi-workspace-context-card strong {
+    display: block;
+    font-size: 15px;
+}
+
+.wi-workspace-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.wi-workspace-card {
+    min-height: 170px;
+    padding: 20px;
+    border-radius: 22px;
+    text-decoration: none;
+    color: var(--wi-text);
+    background: var(--wi-panel);
+    border: 1px solid var(--wi-border);
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.wi-workspace-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.42);
+    background: var(--wi-panel-soft);
+}
+
+.wi-workspace-card span {
+    display: inline-flex;
+    margin-bottom: 16px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.12);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.wi-workspace-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 21px;
+}
+
+.wi-workspace-card p {
+    margin: 0;
+    color: var(--wi-muted);
+}
+
+.wi-workspace-card.is-important {
+    border-color: rgba(56, 189, 248, 0.45);
+}
+
+.wi-workspace-card.is-pending {
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.wi-workspace-links {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 22px;
+    background: var(--wi-panel);
+    border: 1px solid var(--wi-border);
+}
+
+.wi-workspace-links h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.wi-workspace-links div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.wi-workspace-links a {
+    display: inline-flex;
+    padding: 10px 14px;
+    border-radius: 999px;
+    color: #dbeafe;
+    text-decoration: none;
+    background: rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+    .wi-workspace-context,
+    .wi-workspace-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .wi-member-workspace {
+        padding: 16px;
+    }
+
+    .wi-workspace-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wi-workspace-context,
+    .wi-workspace-grid {
+        grid-template-columns: 1fr;
+    }
+}

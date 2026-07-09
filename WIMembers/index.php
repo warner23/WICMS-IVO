@@ -1,93 +1,43 @@
-<?php 
-require 'vendor/PayPal-PHP-SDK/autoload.php';
+<?php
+declare(strict_types=1);
 
-$apiContext = new \PayPal\Rest\ApiContext(
-  new \PayPal\Auth\OAuthTokenCredential(
-    'CLIENT_ID',
-    'CLIENT_SECRET'
-  )
-);
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIProfile / WIMembers
+| Project: WI Ecosystem
+| File: index.php
+| Location: /WIMembers/index.php
+| Type: Legacy Compatibility Route
+| Layer: Front-Side Route Bridge
+| Purpose Area: Redirect old WIMembers URL to canonical root modular page
+| Version: 1.0.0
+| Created: 2026-06-11
+| Last Updated: 2026-06-11
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| WIMembers no longer owns its own page/module bootstrap. Profile/member
+| pages are canonical root modular pages using /WICore/WIClass/WI.php,
+| WIStartUp and WIModules. This file exists only so older links such as
+| /WIMembers/index.php do not boot the legacy duplicated WIMembers core.
+*/
 
-if (!empty($_GET['status'])) {
-    if($_GET['status'] == "success") {
-        $token = $_GET['token'];
-        $agreement = new \PayPal\Api\Agreement();
-        
-        try {
-            // Execute agreement
-            $agreement->execute($token, $apiContext);
-        } catch (PayPal\Exception\PayPalConnectionException $ex) {
-            echo $ex->getCode();
-            echo $ex->getData();
-            die($ex);
-        } catch (Exception $ex) {
-            die($ex);
-        }
-    } else {
-        echo "user canceled agreement";
-    }
+$target = '../profile.php';
+
+if (!headers_sent()) {
+    header('Location: ' . $target, true, 302);
     exit;
 }
 
-if (! empty($_POST["subscribe"])) {
-    require_once "./Service/createPHPTutorialSubscriptionPlan.php";
-}
-
-?>
-<style>
-body {
-    font-family: Arial;
-    color: #212121;
-}
-
-#subscription-plan {
-    padding: 20px;
-    border: #E0E0E0 2px solid;
-    text-align: center;
-    width: 200px;
-    border-radius: 3px;
-    margin: 40px auto;
-}
-
-.plan-info {
-    font-size: 1em;
-}
-
-.plan-desc {
-    margin: 10px 0px 20px 0px;
-    color: #a3a3a3;
-    font-size: 0.95em;
-}
-
-.price {
-    font-size: 1.5em;
-    padding: 30px 0px;
-    border-top: #f3f1f1 1px solid;
-}
-
-.btn-subscribe {
-    padding: 10px;
-    background: #e2bf56;
-    width: 100%;
-    border-radius: 3px;
-    border: #d4b759 1px solid;
-    font-size: 0.95em;
-}
-</style>
-<div id="subscription-plan">
-    <div class="plan-info">PHP jQuery Tutorials</div>
-    <div class="plan-desc">Read tutorials to learn PHP.</div>
-    <div class="price">$49 / month</div>
-
-    <div>
-        <form method="post">
-
-            <input type="hidden" name="plan_name"
-                value="PHP jQuery Tutorials" /> <input type="hidden"
-                name="plan_description"
-                value="Tutorials access to learn PHP with simple examples." />
-            <input type="submit" name="subscribe" value="Subscribe"
-                class="btn-subscribe" />
-        </form>
-    </div>
-</div>
+$escapedTarget = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
+echo '<!doctype html><html lang="en"><head><meta charset="utf-8">';
+echo '<meta http-equiv="refresh" content="0;url=' . $escapedTarget . '">';
+echo '<title>Redirecting</title></head><body>';
+echo '<p>Redirecting to <a href="' . $escapedTarget . '">the profile page</a>.</p>';
+echo '</body></html>';
+exit;

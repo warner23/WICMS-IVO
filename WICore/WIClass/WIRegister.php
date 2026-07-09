@@ -2,9 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Register Class
- * Created by Warner Infinity
- * Author Jules Warner
+ * WICMS Canonical Registration Service
+ * Root core source of truth
  */
 
 class WIRegister
@@ -13,6 +12,11 @@ class WIRegister
     private WIdb $WIdb;
     private ?WIMaintenace $maint;
     private ?WILogin $login;
+    private array $lastResult = [
+        'status' => 'error',
+        'message' => 'Registration not attempted',
+        'errors' => []
+    ];
 
     public function __construct()
     {
@@ -22,74 +26,96 @@ class WIRegister
         $this->login = class_exists('WILogin') ? new WILogin() : null;
     }
 
-    public function register($data): void
+    public function getLastResult(): array
     {
-        $user = $data['UserData'] ?? [];
-        $errors = $this->validateUser($data);
+        return $this->lastResult;
+    }
 
-        if (count($errors) > 0) {
-            echo json_encode([
+    public function register(array $data): array
+    {
+        $normalized = $this->normalizeRegistrationPayload($data);
+        $user = $normalized['UserData'];
+
+        $errors = $this->validateUser($normalized);
+
+        if ($errors !== []) {
+            $this->lastResult = [
                 'status' => 'error',
+                'message' => 'Validation failed',
                 'errors' => $errors
-            ]);
-            return;
+            ];
+
+            return $this->lastResult;
         }
 
-        $key = $this->generateKey();
+        $confirmationKey = $this->generateKey();
         $confirmed = $this->mailConfirmationRequired() ? 'N' : 'Y';
 
         $this->WIdb->insert('wi_members', [
             'email' => trim((string) ($user['email'] ?? '')),
             'username' => trim(strip_tags((string) ($user['username'] ?? ''))),
             'password' => $this->hashPassword((string) ($user['password'] ?? '')),
+            'confirmation_key' => $confirmationKey,
             'confirmed' => $confirmed,
-            'confirmation_key' => $key,
-            'register_date' => date('Y-m-d H:i:s'),
-            'ip_addr' => $_SERVER['REMOTE_ADDR'] ?? null
+            'password_reset_key' => '',
+            'password_reset_confirmed' => 'N',
+            'password_reset_timestamp' => date('Y-m-d H:i:s'),
+            'register_date' => date('Y-m-d'),
+            'ip_addr' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+            'banned' => 'N'
         ]);
 
         $userId = (int) $this->WIdb->lastInsertId();
-
-        $folder = dirname(dirname(dirname(__FILE__))) . '/WIAdmin/WIMedia/Img/avator/' . $userId . '/';
-        if (!is_dir($folder)) {
-            @mkdir($folder, 0755, true);
-        }
-
-        if ($this->maint !== null) {
-            $this->maint->LogFunction((string) ($user['username'] ?? ''), 'Added new user');
-        }
 
         $this->WIdb->insert('wi_user_details', [
             'user_id' => $userId
         ]);
 
-        $msg = WILang::get('success_registration_no_confirm');
+        $this->createUserAvatarFolder($userId);
 
-        if ($this->mailConfirmationRequired()) {
-            $this->mailer->confirmationEmail((string) ($user['email'] ?? ''), $key);
-            $msg = WILang::get('success_registration_with_confirm');
+        if ($this->maint !== null) {
+            $this->maint->LogFunction(
+                (string) ($user['username'] ?? ''),
+                'Added new user'
+            );
         }
 
-        echo json_encode([
+        $message = WILang::get('success_registration_no_confirm');
+
+        if ($this->mailConfirmationRequired()) {
+            $this->mailer->confirmationEmail(
+                (string) ($user['email'] ?? ''),
+                $confirmationKey
+            );
+            $message = WILang::get('success_registration_with_confirm');
+        }
+
+        $this->lastResult = [
             'status' => 'success',
-            'msg' => $msg
-        ]);
+            'message' => $message,
+            'msg' => $message,
+            'user_id' => $userId
+        ];
+
+        return $this->lastResult;
     }
 
     public function getByEmail($email)
     {
         $result = $this->WIdb->select(
-            'SELECT * FROM `wi_members` WHERE `email` = :e',
+            'SELECT * FROM `wi_members` WHERE `email` = :e LIMIT 1',
             ['e' => trim((string) $email)]
         );
 
-        return (count($result) > 0) ? $result[0] : [];
+        return $result[0] ?? [];
     }
 
     public function getBySocial($provider, $id)
     {
         $result = $this->WIdb->select(
-            'SELECT * FROM `wi_social_logins` WHERE `provider` = :p AND `provider_id` = :id',
+            'SELECT * FROM `wi_social_logins`
+             WHERE `provider` = :p AND `provider_id` = :id
+             LIMIT 1',
             [
                 'p' => (string) $provider,
                 'id' => (string) $id
@@ -99,6 +125,7 @@ class WIRegister
         if (count($result) > 0) {
             $res = $result[0];
             $user = new WIUser((int) $res['user_id']);
+
             return $user->getInfo();
         }
 
@@ -107,8 +134,7 @@ class WIRegister
 
     public function registeredViaSocial($provider, $id): bool
     {
-        $result = $this->getBySocial($provider, $id);
-        return !empty($result);
+        return !empty($this->getBySocial($provider, $id));
     }
 
     public function addSocialAccount($userId, $provider, $providerId): void
@@ -124,7 +150,6 @@ class WIRegister
     public function forgotPassword($userEmail)
     {
         $validator = new WIValidator();
-
         $userEmail = trim((string) $userEmail);
 
         if ($userEmail === '') {
@@ -169,8 +194,7 @@ class WIRegister
         $validator = new WIValidator();
 
         if (!$validator->prKeyValid($passwordResetKey)) {
-            echo 'Invalid password reset key!';
-            return;
+            throw new RuntimeException('Invalid password reset key.');
         }
 
         $this->WIdb->update(
@@ -187,12 +211,11 @@ class WIRegister
 
     public function hashPassword($password): string
     {
-        $password = (string) $password;
-        $cost = $this->getPasswordCost();
-
-        return password_hash($password, PASSWORD_BCRYPT, [
-            'cost' => $cost
-        ]);
+        return password_hash(
+            (string) $password,
+            PASSWORD_BCRYPT,
+            ['cost' => $this->getPasswordCost()]
+        );
     }
 
     public function verifyPassword(string $plainPassword, string $storedHash): bool
@@ -212,13 +235,15 @@ class WIRegister
     {
         $info = password_get_info($storedHash);
 
-        if (($info['algo'] ?? 0) === 0) {
+        if (($info['algo'] ?? null) === null || ($info['algo'] ?? 0) === 0) {
             return true;
         }
 
-        return password_needs_rehash($storedHash, PASSWORD_BCRYPT, [
-            'cost' => $this->getPasswordCost()
-        ]);
+        return password_needs_rehash(
+            $storedHash,
+            PASSWORD_BCRYPT,
+            ['cost' => $this->getPasswordCost()]
+        );
     }
 
     public function botProtection(): void
@@ -229,10 +254,12 @@ class WIRegister
 
     public function validateUser($data, $botProtection = false): array
     {
-        $id = $data['FieldId'] ?? [];
-        $user = $data['UserData'] ?? [];
-        $errors = [];
+        $normalized = $this->normalizeRegistrationPayload((array) $data);
+        $id = $normalized['FieldId'];
+        $user = $normalized['UserData'];
+
         $validator = new WIValidator();
+        $errors = [];
 
         $email = trim((string) ($user['email'] ?? ''));
         $username = trim((string) ($user['username'] ?? ''));
@@ -240,40 +267,39 @@ class WIRegister
         $confirmPassword = (string) ($user['confirm_password'] ?? '');
 
         if ($validator->isEmpty($email)) {
-            $errors[] = ['id' => $id['email'] ?? 'email', 'msg' => WILang::get('email_required')];
+            $errors[] = ['id' => $id['email'] ?? 'reg-email', 'msg' => WILang::get('email_required')];
+        } elseif (!$validator->emailValid($email)) {
+            $errors[] = ['id' => $id['email'] ?? 'reg-email', 'msg' => WILang::get('email_wrong_format')];
+        } elseif ($validator->emailExist($email)) {
+            $errors[] = ['id' => $id['email'] ?? 'reg-email', 'msg' => WILang::get('email_taken')];
         }
 
         if ($validator->isEmpty($username)) {
-            $errors[] = ['id' => $id['username'] ?? 'username', 'msg' => WILang::get('username_required')];
+            $errors[] = ['id' => $id['username'] ?? 'reg-username', 'msg' => WILang::get('username_required')];
+        } elseif ($validator->usernameExist($username)) {
+            $errors[] = ['id' => $id['username'] ?? 'reg-username', 'msg' => WILang::get('username_taken')];
         }
 
         if ($validator->isEmpty($password)) {
-            $errors[] = ['id' => $id['password'] ?? 'password', 'msg' => WILang::get('password_required')];
+            $errors[] = ['id' => $id['password'] ?? 'reg-password', 'msg' => WILang::get('password_required')];
+        } elseif (mb_strlen($password) < 8) {
+            $errors[] = ['id' => $id['password'] ?? 'reg-password', 'msg' => WILang::get('password_length')];
         }
 
-        if ($password !== $confirmPassword) {
-            $errors[] = ['id' => $id['confirm_password'] ?? 'confirm_password', 'msg' => WILang::get('passwords_dont_match')];
-        }
-
-        if (!$validator->emailValid($email)) {
-            $errors[] = ['id' => $id['email'] ?? 'email', 'msg' => WILang::get('email_wrong_format')];
-        }
-
-        if ($validator->emailExist($email)) {
-            $errors[] = ['id' => $id['email'] ?? 'email', 'msg' => WILang::get('email_taken')];
-        }
-
-        if ($validator->usernameExist($username)) {
-            $errors[] = ['id' => $id['username'] ?? 'username', 'msg' => WILang::get('username_taken')];
+        if ($confirmPassword === '') {
+            $errors[] = ['id' => $id['confirm_password'] ?? 'reg-repeat-password', 'msg' => WILang::get('password_required')];
+        } elseif ($password !== $confirmPassword) {
+            $errors[] = ['id' => $id['confirm_password'] ?? 'reg-repeat-password', 'msg' => WILang::get('passwords_dont_match')];
         }
 
         if ($botProtection) {
             $botOne = (int) WISession::get('bot_first_number', 0);
             $botTwo = (int) WISession::get('bot_second_number', 0);
-            $sum = $botOne + $botTwo;
+            $expectedSum = $botOne + $botTwo;
+            $providedSum = (int) ($user['bot_sum'] ?? 0);
 
-            if ($sum !== (int) ($user['bot_sum'] ?? 0)) {
-                $errors[] = ['id' => $id['bot_sum'] ?? 'bot_sum', 'msg' => WILang::get('wrong_sum')];
+            if ($expectedSum !== $providedSum) {
+                $errors[] = ['id' => $id['bot_sum'] ?? 'reg-bot-sum', 'msg' => WILang::get('wrong_sum')];
             }
         }
 
@@ -298,81 +324,28 @@ class WIRegister
         return bin2hex(random_bytes(20));
     }
 
-    public function registerForm(): void
+    private function normalizeRegistrationPayload(array $data): array
     {
-        echo '<div class="col-sm-2"></div><div class="col-sm-8">';
+        $userData = $data['UserData'] ?? $data['userData'] ?? [];
+        $fieldId = $data['FieldId'] ?? $data['fieldId'] ?? [];
 
-        if ($this->login && $this->login->isLoggedIn()) {
-            header('Location: index.php');
-            exit;
+        return [
+            'UserData' => is_array($userData) ? $userData : [],
+            'FieldId' => is_array($fieldId) ? $fieldId : []
+        ];
+    }
+
+    private function createUserAvatarFolder(int $userId): void
+    {
+        if ($userId <= 0) {
+            return;
         }
 
-        echo '<div class="card bg-light">
-        <article class="card-body mx-auto" style="max-width: 400px;">
-            <h4 class="card-title mt-3 text-center">Create Account</h4>';
+        $folder = dirname(dirname(dirname(__FILE__))) . '/WIAdmin/WIMedia/Img/avator/' . $userId . '/';
 
-        if ($this->socialEnabled('twitter')) {
-            echo '<a href="WICore/WIVendor/Hybridauth/index.php?p=twitter&token=' . WISession::get('WI_social_token') . '" class="btn btn-block btn-twitter"><i class="fa fa-twitter"></i> Login via Twitter</a>';
+        if (!is_dir($folder)) {
+            @mkdir($folder, 0755, true);
         }
-
-        if ($this->socialEnabled('google')) {
-            echo '<a href="WICore/WIVendor/Hybridauth/index.php?p=google&token=' . WISession::get('WI_social_token') . '" class="btn btn-block btn-googleplus"><i class="fa fa-googleplus"></i> Login via Google</a>';
-        }
-
-        if ($this->socialEnabled('facebook')) {
-            echo '<a href="WICore/WIVendor/Hybridauth/index.php?p=facebook&token=' . WISession::get('WI_social_token') . '" class="btn btn-block btn-facebook"><i class="fa fa-facebook-f"></i> Login via Facebook</a>';
-        }
-
-        echo '</p>
-        <p class="divider-text"><span class="bg-light">OR</span></p>
-        <form class="form-horizontal register-form">
-            <fieldset>
-                <div class="control-group form-group">
-                    <label class="control-label col-lg-2 col-md-2 col-sm-2 col-xs-2" for="reg-email">
-                        <span class="input-group-text"><i class="fa fa-envelope" title="email"></i></span>
-                    </label>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                        <input type="text" id="reg-email" class="input-xlarge form-control regular" placeholder="Email">
-                    </div>
-                </div>
-
-                <div class="control-group form-group">
-                    <label class="control-label col-lg-2 col-md-2 col-sm-2 col-xs-2" for="reg-username">
-                        <span class="input-group-text"><i class="fa fa-user" title="user"></i></span>
-                    </label>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                        <input type="text" id="reg-username" class="input-xlarge form-control regular" placeholder="Username">
-                    </div>
-                </div>
-
-                <div class="control-group form-group">
-                    <label class="control-label col-lg-2 col-md-2 col-sm-2 col-xs-2" for="reg-password">
-                        <span class="input-group-text"><i class="fa fa-lock" title="password"></i></span>
-                    </label>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                        <input type="password" id="reg-password" class="input-xlarge form-control regular" placeholder="Password">
-                    </div>
-                </div>
-
-                <div class="control-group form-group">
-                    <label class="control-label col-lg-2 col-md-2 col-sm-2 col-xs-2" for="reg-repeat-password">
-                        <span class="input-group-text"><i class="fa fa-lock" title="repeat password"></i></span>
-                    </label>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                        <input type="password" id="reg-repeat-password" class="input-xlarge form-control regular" placeholder="Repeat Password">
-                    </div>
-                </div>
-
-                <div class="control-group form-group">
-                    <div class="col-lg-12 col-md-8 col-sm-8 col-xs-8">
-                        <button id="btn-register" class="btn btn-primary btn-block">' . WILang::get('create_account') . '</button>
-                    </div>
-                    <p id="regmess" class="text-center">Have an account? <a href="login.php">Log In</a></p>
-                </div>
-            </fieldset>
-        </form>
-        </article>
-        </div>';
     }
 
     private function generateKey(): string
@@ -389,14 +362,14 @@ class WIRegister
         try {
             $settings = new WISettings();
 
-            $fromBcryptCost = (int) $settings->website('bcrypt_cost');
-            if ($fromBcryptCost > 0) {
-                return max(10, $fromBcryptCost);
+            $bcryptCost = (int) $settings->website('bcrypt_cost');
+            if ($bcryptCost > 0) {
+                return max(10, $bcryptCost);
             }
 
-            $fromLegacyCost = (int) $settings->website('cost');
-            if ($fromLegacyCost > 0) {
-                return max(10, $fromLegacyCost);
+            $legacyCost = (int) $settings->website('cost');
+            if ($legacyCost > 0) {
+                return max(10, $legacyCost);
             }
         } catch (Throwable $e) {
         }
@@ -469,33 +442,9 @@ class WIRegister
 
         try {
             $settings = new WISettings();
+
             return filter_var(
                 (string) $settings->website('mail_confirm_required'),
-                FILTER_VALIDATE_BOOLEAN
-            );
-        } catch (Throwable $e) {
-            return false;
-        }
-    }
-
-    private function socialEnabled(string $provider): bool
-    {
-        $provider = strtolower($provider);
-
-        $constantMap = [
-            'twitter' => 'TWITTER_ENABLED',
-            'google' => 'GOOGLE_ENABLED',
-            'facebook' => 'FACEBOOK_ENABLED',
-        ];
-
-        if (isset($constantMap[$provider]) && defined($constantMap[$provider])) {
-            return filter_var((string) constant($constantMap[$provider]), FILTER_VALIDATE_BOOLEAN);
-        }
-
-        try {
-            $settings = new WISettings();
-            return filter_var(
-                (string) $settings->website($provider . '_enabled'),
                 FILTER_VALIDATE_BOOLEAN
             );
         } catch (Throwable $e) {

@@ -1,0 +1,155 @@
+/* WICMS public cookie consent */
+.wi-cookie-consent{--wi-cookie-primary:#2563eb;--wi-cookie-bg:#ffffff;--wi-cookie-text:#111827;position:fixed;z-index:2147483000;color:var(--wi-cookie-text);font-family:inherit}.wi-cookie-consent[hidden]{display:none!important}.wi-cookie--top{top:16px;left:16px;right:16px}.wi-cookie--bottom{bottom:16px;left:16px;right:16px}.wi-cookie--floating-left{bottom:20px;left:20px;max-width:560px}.wi-cookie--floating-right{bottom:20px;right:20px;max-width:560px}.wi-cookie--modal{inset:0;display:grid;place-items:center;background:rgba(15,23,42,.55);padding:18px}.wi-cookie-card{background:var(--wi-cookie-bg);border:1px solid rgba(148,163,184,.35);border-radius:22px;box-shadow:0 22px 70px rgba(15,23,42,.2);padding:20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;max-width:1180px;margin:0 auto}.wi-cookie--floating-left .wi-cookie-card,.wi-cookie--floating-right .wi-cookie-card,.wi-cookie--modal .wi-cookie-card{grid-template-columns:1fr}.wi-cookie--dark{--wi-cookie-bg:#101827;--wi-cookie-text:#f8fafc}.wi-cookie--dark .wi-cookie-card{border-color:rgba(255,255,255,.16)}.wi-cookie-main h2{font-size:20px;line-height:1.2;margin:0 0 8px;color:var(--wi-cookie-text)}.wi-cookie-main p{margin:0;color:color-mix(in srgb,var(--wi-cookie-text) 72%,transparent);line-height:1.55}.wi-cookie-policy-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.wi-cookie-policy-links a,.wi-cookie-settings-link{color:var(--wi-cookie-primary);text-decoration:underline;background:transparent;border:0;padding:0;cursor:pointer;font:inherit}.wi-cookie-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}.wi-cookie-btn{border:1px solid rgba(148,163,184,.5);border-radius:999px;padding:10px 15px;cursor:pointer;font-weight:700;background:#fff;color:#0f172a}.wi-cookie-btn--primary{background:var(--wi-cookie-primary);border-color:var(--wi-cookie-primary);color:#fff}.wi-cookie-btn--secondary{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.wi-cookie-btn--ghost{background:transparent;color:var(--wi-cookie-text)}.wi-cookie-preferences{grid-column:1/-1;background:rgba(148,163,184,.12);border-radius:18px;padding:16px;display:grid;gap:12px}.wi-cookie-preferences[hidden]{display:none!important}.wi-cookie-preferences h3{margin:0 0 4px;font-size:17px}.wi-cookie-choice{display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.6);border:1px solid rgba(148,163,184,.28);border-radius:16px;padding:12px}.wi-cookie--dark .wi-cookie-choice{background:rgba(255,255,255,.08)}.wi-cookie-choice strong{display:block;margin-bottom:3px}.wi-cookie-choice small{display:block;line-height:1.45;color:color-mix(in srgb,var(--wi-cookie-text) 68%,transparent)}.wi-cookie-choice input{position:absolute;opacity:0;pointer-events:none}.wi-cookie-choice i{width:48px;height:28px;border-radius:999px;background:#cbd5e1;position:relative;flex:0 0 auto}.wi-cookie-choice i:before{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.18s ease}.wi-cookie-choice input:checked+i{background:var(--wi-cookie-primary)}.wi-cookie-choice input:checked+i:before{left:24px}.wi-cookie-choice input:disabled+i{opacity:.72}.wi-cookie-save{justify-self:end}@media(max-width:760px){.wi-cookie--top,.wi-cookie--bottom,.wi-cookie--floating-left,.wi-cookie--floating-right{left:10px;right:10px;bottom:10px;top:auto;max-width:none}.wi-cookie-card{grid-template-columns:1fr;padding:16px;border-radius:18px}.wi-cookie-actions{justify-content:stretch}.wi-cookie-btn{width:100%}.wi-cookie-choice{align-items:flex-start}.wi-cookie-save{justify-self:stretch}}
+
+
+/* WIModal-backed preference modal */
+.wi-cookie--modal > .wi-cookie-card{display:none!important}.wi-cookie-modal-body{display:grid;gap:14px}.wi-cookie-modal-intro{margin:0 0 4px;color:#475569;line-height:1.6}.wi-cookie-modal-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:10px}.wi-cookie-choice{display:grid!important;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:14px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}.wi-cookie-choice strong{display:block;color:#0f172a;font-size:14px}.wi-cookie-choice small{display:block;margin-top:4px;color:#64748b;line-height:1.45}.wi-cookie-choice input{position:absolute;opacity:0;pointer-events:none}.wi-cookie-choice i{width:48px;height:27px;border-radius:999px;background:#cbd5e1;position:relative;transition:.18s ease}.wi-cookie-choice i:before{content:"";position:absolute;width:21px;height:21px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(15,23,42,.18);transition:.18s ease}.wi-cookie-choice input:checked+i{background:var(--wi-cookie-primary,#2563eb)}.wi-cookie-choice input:checked+i:before{transform:translateX(21px)}.wi-cookie-choice input:disabled+i{opacity:.75}.wi-cookie-modal-backdrop{z-index:1040}.wi-cookie-consent .wi-modal{z-index:1050}.wi-cookie-consent .wi-modal .modal-dialog{max-width:720px}.wi-cookie-consent .wi-modal .modal-content{border-radius:20px}.wi-cookie-consent .wi-modal .modal-body{background:#f8fafc}.wi-cookie-consent .wi-modal .modal-footer{display:none!important}.wi-cookie-settings-link{appearance:none;border:0;background:transparent;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;text-align:left}
+
+/* WICMS cookie consent readability + scroll patch
+   Makes the banner/modal more solid and keeps long preference panels usable on small screens. */
+.wi-cookie-consent{
+  opacity:1 !important;
+}
+
+.wi-cookie-card{
+  background:var(--wi-cookie-bg,#ffffff) !important;
+  opacity:1 !important;
+  border-color:rgba(100,116,139,.42) !important;
+  box-shadow:0 24px 80px rgba(15,23,42,.28) !important;
+}
+
+.wi-cookie-main p,
+.wi-cookie-choice small,
+.wi-cookie-modal-intro{
+  color:#334155 !important;
+}
+
+.wi-cookie--dark .wi-cookie-main p,
+.wi-cookie--dark .wi-cookie-choice small,
+.wi-cookie--dark .wi-cookie-modal-intro{
+  color:#e2e8f0 !important;
+}
+
+.wi-cookie--modal{
+  background:rgba(15,23,42,.82) !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+}
+
+.wi-cookie--top,
+.wi-cookie--bottom,
+.wi-cookie--floating-left,
+.wi-cookie--floating-right{
+  max-height:calc(100vh - 32px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.wi-cookie-card{
+  max-height:calc(100vh - 32px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.wi-cookie-preferences{
+  max-height:min(58vh,520px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  background:#f8fafc !important;
+  border:1px solid #e2e8f0;
+}
+
+.wi-cookie-choice{
+  background:#ffffff !important;
+  opacity:1 !important;
+}
+
+.wi-cookie--dark .wi-cookie-preferences{
+  background:#111827 !important;
+  border-color:rgba(255,255,255,.16);
+}
+
+.wi-cookie--dark .wi-cookie-choice{
+  background:#1f2937 !important;
+}
+
+/* WIModal preference panel readability and scroll */
+.wi-cookie-consent .wi-modal .modal-dialog,
+.wi-cookie-consent .modal-dialog{
+  max-width:760px;
+  margin:24px auto;
+}
+
+.wi-cookie-consent .wi-modal .modal-content,
+.wi-cookie-consent .modal-content{
+  background:#ffffff !important;
+  opacity:1 !important;
+  border-radius:22px !important;
+  box-shadow:0 28px 90px rgba(15,23,42,.38) !important;
+  max-height:calc(100vh - 48px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.wi-cookie-consent .wi-modal .modal-body,
+.wi-cookie-consent .modal-body{
+  background:#f8fafc !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(100vh - 180px);
+}
+
+.wi-cookie-modal-body{
+  max-height:calc(100vh - 220px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-right:4px;
+}
+
+.wi-cookie-modal-actions{
+  position:sticky;
+  bottom:0;
+  background:linear-gradient(180deg,rgba(248,250,252,.88),#f8fafc 32%);
+  padding-top:12px;
+}
+
+.wi-cookie-modal-backdrop,
+.modal-backdrop{
+  opacity:.82 !important;
+}
+
+@media(max-width:760px){
+  .wi-cookie-consent{
+    left:8px !important;
+    right:8px !important;
+  }
+
+  .wi-cookie--top,
+  .wi-cookie--bottom,
+  .wi-cookie--floating-left,
+  .wi-cookie--floating-right{
+    max-height:calc(100vh - 16px);
+  }
+
+  .wi-cookie-card{
+    max-height:calc(100vh - 16px);
+  }
+
+  .wi-cookie-consent .wi-modal .modal-dialog,
+  .wi-cookie-consent .modal-dialog{
+    margin:10px;
+    max-width:none;
+  }
+
+  .wi-cookie-consent .wi-modal .modal-content,
+  .wi-cookie-consent .modal-content{
+    max-height:calc(100vh - 20px);
+  }
+
+  .wi-cookie-consent .wi-modal .modal-body,
+  .wi-cookie-consent .modal-body,
+  .wi-cookie-modal-body{
+    max-height:calc(100vh - 155px);
+  }
+}

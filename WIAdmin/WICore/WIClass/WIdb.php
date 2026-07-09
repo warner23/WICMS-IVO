@@ -1,185 +1,156 @@
 <?php
 declare(strict_types=1);
 
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WICOS / WIKitchenCompli
+| Class: WIdb
+| File: WIdb.php
+| Location: /WIAdmin/WICore/WIClass/WIdb.php
+| Type: Database Layer
+| Layer: Shared Core
+|--------------------------------------------------------------------------
+*/
 
-/**
- * Database Class
- * Created by Warner Infinity
- * Author Jules Warner
- */
+/*
+|--------------------------------------------------------------------------
+| Purpose
+|--------------------------------------------------------------------------
+| Canonical database layer for shared WI systems.
+|
+| Notes:
+| - Singleton access via WIdb::getInstance()
+| - PDO is the canonical query layer
+| - PDO is the only connection/query implementation
+| - Prepared statements everywhere
+|--------------------------------------------------------------------------
+*/
+
 class WIdb extends PDO
 {
-    private static ?self $_instance = null;
+    private static ?self $instance = null;
 
-    public $mysqli;
-
-    public function __construct($DB_TYPE, $DB_HOST, $DB_NAME, $DB_USER, $DB_PASS)
-    {
-
-                $this->mysqli = new mysqli(
-            DB_HOST,
-            DB_USER,
-            DB_PASS,
-            DB_NAME
+    public function __construct(
+        string $dbType,
+        string $dbHost,
+        string $dbName,
+        string $dbUser,
+        string $dbPass
+    ) {
+        $dsn = sprintf(
+            '%s:host=%s;dbname=%s;charset=utf8mb4',
+            $dbType,
+            $dbHost,
+            $dbName
         );
 
-        if ($this->mysqli->connect_error) {
-            die("Database connection failed: " . $this->mysqli->connect_error);
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        if (defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+            $options[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
         }
 
-        
-        try {
-
-            parent::__construct(
-                $DB_TYPE . ':host=' . $DB_HOST . ';dbname=' . $DB_NAME . ';charset=utf8mb4',
-                $DB_USER,
-                $DB_PASS,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false,
-                ]
-            );
-
-        } catch (PDOException $e) {
-
-            throw new RuntimeException(
-                'Database connection failed: ' . $e->getMessage()
-            );
-
-        }
+        parent::__construct($dsn, $dbUser, $dbPass, $options);
     }
 
-    /**
-     * Create instance if it doesn't exist
-     */
     public static function getInstance(): self
     {
-        if (self::$_instance === null) {
-            self::$_instance = new self(DB_TYPE, DB_HOST, DB_NAME, DB_USER, DB_PASS);
+        if (self::$instance === null) {
+            self::$instance = new self(
+                (string) DB_TYPE,
+                (string) DB_HOST,
+                (string) DB_NAME,
+                (string) DB_USER,
+                (string) DB_PASS
+            );
         }
 
-        return self::$_instance;
+        return self::$instance;
     }
 
-    /**
-     * Internal safe binder
-     */
-    private function bindParams(PDOStatement $stmt, string $sql, array $params = [], int $defaultType = PDO::PARAM_STR): void
+    public function getPDO(): self
     {
+        return $this;
+    }
+
+    public function begin(): bool
+    {
+        return $this->beginTransaction();
+    }
+
+    public function commitTransaction(): bool
+    {
+        return $this->commit();
+    }
+
+    public function rollbackTransaction(): bool
+    {
+        return $this->rollBack();
+    }
+
+    public function select(string $sql, array $params = [], int $fetchMode = PDO::FETCH_ASSOC): array
+    {
+        $stmt = $this->prepareAndBind($sql, $params);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll($fetchMode);
+        $stmt->closeCursor();
+
+        return is_array($result) ? $result : [];
+    }
+
+    public function selectID(string $sql, array $params = [], int $fetchMode = PDO::FETCH_ASSOC): array
+    {
+        $normalized = [];
         foreach ($params as $key => $value) {
-            $placeholder = ':' . ltrim((string)$key, ':');
-
-            if (strpos($sql, $placeholder) === false) {
-                continue;
-            }
-
-            $type = $defaultType;
-
-            if (is_int($value)) {
-                $type = PDO::PARAM_INT;
-            } elseif (is_bool($value)) {
-                $type = PDO::PARAM_BOOL;
-            } elseif ($value === null) {
-                $type = PDO::PARAM_NULL;
-            }
-
-            $stmt->bindValue($placeholder, $value, $type);
-        }
-    }
-
-    public function select(string $sql, array $array = [], int $fetchMode = PDO::FETCH_ASSOC): array
-    {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
-
-        $this->bindParams($stmt, $sql, $array, PDO::PARAM_STR);
-
-        $stmt->execute();
-        $result = $stmt->fetchAll($fetchMode);
-        $stmt->closeCursor();
-
-        return is_array($result) ? $result : [];
-    }
-
-    public function selectID(string $sql, array $array = [], int $fetchMode = PDO::FETCH_ASSOC): array
-    {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
-
-        foreach ($array as $key => $value) {
-            $placeholder = ':' . ltrim((string)$key, ':');
-
-            if (strpos($sql, $placeholder) === false) {
-                continue;
-            }
-
-            $stmt->bindValue($placeholder, (int)$value, PDO::PARAM_INT);
+            $normalized[$key] = is_numeric($value) ? (int) $value : 0;
         }
 
-        $stmt->execute();
-        $result = $stmt->fetchAll($fetchMode);
-        $stmt->closeCursor();
-
-        return is_array($result) ? $result : [];
+        return $this->select($sql, $normalized, $fetchMode);
     }
 
-    public function selectwithOptions(string $sql, array $array = [], int $fetchMode = PDO::FETCH_ASSOC): array
+    public function selectwithOptions(string $sql, array $params = [], int $fetchMode = PDO::FETCH_ASSOC): array
     {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
-
-        $this->bindParams($stmt, $sql, $array, PDO::PARAM_STR);
-
-        $stmt->execute();
-        $result = $stmt->fetchAll($fetchMode);
-        $stmt->closeCursor();
-
-        return is_array($result) ? $result : [];
+        return $this->select($sql, $params, $fetchMode);
     }
 
-    public function Selected(string $sql, array $array = [], string $while = '', int $fetchMode = PDO::FETCH_ASSOC): array
+    public function Selected(string $sql, array $params = [], string $while = '', int $fetchMode = PDO::FETCH_ASSOC): array
     {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
+        $result = $this->select($sql, $params, $fetchMode);
 
-        $this->bindParams($stmt, $sql, $array, PDO::PARAM_STR);
-
-        $stmt->execute();
-        $result = $stmt->fetchAll($fetchMode);
-        $stmt->closeCursor();
-
-        foreach ($result as $row) {
-            echo $while;
+        if ($while !== '') {
+            foreach ($result as $row) {
+                echo $while;
+            }
         }
 
-        return is_array($result) ? $result : [];
+        return $result;
     }
 
-    /**
-     * Backward compatible:
-     * Legacy: selectColumn($sql, $array, $column)
-     * New:    selectColumn($sql, $column, $array)
-     */
-    public function selectColumn(string $sql, $arg2 = null, $arg3 = null, int $fetchMode = PDO::FETCH_ASSOC)
+    public function selectColumn(string $sql, mixed $arg2 = null, mixed $arg3 = null, int $fetchMode = PDO::FETCH_ASSOC): mixed
     {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
-
-        $array = [];
+        $params = [];
         $column = null;
 
         if (is_array($arg2)) {
-            $array = $arg2;
+            $params = $arg2;
             $column = is_string($arg3) ? $arg3 : null;
         } else {
             $column = is_string($arg2) ? $arg2 : null;
-            $array = is_array($arg3) ? $arg3 : [];
+            $params = is_array($arg3) ? $arg3 : [];
         }
 
-        $this->bindParams($stmt, $sql, $array, PDO::PARAM_STR);
-
+        $stmt = $this->prepareAndBind($sql, $params);
         $stmt->execute();
+
         $result = $stmt->fetch($fetchMode);
         $stmt->closeCursor();
 
@@ -190,10 +161,9 @@ class WIdb extends PDO
         return null;
     }
 
-    public function blindFreeColumn(string $sql, string $column, int $fetchMode = PDO::FETCH_ASSOC)
+    public function blindFreeColumn(string $sql, string $column, int $fetchMode = PDO::FETCH_ASSOC): mixed
     {
-        $db = self::getInstance();
-        $stmt = $db->prepare($sql);
+        $stmt = $this->prepare($sql);
         $stmt->execute();
 
         $result = $stmt->fetch($fetchMode);
@@ -208,8 +178,7 @@ class WIdb extends PDO
 
     public function bindfree(string $query, int $fetchMode = PDO::FETCH_ASSOC): array
     {
-        $db = self::getInstance();
-        $stmt = $db->prepare($query);
+        $stmt = $this->prepare($query);
         $stmt->execute();
 
         $result = $stmt->fetchAll($fetchMode);
@@ -220,33 +189,40 @@ class WIdb extends PDO
 
     public function insert(string $table, array $data): bool
     {
-        if (empty($data)) {
+        if (!$this->isSafeIdentifier($table) || $data === []) {
             return false;
         }
 
-        ksort($data);
+        $columns = [];
+        $placeholders = [];
+        $params = [];
 
-        $fieldNames = '`' . implode('`, `', array_keys($data)) . '`';
-        $fieldValues = ':' . implode(', :', array_keys($data));
-
-        $sql = "INSERT INTO {$table} ({$fieldNames}) VALUES ({$fieldValues})";
-        $stmt = $this->prepare($sql);
-
-        foreach ($data as $key => $value) {
-            $placeholder = ':' . $key;
-
-            if (is_int($value)) {
-                $stmt->bindValue($placeholder, $value, PDO::PARAM_INT);
-            } elseif (is_bool($value)) {
-                $stmt->bindValue($placeholder, $value, PDO::PARAM_BOOL);
-            } elseif ($value === null) {
-                $stmt->bindValue($placeholder, null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindValue($placeholder, (string)$value, PDO::PARAM_STR);
+        foreach ($data as $column => $value) {
+            if (!$this->isSafeIdentifier((string) $column)) {
+                continue;
             }
+
+            $columns[] = '`' . $column . '`';
+            $placeholders[] = ':' . $column;
+            $params[$column] = $value;
         }
 
-        return $stmt->execute();
+        if ($columns === []) {
+            return false;
+        }
+
+        $sql = sprintf(
+            'INSERT INTO `%s` (%s) VALUES (%s)',
+            $table,
+            implode(', ', $columns),
+            implode(', ', $placeholders)
+        );
+
+        $stmt = $this->prepareAndBind($sql, $params);
+        $ok = $stmt->execute();
+        $stmt->closeCursor();
+
+        return $ok;
     }
 
     public function Arrayinsert(string $table, array $data): bool
@@ -256,24 +232,34 @@ class WIdb extends PDO
 
     public function update(string $table, array $data, string $where, array $whereBindArray = []): bool
     {
-        if (empty($data)) {
+        if (!$this->isSafeIdentifier($table) || $data === []) {
             return false;
         }
 
-        $db = self::getInstance();
-        ksort($data);
+        $assignments = [];
+        $params = [];
 
-        $fieldDetails = [];
-        foreach ($data as $key => $value) {
-            $fieldDetails[] = "`{$key}` = :{$key}";
+        foreach ($data as $column => $value) {
+            if (!$this->isSafeIdentifier((string) $column)) {
+                continue;
+            }
+
+            $assignments[] = sprintf('`%s` = :%s', $column, $column);
+            $params[$column] = $value;
         }
 
-        $sql = "UPDATE {$table} SET " . implode(', ', $fieldDetails) . " WHERE {$where}";
-        $stmt = $db->prepare($sql);
+        if ($assignments === []) {
+            return false;
+        }
 
-        $this->bindParams($stmt, $sql, $data, PDO::PARAM_STR);
-        $this->bindParams($stmt, $sql, $whereBindArray, PDO::PARAM_STR);
+        $sql = sprintf(
+            'UPDATE `%s` SET %s WHERE %s',
+            $table,
+            implode(', ', $assignments),
+            $where
+        );
 
+        $stmt = $this->prepareAndBind($sql, array_merge($params, $whereBindArray));
         $ok = $stmt->execute();
         $stmt->closeCursor();
 
@@ -282,12 +268,20 @@ class WIdb extends PDO
 
     public function delete(string $table, string $where, array $bind = [], int $limit = 1): bool
     {
-        $db = self::getInstance();
-        $sql = "DELETE FROM {$table} WHERE {$where} LIMIT {$limit}";
-        $stmt = $db->prepare($sql);
+        if (!$this->isSafeIdentifier($table)) {
+            return false;
+        }
 
-        $this->bindParams($stmt, $sql, $bind, PDO::PARAM_STR);
+        $limit = max(1, $limit);
 
+        $sql = sprintf(
+            'DELETE FROM `%s` WHERE %s LIMIT %d',
+            $table,
+            $where,
+            $limit
+        );
+
+        $stmt = $this->prepareAndBind($sql, $bind);
         $ok = $stmt->execute();
         $stmt->closeCursor();
 
@@ -296,16 +290,108 @@ class WIdb extends PDO
 
     public function Fulldelete(string $table, string $where, array $bind = []): bool
     {
-        $db = self::getInstance();
-        $sql = "DELETE FROM {$table} WHERE {$where}";
-        $stmt = $db->prepare($sql);
+        if (!$this->isSafeIdentifier($table)) {
+            return false;
+        }
 
-        $this->bindParams($stmt, $sql, $bind, PDO::PARAM_STR);
+        $sql = sprintf(
+            'DELETE FROM `%s` WHERE %s',
+            $table,
+            $where
+        );
 
+        $stmt = $this->prepareAndBind($sql, $bind);
         $ok = $stmt->execute();
         $stmt->closeCursor();
 
         return $ok;
     }
+
+    public function exists(string $table, string $where, array $params = []): bool
+    {
+        if (!$this->isSafeIdentifier($table)) {
+            return false;
+        }
+
+        $sql = sprintf('SELECT 1 FROM `%s` WHERE %s LIMIT 1', $table, $where);
+        $stmt = $this->prepareAndBind($sql, $params);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+
+        return is_array($row);
+    }
+
+    public function tableExists(string $table): bool
+    {
+        if (!$this->isSafeIdentifier($table)) {
+            return false;
+        }
+
+        $result = $this->select(
+            'SELECT COUNT(*) AS count_value
+             FROM INFORMATION_SCHEMA.TABLES
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = :table_name',
+            ['table_name' => $table]
+        );
+
+        return (int) ($result[0]['count_value'] ?? 0) > 0;
+    }
+
+    public function columnExists(string $table, string $column): bool
+    {
+        if (!$this->isSafeIdentifier($table) || !$this->isSafeIdentifier($column)) {
+            return false;
+        }
+
+        $result = $this->select(
+            'SELECT COUNT(*) AS count_value
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = :table_name
+               AND COLUMN_NAME = :column_name',
+            [
+                'table_name' => $table,
+                'column_name' => $column,
+            ]
+        );
+
+        return (int) ($result[0]['count_value'] ?? 0) > 0;
+    }
+
+    private function prepareAndBind(string $sql, array $params = []): PDOStatement
+    {
+        $stmt = $this->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $placeholder = ':' . ltrim((string) $key, ':');
+
+            if (strpos($sql, $placeholder) === false) {
+                continue;
+            }
+
+            $type = PDO::PARAM_STR;
+
+            if (is_int($value)) {
+                $type = PDO::PARAM_INT;
+            } elseif (is_bool($value)) {
+                $type = PDO::PARAM_BOOL;
+            } elseif ($value === null) {
+                $type = PDO::PARAM_NULL;
+            } elseif (is_float($value)) {
+                $value = (string) $value;
+            }
+
+            $stmt->bindValue($placeholder, $value, $type);
+        }
+
+        return $stmt;
+    }
+
+    private function isSafeIdentifier(string $value): bool
+    {
+        return (bool) preg_match('/^[A-Za-z0-9_]+$/', $value);
+    }
 }
-?>

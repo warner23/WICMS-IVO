@@ -1,0 +1,5 @@
+{
+  "requires": ["WICMS"],
+  "optional_integrations": ["WICompliance", "WIKitchenCompli", "WIHR", "WIOrg", "WINotifications", "WITaskEngine"],
+  "provides": ["tasks.provider", "notifications.consumer", "reports.provider"]
+}

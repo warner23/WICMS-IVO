@@ -333,5 +333,51 @@ class WIModal
             <div id="maMessage" class="wi-modal-message"></div>
         </form>';
     }
+
+    public function cookieConsentPreferences(): void
+    {
+        if (!class_exists('WIConsentManager')) {
+            $managerClass = __DIR__ . '/WIConsentManager.php';
+            if (is_file($managerClass)) {
+                require_once $managerClass;
+            }
+        }
+
+        if (!class_exists('WIConsentManager')) {
+            echo '<div class="wi-modal-message">Cookie preference manager could not be loaded.</div>';
+            return;
+        }
+
+        $manager = new WIConsentManager();
+        $categories = $manager->getCategories();
+
+        echo '<div class="wi-cookie-modal-body" data-wi-cookie-modal-body>';
+        echo '<p class="wi-cookie-modal-intro">Choose which optional cookies and similar technologies this site can use. Strictly necessary cookies are required for login, security, sessions and form protection.</p>';
+
+        foreach ($categories as $category) {
+            $key = (string) ($category['category_key'] ?? '');
+            if ($key === '') {
+                continue;
+            }
+
+            $label = (string) ($category['label'] ?? $key);
+            $description = (string) ($category['description'] ?? '');
+            $required = (int) ($category['is_required'] ?? 0) === 1;
+            $enabled = (int) ($category['is_enabled'] ?? 0) === 1 || $required;
+
+            echo '<label class="wi-cookie-choice">';
+            echo '<span><strong>' . $this->e($label) . '</strong><small>' . $this->e($description) . '</small></span>';
+            echo '<input type="checkbox" data-wi-cookie-category="' . $this->e($key) . '" value="1"' . ($enabled ? ' checked' : '') . ($required ? ' disabled' : '') . '>';
+            echo '<i aria-hidden="true"></i>';
+            echo '</label>';
+        }
+
+        echo '<div class="wi-cookie-modal-actions">';
+        echo '<button type="button" class="wi-cookie-btn wi-cookie-btn--ghost" data-wi-cookie-reject>Reject non-essential</button>';
+        echo '<button type="button" class="wi-cookie-btn wi-cookie-btn--primary" data-wi-cookie-save>Save preferences</button>';
+        echo '</div>';
+        echo '</div>';
+    }
+
 }
 ?>

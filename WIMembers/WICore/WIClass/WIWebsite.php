@@ -1,401 +1,588 @@
 <?php
-#[\AllowDynamicProperties]
-/**
-* 
+declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIMembers
+| Project: WI Ecosystem
+| File: WIWebsite.php
+| Location: /WIMembers/WICore/WIClass/WIWebsite.php
+| Type: Class
+| Layer: Website / Page Support
+| Purpose Area: Member workspace page metadata, assets, header, root menu and footer
+| Version: 1.0.2
+| Created: 2026-05-24
+| Last Updated: 2026-06-09
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Provides WIMembers-compatible page support while preserving WI's root/public
+| database-driven menu. The member workspace may style the menu differently,
+| but menu data must come from wi_menu rather than hardcoded public links.
 */
-class WIWebsite
+
+#[\AllowDynamicProperties]
+final class WIWebsite
 {
-    
-    function __construct() 
+    private WIdb $WIdb;
+    private WILogin $login;
+    private WIUser $user;
+
+    public function __construct()
     {
-         $this->WIdb = WIdb::getInstance();
-         $this->mobileDetect = new WIMobileDetect();
-         $this->Login = new WILogin();
-         $this->user   = new WIUser(WISession::get('user_id'));
+        $this->WIdb = WIdb::getInstance();
+        $this->login = new WILogin();
+        $this->user = new WIUser();
     }
 
-        public function webSite_essentials($column)
+    public function StartUp(): void
     {
-        $sql = "SELECT * FROM `wi_header`";
-        $query = $this->WIdb->prepare($sql);
-        $query->execute();
-
-        $res = $query->fetch(PDO::PARAM_STR);
-        //echo $res[$column];
-        return $res[$column];
+        echo '<!DOCTYPE html><html class="no-js" lang="en"><head><meta charset="utf-8"><title>' . wi_e(defined('WEBSITE_NAME') ? WEBSITE_NAME : 'WICMS') . ' Members</title>';
+        echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
     }
 
-    public function webSite_icons()
+    public function Meta(string $page): void
     {
-     $result = $this->WIdb->bindfree("SELECT * FROM `wi_site`");
+        if (!$this->WIdb->tableExists('wi_meta')) {
+            return;
+        }
 
-        foreach ($result as $res ) {
-          echo '<link rel="icon" type="image/png" href="../WIAdmin/WIMedia/Img/favicon/' . $res['favicon'] . '"/>';
+        foreach ($this->WIdb->select('SELECT * FROM `wi_meta` WHERE `page` = :page', ['page' => $page]) as $res) {
+            echo '<meta name="' . wi_e($res['name'] ?? '') . '" content="' . wi_e($res['content'] ?? '') . '">';
         }
     }
 
-    
-
-    public function Meta($page)
+    public function Theme(): string
     {
-      
-$mobile = $this->mobileDetect->isMobile();
-       //echo $device;
-        if($mobile == 1){ 
-          echo '<meta name="viewport" content="width=device-width, 
-    user-scalable=no, initial-scale=1, maximum-scale=1, user-scalable=0" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />';
-        }else{
-        $result = $this->WIdb->select("SELECT * FROM `wi_meta` WHERE `page`=:page",
-          array(
-            "page" => $page
-          )
-        );
-
-         foreach($result as $res)
-        {
-            echo '<meta name="' . $res['name'] . '" content="' . $res['content'] . '" author="' . $res['author'] . '" >';
-            
+        if (!$this->WIdb->tableExists('wi_theme')) {
+            return 'WITheme/WICMS/';
         }
 
+        $row = $this->WIdb->row('SELECT * FROM `wi_theme` WHERE `in_use` = 1 LIMIT 1');
+        $destination = str_replace('\\', '/', trim((string) ($row['destination'] ?? '')));
+
+        if ($destination === '') {
+            return 'WITheme/WICMS/';
         }
 
+        return rtrim($destination, '/') . '/';
     }
 
-    public function Theme()
+    public function Styling(string $page): void
     {
-      $in_use = 1;
+        $themeBase = $this->Theme();
+        // Root/public chrome styles so WIProfile pages match /index.php.
+        $this->emitStylesheet($themeBase . 'site/css/WIMarketing.css');
 
-      $result = $this->WIdb->select("SELECT * FROM `wi_theme` WHERE `in_use`=:in_use",
-          array(
-            "in_use" => $in_use
-          )
-        );
+        // Workspace styles so the existing WIProfile sidebar/content design remains intact.
+        $this->emitStylesheet($themeBase . 'user/css/WIMembers.css');
 
-      $theme = $result[0]['destination'];
+        if (!$this->WIdb->tableExists('wi_css')) {
+            return;
+        }
 
-      return $theme;
+        foreach ($this->WIdb->select('SELECT * FROM `wi_css` WHERE `page` = :page', ['page' => $page]) as $res) {
+            $href = trim((string) ($res['href'] ?? ''));
+            $rel = trim((string) ($res['rel'] ?? 'stylesheet')) ?: 'stylesheet';
 
-    }
-    
-
-    public function Styling($page)
-    {
-      $result = $this->WIdb->select("SELECT * FROM `wi_css` WHERE `page`=:page",
-          array(
-            "page" => $page
-          )
-        );
-
-        foreach($result as $res)
-        {
-        echo '<link href="../' . self::theme() . $res['href'] . '" rel="' . $res['rel'] . '">';
+            if ($href !== '') {
+                $this->emitStylesheet($themeBase . $href, $rel);
+            }
         }
     }
 
-    public function Scripts($page)
+    public function Scripts(string $page): void
     {
-            $result = $this->WIdb->select("SELECT * FROM `wi_scripts` WHERE `page`=:page",
-          array(
-            "page" => $page
-          )
-        );
+        echo '<script>window.WIMemberPage = ' . json_encode($page, JSON_THROW_ON_ERROR) . '; window.WICSRF_TOKEN = ' . json_encode(WICsrf::getToken(), JSON_THROW_ON_ERROR) . '; window.WIMEMBERS_AJAX_URL = ' . json_encode($this->memberUrl('WICore/WIAjax/WIMembersAjax.php'), JSON_THROW_ON_ERROR) . ';</script>';
 
-        foreach($result as $res)
-        {
-        echo ' <script src="../' . self::theme() . $res['src'] . '" type="text/javascript"></script>';
-        }
-    }
+        if ($this->WIdb->tableExists('wi_scripts')) {
+            foreach ($this->WIdb->select('SELECT * FROM `wi_scripts` WHERE `page` = :page', ['page' => $page]) as $res) {
+                $src = trim((string) ($res['src'] ?? ''));
 
-    public function StartUp()
-    {
-        echo '<!DOCTYPE html>
-                <html class="no-js" lang="en">
-                <head>   
-                  <title>' . WEBSITE_NAME. ' </title>
-                  <meta charset="utf-8">';
-    }
-
-    public function Social()
-    {
-
-       $result = $this->WIdb->bindfree('SELECT * FROM `wi_social`');
-
-        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
-        <ul class="social_media"> ';
-        foreach($result as $res)
-        {
-            echo '<li>
-            <a href="../' . $res['href'] .'" target="_blank" data-placement="bottom" data-toggle="tooltip" class="fa fa-' . $res['name'] .' fa-5x" title="' . $res['name'] .'">
-            
-            
-            ' . $res['name'] .'
-            </a></li>';
-        }
-        echo '</ul></div>';
-    }
-
-    public function MainHeader()
-    {
-        $sql = "SELECT * FROM `wi_header`";
-        $query = $this->WIdb->prepare($sql);
-        $query->execute();
-
-        while($res = $query->fetch(PDO::PARAM_STR))
-        {
-         echo ' <header class="header">
-
-                        <div class="col-lg-3 col-md-3 col-sm-2">
-                            <div class="navbar_brand">
-                                <a href="../index.php">
-                                <img alt=""  class="logo" src="../WIAdmin/WIMedia/Img/header/' . $res['logo'] .'"></a>
-                                
-                            </div>
-                        </div>
-                        <!-- start of header-->
-                        <div class="col-lg-9 col-md-9 col-sm-9">
-                        <div class="col-ms bg-header" style="background-image: url(../WIAdmin/WIMedia/Img/header/' . $res['bk_header_image'] .');"> 
-                        <div class="">' . $res['header_content'] . '
-                        <span class="slogan">' . $res['header_slogan'] . '</span>
-                        </div><!-- end col-ms-->
-                        </div>
-
-        </header>';
-    }
-
-    }
-
-
-        public function MainMenu()
-    {
-
-         $result0 = $this->WIdb->bindfree("SELECT * FROM `wi_menu` ORDER BY `sort`");
-        
-        echo '<nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <a class="navbar-brand" href="index.php">'; echo WEBSITE_NAME ; echo '</a>
-
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-    aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="basicExampleNav">
-
-    <!-- Links -->
-    <ul class="navbar-nav mr-auto">';
-               $count = "0";
-               $loop = count($result0);
-        foreach($result0 as $res)
-        {
-
-          if($count > 0){
-            echo '<li class="nav-item active">
-            <a class="nav-link" href="../' . $res['link'] . '">' . WILang::get('' .$res['lang'] .'') . '</a></li>';
-         if($res['parent'] > 0)
-         {
-            echo '<li class="nav-item">
-            <a class="nav-link" href="../' . $res['link'] . '">' . WILang::get('' .$res['lang'] .'') . '</a></li>';
-         }
-          }else{
-            echo '<li class="nav-item">
-            <a class="nav-link" href="../' . $res['link'] . '">' . WILang::get('' .$res['lang'] .'') . '</a></li>';
-         if($res['parent'] > 0)
-         {
-            echo '<li class="nav-item">
-            <a class="nav-link" href="../' . $res['link'] . '">' . WILang::get('' .$res['lang'] .'') . '</a></li>';
-         }
-          }   
-         
-        }
-        echo '</ul>
-             <form class="form-inline">
-      <div class="md-form my-0">';
-      echo '<ul>
-      <li class="dropdownCart"><a href="javascript:void(0)" id="settings" class="dropdown-toggle" aria-expanded="false" dropdown="false" data-toggle="dropdown"><span class="fa fa-user-clog"></span>Settings
-       </a>
-        <div class="dropdown-menu" >
-    <a class="dropdown-item" href="account.php">Account</a>
-    <a class="dropdown-item" href="settings.php">Settings</a>
-        </div>
-
-        </li>';
-       if($this->user->isAdmin() ){
-          $url = $_SERVER["PHP_SELF"];
-          if (strpos($url,"WIMembers") !== false) {
-         echo '<ul>
-        <li class="nav-item">
-            <a class="nav-link" href="../alogin.php">' . WILang::get('admin_panel') . '</a></li>
-      <li class="nav-item">
-            <a class="nav-link" href="logout.php">' . WILang::get('logout') . '</a></li>
-        </ul>';
-        }else{
-          echo '<ul>
-      <li class="nav-item">
-            <a class="nav-link" href="logout.php">' . WILang::get('logout') . '</a></li>
-        </ul>';
-        }
-      }
-        echo '</div>
-    </form>
-  </div>
-  <!-- Collapsible content -->
-
-</nav>';
-    }
-
-
-    public function footer()
-    {
-        $id = 1;
-
-        $date = date("Y");
-        $http = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-        $query = $this->WIdb->prepare('SELECT * FROM `wi_footer` WHERE footer_id=:id');
-        $query->bindParam(':id', $id, PDO::PARAM_INT);
-        $query->execute();
-
-        while($res = $query->fetch(PDO::PARAM_STR))
-        {
-            echo '<footer class="footer">
-            <section class="footer_bottom container-fluid text-center">
-            <div class="container">
-                <div class="row">
-
-
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <p class="copyright"><?php echo WILang::get("copyright");?> &copy; ' . $date . ' ' . $res['website_name'] . '-  All rights reserved Powered by WICMS.</p>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-        </footer>
-        <!--End Footer-->';
-        }
-    }
-
-    public function langClassSelector($lang)
-    {
-      //echo $lang;
-
-      if( WILang::getLanguage() === $lang){
-        return WILang::getLanguage();
-      }else{
-        return "fade";
-      }
-
-    }
-
-      public function viewLang()
-    {
-    
-
-         
-        $sql = "SELECT * FROM `wi_lang`";
-        $query = $this->WIdb->prepare($sql);
-        $query->execute();
-         echo '<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                         <div class="flags-wrapper">';
-        while($res = $query->fetchAll(PDO::FETCH_ASSOC) ){
-
-          
-        foreach ($res as $lang ) {
-
-            echo '<a href="' . $lang['href'] . '">
-                 <img src="../WIAdmin/WIMedia/Img/lang/' . $lang['lang_flag'] . '" alt="' . $lang['name'] .'" title="' . $lang['name'] .'"
-                      class="'. WIWebsite::langClassSelector($lang['lang']) .'" /></a>';
+                if ($src !== '') {
+                    echo '<script src="' . wi_e($this->rootUrl($this->Theme() . $src)) . '" type="text/javascript"></script>';
+                }
             }
         }
 
-         echo '</div>
-                    </div><!-- end col-lg-6 col-md-6 col-sm-6-->';
+        echo '<script src="' . wi_e($this->memberUrl('WICore/WIJ/WIMembers.js?v=20260613')) . '" defer></script>';
     }
 
 
-
-   
-
-    public function PageMod($page, $column)
+    /**
+     * Root compatibility helper used by legacy panel/header modules.
+     * Keep output aligned with the original root WIWebsite::google_lang().
+     */
+    public function google_lang(): void
     {
-        //echo "col" . $column;
-
-                $result = $this->WIdb->selectColumn(
-                    "SELECT * FROM `wi_page` WHERE `name`=:page",
-                     array(
-                       "page" => $page
-                     ), $column
-                  );
-              // print_r($result);
-         if($result < 1){
-            return $column;
-         }else{
-            return $column;
-         }
-
-
-    }
-
-       public function pageModPower($page, $column)
-        {
-        //echo "col" . $column;
-
-                $result[$column] = $this->WIdb->selectColumn(
-                    "SELECT * FROM `wi_page` WHERE `name`=:page",
-                     array(
-                       "page" => $page
-                     ), $column
-                  );
-           ($result[$column]);
-         if($result[$column] < 1){
-            return $result[$column];
-         }else{
-            return $result[$column];
-         }
-
-
-    }
-
-        public function showFavicon()
-    {
-        $sql = "SELECT * FROM `wi_site`";
-
-        $query = $this->WIdb->prepare($sql);
-        $query->execute();
-
-        $res = $query->fetch();
-
-        $favicon = $res['favicon'];
-        return $favicon;
-
-    }
-
-     public function google_lang()
-    {
-      echo '<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
                          <div class="flags-wrapper">
                          <div id="google_translate_element"></div><script type="text/javascript">
-              function googleTranslateElementInit() {
-                new google.translate.TranslateElement({pageLanguage: `en`, layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, `google_translate_element`);
-              }
-              </script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-                                       </div>
-                    </div><!-- end col-lg-6 col-md-6 col-sm-6-->';
-
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: "en", layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, "google_translate_element");
+}
+</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+                         </div>
+                    </div>';
     }
 
-  public function backendJs()
-  {
+    /**
+     * Root compatibility helper used by legacy social/footer modules.
+     * Social links remain DB-driven from wi_social.
+     */
+    public function Social(): void
+    {
+        if (!$this->WIdb->tableExists('wi_social')) {
+            return;
+        }
 
-    echo '<script type="text/javascript" src="../' . self::theme() . 'blog/js/vendor/jquery.easing.1.3.js"></script>
-  <script type="text/javascript" src="../' . self::theme() . 'blog/js/jquery.cookie.js"></script> <!-- jQuery cookie --> 
-  <script type="text/javascript" src="../' . self::theme() . 'blog/js/styleswitch.js"></script> <!-- Style Colors Switcher -->
-   
-  <script type="text/javascript" src="../' . self::theme() . 'blog/js/plugin/jquery.themepunch.revolution.min.js"></script>
-  <script type="text/javascript" src="../' . self::theme() . 'blog/js/plugin/jquery.plugin.js"></script>';
-  }
+        $result = $this->WIdb->select('SELECT * FROM `wi_social`');
+
+        echo '<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">';
+        echo '<ul class="social_media">';
+
+        foreach ($result as $res) {
+            $href = $this->e($res['href'] ?? '#');
+            $name = $this->e($res['name'] ?? '');
+
+            if ($name === '') {
+                continue;
+            }
+
+            echo '<li>';
+            echo '<a href="' . $href . '" target="_blank" rel="noopener" data-placement="bottom" data-toggle="tooltip" class="fa fa-' . $name . ' fa-5x" title="' . $name . '">';
+            echo $name;
+            echo '</a>';
+            echo '</li>';
+        }
+
+        echo '</ul>';
+        echo '</div>';
+    }
+
+    private function e(mixed $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+
+    public function webSite_icons(): void
+    {
+        if (!$this->WIdb->tableExists('wi_site')) {
+            return;
+        }
+
+        $row = $this->WIdb->row('SELECT * FROM `wi_site` LIMIT 1');
+
+        if (!empty($row['favicon'])) {
+            echo '<link rel="icon" type="image/png" href="' . wi_e($this->rootUrl('WIAdmin/WIMedia/Img/favicon/' . rawurlencode((string) $row['favicon']))) . '">';
+        }
+    }
+
+    public function pageModPower(string $page, string $column)
+    {
+        return $this->pageColumn($page, $column);
+    }
+
+    public function PageMod(string $page, string $column): string
+    {
+        $value = $this->pageColumn($page, $column);
+
+        if ($column === 'contents') {
+            return is_string($value) && trim($value) !== '' ? trim($value) : $page;
+        }
+
+        if ((string) $value === '1') {
+            return $column;
+        }
+
+        if (is_string($value) && trim($value) !== '' && trim($value) !== '0') {
+            return trim($value);
+        }
+
+        return $column;
+    }
+
+    public function pageModule(string $page, string $column = 'contents'): string
+    {
+        return $this->PageMod($page, $column);
+    }
+
+    private function pageColumn(string $page, string $column)
+    {
+        if (!$this->WIdb->tableExists('wi_page') || !$this->WIdb->columnExists('wi_page', $column)) {
+            return $column === 'contents' ? $page : 0;
+        }
+
+        return $this->WIdb->selectColumn(
+            'SELECT * FROM `wi_page` WHERE `name` = :page LIMIT 1',
+            ['page' => $page],
+            $column
+        ) ?? ($column === 'contents' ? $page : 0);
+    }
+
+    public function MainHeader(): void
+    {
+        $siteName = $this->siteName();
+        $logoPath = $this->headerLogoPath();
+
+        echo '<header class="wi-marketing-topbar" role="banner">';
+        echo '<div class="wi-marketing-container wi-topbar-inner">';
+        echo '<a class="wi-brand" href="' . wi_e($this->rootUrl('index.php')) . '" aria-label="' . wi_e($siteName) . ' home">';
+
+        if ($logoPath !== '') {
+            echo '<span class="wi-brand-logo"><img src="' . wi_e($this->rootUrl($logoPath)) . '" alt="' . wi_e($siteName) . '"></span>';
+        } else {
+            echo '<span class="wi-brand-mark">WI</span>';
+        }
+
+        echo '<span class="wi-brand-copy">';
+        echo '<strong>' . wi_e($siteName) . '</strong>';
+        echo '<small>Powered by WICMS</small>';
+        echo '</span>';
+        echo '</a>';
+
+        echo '<div class="wi-topbar-copy">';
+        echo '<span>Flexible WICMS platform for websites, members, plugins and themes</span>';
+        echo '</div>';
+
+        echo '<div class="wi-topbar-actions">';
+        echo '<a class="wi-topbar-link" href="' . wi_e($this->rootUrl('login.php')) . '">Member login</a>';
+        echo '<a class="wi-topbar-button" href="' . wi_e($this->rootUrl('alogin.php')) . '">Admin portal</a>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</header>';
+    }
+
+    /**
+     * Renders the same DB-driven public navigation used by root/index.php.
+     * Sidebar mode is retained for the WIProfile workspace menu footer.
+     */
+    public function MainMenu(string $placement = 'primary'): void
+    {
+        $placement = preg_replace('/[^a-zA-Z0-9_\-]/', '', $placement) ?: 'primary';
+
+        if ($placement === 'sidebar') {
+            // Member sidebar no longer injects the public/root DB menu.
+            return;
+        }
+
+        $items = $this->rootMenuTree();
+
+        echo '<nav class="wi-marketing-nav" role="navigation" aria-label="Primary navigation">';
+        echo '<div class="wi-marketing-container wi-nav-inner">';
+        echo '<button class="wi-nav-toggle" type="button" aria-label="Open navigation" onclick="document.body.classList.toggle(&quot;wi-nav-open&quot;)">';
+        echo '<span></span><span></span><span></span>';
+        echo '</button>';
+
+        echo '<div class="wi-nav-links">';
+        foreach ($items as $item) {
+            $this->renderPrimaryMenuItem($item);
+        }
+        echo '</div>';
+
+        echo '<div class="wi-nav-actions">';
+        if ($this->login->isLoggedIn()) {
+            echo '<a class="wi-nav-link" href="' . wi_e($this->rootUrl('profile.php')) . '">' . wi_e(class_exists('WILang') ? WILang::get('profile') : 'Profile') . '</a>';
+            echo '<a class="wi-nav-link" href="' . wi_e($this->rootUrl('logout.php')) . '">' . wi_e(class_exists('WILang') ? WILang::get('logout') : 'Logout') . '</a>';
+        } else {
+            echo '<a class="wi-nav-link" href="' . wi_e($this->rootUrl('register.php')) . '">' . wi_e(class_exists('WILang') ? WILang::get('register') : 'Register') . '</a>';
+            echo '<a class="wi-nav-link" href="' . wi_e($this->rootUrl('login.php')) . '">' . wi_e(class_exists('WILang') ? WILang::get('login') : 'Login') . '</a>';
+            echo '<a class="wi-nav-cta" href="' . wi_e($this->rootUrl('alogin.php')) . '">Admin portal</a>';
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '</nav>';
+    }
+
+
+    private function renderSidebarRootMenu(): void
+    {
+        $items = $this->rootMenuTree();
+
+        echo '<nav class="wi-member-root-menu wi-member-root-menu--sidebar" aria-label="Main site navigation">';
+        echo '<span class="wi-member-root-menu__label">Main site</span>';
+        echo '<div class="wi-member-root-menu__links">';
+
+        if ($items === []) {
+            echo '<a href="' . wi_e($this->rootUrl('index.php')) . '">Home</a>';
+        } else {
+            foreach ($items as $item) {
+                $this->renderRootMenuItem($item);
+            }
+        }
+
+        echo '</div>';
+        echo '</nav>';
+    }
+
+    public function footer(): void
+    {
+        $siteName = $this->footerWebsiteName();
+        $year = date('Y');
+
+        echo '<footer class="wi-marketing-footer" role="contentinfo">';
+        echo '<div class="wi-marketing-container wi-footer-grid">';
+
+        echo '<div class="wi-footer-brand">';
+        echo '<strong>' . wi_e($siteName) . '</strong>';
+        echo '<p>WICMS core for websites, members, themes, plugins and admin workflows.</p>';
+        echo '</div>';
+
+        echo '<div class="wi-footer-column">';
+        echo '<h4>Core</h4>';
+        echo '<a href="' . wi_e($this->rootUrl('index.php')) . '">Home</a>';
+        echo '<a href="' . wi_e($this->rootUrl('about_us.php')) . '">About</a>';
+        echo '<a href="' . wi_e($this->rootUrl('contact_us.php')) . '">Contact</a>';
+        echo '</div>';
+
+        echo '<div class="wi-footer-column">';
+        echo '<h4>Access</h4>';
+        echo '<a href="' . wi_e($this->rootUrl('login.php')) . '">Member login</a>';
+        echo '<a href="' . wi_e($this->rootUrl('register.php')) . '">Register</a>';
+        echo '<a href="' . wi_e($this->rootUrl('alogin.php')) . '">Admin portal</a>';
+        echo '</div>';
+
+        echo '<div class="wi-footer-column">';
+        echo '<h4>System</h4>';
+        echo '<span>Role-based access</span>';
+        echo '<span>Plugin-ready core</span>';
+        echo '<span>Privacy-first controls</span>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '<div class="wi-marketing-container wi-footer-bottom">';
+        echo '<p>Copyright &copy; ' . wi_e($year) . ' ' . wi_e($siteName) . '. All rights reserved.</p>';
+        echo '<p>Powered by WICMS.</p>';
+        echo '</div>';
+        echo '</footer>';
+    }
+
+
+    public function backendJs(): void
+    {
+        echo '';
+    }
+
+    private function emitStylesheet(string $href, string $rel = 'stylesheet'): void
+    {
+        $href = trim($href);
+        $rel = trim($rel) ?: 'stylesheet';
+
+        if ($href === '') {
+            return;
+        }
+
+        echo '<link href="' . wi_e($this->rootUrl($href)) . '" rel="' . wi_e($rel) . '">';
+    }
+
+    private function siteName(): string
+    {
+        if ($this->WIdb->tableExists('wi_site')) {
+            $row = $this->WIdb->row('SELECT * FROM `wi_site` LIMIT 1');
+            foreach (['site_name', 'website_name', 'name'] as $column) {
+                $value = trim((string) ($row[$column] ?? ''));
+                if ($value !== '') {
+                    return $value;
+                }
+            }
+        }
+
+        return defined('WEBSITE_NAME') ? (string) WEBSITE_NAME : 'WICMS';
+    }
+
+    private function footerWebsiteName(): string
+    {
+        if ($this->WIdb->tableExists('wi_footer')) {
+            $row = $this->WIdb->row('SELECT * FROM `wi_footer` WHERE `footer_id` = :id LIMIT 1', ['id' => 1]);
+            $value = trim((string) ($row['website_name'] ?? ''));
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return $this->siteName();
+    }
+
+    private function headerLogoPath(): string
+    {
+        if (!$this->WIdb->tableExists('wi_header')) {
+            return '';
+        }
+
+        $row = $this->WIdb->row('SELECT * FROM `wi_header` LIMIT 1');
+        $logo = trim((string) ($row['logo'] ?? ''));
+
+        return $logo !== '' ? 'WIAdmin/WIMedia/Img/header/' . $logo : '';
+    }
+
+    /**
+     * @param array<string,mixed> $item
+     */
+    private function renderPrimaryMenuItem(array $item): void
+    {
+        $label = $this->rootMenuLabel($item);
+        $href = $this->rootLinkForMemberArea((string) ($item['link'] ?? '#'));
+        echo '<a class="wi-nav-link" href="' . wi_e($href) . '">' . wi_e($label) . '</a>';
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function rootMenuRows(): array
+    {
+        if (!$this->WIdb->tableExists('wi_menu')) {
+            return [];
+        }
+
+        return $this->WIdb->select(
+            'SELECT * FROM `wi_menu` ORDER BY `parent` ASC, `sort` ASC, `id` ASC',
+            []
+        );
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function rootMenuTree(): array
+    {
+        $rows = $this->rootMenuRows();
+        $children = [];
+        $byId = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+            $parent = (int) ($row['parent'] ?? 0);
+
+            if ($id <= 0) {
+                continue;
+            }
+
+            $row['children'] = [];
+            $byId[$id] = $row;
+            $children[$parent][] = $id;
+        }
+
+        $build = function (int $parentId) use (&$build, &$children, &$byId): array {
+            $branch = [];
+
+            foreach ($children[$parentId] ?? [] as $id) {
+                $item = $byId[$id];
+                $item['children'] = $build($id);
+                $branch[] = $item;
+            }
+
+            return $branch;
+        };
+
+        return $build(0);
+    }
+
+    /**
+     * @param array<string,mixed> $item
+     */
+    private function renderRootMenuItem(array $item): void
+    {
+        $label = $this->rootMenuLabel($item);
+        $href = $this->rootLinkForMemberArea((string) ($item['link'] ?? '#'));
+        $children = is_array($item['children'] ?? null) ? $item['children'] : [];
+
+        echo '<span class="wi-member-root-menu__item">';
+        echo '<a href="' . wi_e($href) . '">' . wi_e($label) . '</a>';
+
+        if ($children !== []) {
+            echo '<span class="wi-member-root-menu__children">';
+            foreach ($children as $child) {
+                if (is_array($child)) {
+                    $this->renderRootMenuItem($child);
+                }
+            }
+            echo '</span>';
+        }
+
+        echo '</span>';
+    }
+
+    /**
+     * @param array<string,mixed> $item
+     */
+    private function rootMenuLabel(array $item): string
+    {
+        $lang = trim((string) ($item['lang'] ?? ''));
+        $label = trim((string) ($item['label'] ?? ''));
+
+        if ($lang !== '' && class_exists('WILang')) {
+            $translated = trim((string) WILang::get($lang));
+            if ($translated !== '') {
+                return $translated;
+            }
+        }
+
+        return $label !== '' ? $label : 'Menu item';
+    }
+
+    private function rootLinkForMemberArea(string $link): string
+    {
+        $link = trim($link);
+
+        if ($link === '') {
+            return '#';
+        }
+
+        if (
+            str_starts_with($link, '#') ||
+            str_starts_with($link, '/') ||
+            str_starts_with($link, '../') ||
+            preg_match('/^[a-z][a-z0-9+.-]*:/i', $link) === 1
+        ) {
+            return $link;
+        }
+
+        return $this->rootUrl($link);
+    }
+
+    public function rootUrl(string $path = ''): string
+    {
+        $path = ltrim(trim($path), '/');
+        if ($path === '') {
+            return $this->isMemberAreaRequest() ? '../' : '';
+        }
+
+        // Inside WIMembers, member-owned pages must stay local. Root is not the
+        // dumping ground for profile/member navigation.
+        if ($this->isMemberAreaRequest() && $this->isMemberOwnedPath($path)) {
+            return $path;
+        }
+
+        return $this->isMemberAreaRequest() ? '../' . $path : $path;
+    }
+
+    public function memberUrl(string $path = ''): string
+    {
+        $path = ltrim(trim($path), '/');
+        return $this->isMemberAreaRequest() ? $path : 'WIMembers/' . $path;
+    }
+
+    private function isMemberOwnedPath(string $path): bool
+    {
+        $clean = preg_split('/[?#]/', $path, 2)[0] ?? $path;
+        return in_array($clean, [
+            'profile.php', 'workspace.php', 'forms.php', 'account.php',
+            'settings.php', 'support.php', 'membership.php', 'userpayments.php',
+            'payments.php', 'transactions.php', 'security.php', 'usersecurity.php',
+            'delete_profile.php', 'upgrade.php', 'downgrade.php', 'logout.php',
+        ], true);
+    }
+
+    private function isMemberAreaRequest(): bool
+    {
+        $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+        return str_contains($script, '/WIMembers/');
+    }
 }
 
-
-
-?>

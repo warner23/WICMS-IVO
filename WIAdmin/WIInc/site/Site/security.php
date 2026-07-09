@@ -1,52 +1,28 @@
-<form class="form-horizontal" id="session-form">
+<?php
+declare(strict_types=1);
+$esc = static fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+?>
 
-<?php echo WIToken::csrfField('wi_ajax'); ?>
-<input type="hidden" name="action" value="session_settings">
+<?php
+$currentEncryption = (string) $site->Website_Info('password_encryption');
+$currentCost = (int) ((string) $site->Website_Info('cost') !== '' ? $site->Website_Info('cost') : $site->Website_Info('encryption_cost'));
+?>
+<form class="wi-settings-form" id="security-form" data-wi-settings-form data-result="#secresults">
+    <?php echo WIToken::csrfField('encryption_settings'); ?>
+    <input type="hidden" name="action" value="encryption">
 
-<div class="settings-panel">
+    <div class="wi-settings-section-head"><div class="wi-settings-section-icon">🔐</div><div><h2>Password Security</h2><p>Control the password hashing profile used for stored member/admin credentials.</p></div></div>
 
-<h3>Session Security</h3>
-
-<label>
-<input type="checkbox"
-name="settings[secure_session]"
-value="true"
-<?php echo $site->Website_Info('secure_session') === "true" ? 'checked' : ''; ?>
->
-Secure Session (HTTPS only)
-</label>
-
-<label>
-<input type="checkbox"
-name="settings[http_only]"
-value="true"
-<?php echo $site->Website_Info('http_only') === "true" ? 'checked' : ''; ?>
->
-HTTP Only Cookies
-</label>
-
-<label>
-<input type="checkbox"
-name="settings[regenerate_id]"
-value="true"
-<?php echo $site->Website_Info('regenerate_id') === "true" ? 'checked' : ''; ?>
->
-Regenerate Session ID
-</label>
-
-<label>
-<input type="checkbox"
-name="settings[use_only_cookie]"
-value="true"
-<?php echo $site->Website_Info('use_only_cookie') === "true" ? 'checked' : ''; ?>
->
-Use Cookies Only
-</label>
-
-<button id="session_btn" class="btn btn-success">Save</button>
-
-<div id="sesresults"></div>
-
-</div>
-
+    <div class="wi-settings-grid wi-settings-grid--two-one">
+        <div class="wi-settings-card">
+            <h3>Hashing Profile</h3>
+            <div class="wi-field-grid">
+                <label class="wi-field"><span>Password Algorithm</span><select name="encryption"><option value="password_hash" <?php echo $currentEncryption === 'password_hash' ? 'selected' : ''; ?>>PHP password_hash</option><option value="bcrypt" <?php echo $currentEncryption === 'bcrypt' ? 'selected' : ''; ?>>bcrypt compatible</option></select><small>Use PHP password_hash for modern compatibility.</small></label>
+                <label class="wi-field"><span>Password Cost</span><select name="cost"><?php for ($i = 10; $i <= 15; $i++): ?><option value="<?php echo $i; ?>" <?php echo $currentCost === $i ? 'selected' : ''; ?>><?php echo $i; ?></option><?php endfor; ?></select><small>Higher is stronger but slower.</small></label>
+            </div>
+            <div class="wi-settings-alert wi-settings-alert--info">Passwords must remain hash-only. Plain text passwords should never be stored or logged.</div>
+        </div>
+        <aside class="wi-settings-side-card"><h3>Security Standard</h3><p>Changing password settings should be tested locally first, then staged carefully before production use.</p></aside>
+    </div>
+    <div class="wi-settings-actions"><button type="submit" class="wi-settings-save">Save Password Security</button><div class="wi-settings-result" id="secresults" aria-live="polite"></div></div>
 </form>

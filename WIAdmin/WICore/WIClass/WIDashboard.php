@@ -11,7 +11,7 @@ declare(strict_types=1);
 class WIDashboard
 {
     protected $WIdb;
-    protected mysqli $db;
+
 
     /**
      * Adjust these if your real table names differ.
@@ -41,7 +41,6 @@ class WIDashboard
     public function __construct()
     {
         $this->WIdb = WIdb::getInstance();
-        $this->db = $this->WIdb->mysqli;
     }
 
     /* =========================================================
@@ -50,110 +49,40 @@ class WIDashboard
 
     private function tableExists(string $table): bool
     {
-        if ($table === '') {
-            return false;
-        }
-
-        $table = $this->db->real_escape_string($table);
-        $sql = "SHOW TABLES LIKE '{$table}'";
-        $result = $this->db->query($sql);
-
-        if (!$result instanceof mysqli_result) {
-            return false;
-        }
-
-        $exists = $result->num_rows > 0;
-        $result->free();
-
-        return $exists;
+        return $table !== '' && $this->WIdb->tableExists($table);
     }
 
     private function columnExists(string $table, string $column): bool
     {
-        if ($table === '' || $column === '' || !$this->tableExists($table)) {
-            return false;
-        }
-
-        $table = $this->db->real_escape_string($table);
-        $column = $this->db->real_escape_string($column);
-
-        $sql = "SHOW COLUMNS FROM `{$table}` LIKE '{$column}'";
-        $result = $this->db->query($sql);
-
-        if (!$result instanceof mysqli_result) {
-            return false;
-        }
-
-        $exists = $result->num_rows > 0;
-        $result->free();
-
-        return $exists;
+        return $table !== ''
+            && $column !== ''
+            && $this->WIdb->columnExists($table, $column);
     }
 
     private function fetchValue(string $sql, string $types = '', array $params = []): mixed
     {
-        $stmt = $this->db->prepare($sql);
+        unset($types);
 
-        if (!$stmt instanceof mysqli_stmt) {
-            return null;
-        }
+        $stmt = $this->WIdb->prepare($sql);
+        $stmt->execute(array_values($params));
 
-        if ($types !== '' && !empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
+        $value = $stmt->fetchColumn(0);
+        $stmt->closeCursor();
 
-        if (!$stmt->execute()) {
-            $stmt->close();
-            return null;
-        }
-
-        $result = $stmt->get_result();
-
-        if (!$result instanceof mysqli_result) {
-            $stmt->close();
-            return null;
-        }
-
-        $row = $result->fetch_row();
-        $result->free();
-        $stmt->close();
-
-        return $row[0] ?? null;
+        return $value === false ? null : $value;
     }
 
     private function fetchAssocAll(string $sql, string $types = '', array $params = []): array
     {
-        $stmt = $this->db->prepare($sql);
+        unset($types);
 
-        if (!$stmt instanceof mysqli_stmt) {
-            return [];
-        }
+        $stmt = $this->WIdb->prepare($sql);
+        $stmt->execute(array_values($params));
 
-        if ($types !== '' && !empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
 
-        if (!$stmt->execute()) {
-            $stmt->close();
-            return [];
-        }
-
-        $result = $stmt->get_result();
-
-        if (!$result instanceof mysqli_result) {
-            $stmt->close();
-            return [];
-        }
-
-        $rows = [];
-        while ($row = $result->fetch_assoc()) {
-            $rows[] = $row;
-        }
-
-        $result->free();
-        $stmt->close();
-
-        return $rows;
+        return is_array($rows) ? $rows : [];
     }
 
     private function countRows(string $table, ?string $where = null): int
@@ -585,6 +514,16 @@ class WIDashboard
         return $available;
     }
 
+
+    private function databaseConnected(): bool
+    {
+        try {
+            return $this->fetchValue('SELECT 1') !== null;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
     /* =========================================================
      * SYSTEM HEALTH
      * ========================================================= */
@@ -600,7 +539,7 @@ class WIDashboard
         $health = [
             'php_version' => PHP_VERSION,
             'php_ok' => version_compare(PHP_VERSION, '8.2.0', '>='),
-            'database_connected' => $this->db->ping(),
+            'database_connected' => $this->databaseConnected(),
             'modules_dir_exists' => $this->dirExists($this->paths['modules_dir']),
             'plugins_dir_exists' => $this->dirExists($this->paths['plugins_dir']),
             'root_writable' => is_writable($rootDir),

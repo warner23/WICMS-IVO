@@ -1,81 +1,49 @@
-<script>
-  $( function() {
+<?php
+/*
+|--------------------------------------------------------------------------
+| WICMS Core Multi Language Route Catch
+|--------------------------------------------------------------------------
+| This file is loaded by /WIAdmin/WIMlang.php. The old version rendered the
+| legacy jQuery UI "Set Up / Add" language tabs. Keep the standalone route
+| alive, but render the same modern WICMS core Multilingual Settings manager
+| used inside Settings, so old menu/sidebar links do not fall back to legacy UI.
+*/
 
-var index = 'key';
-    //  Define friendly data store name
-    var dataStore = window.sessionStorage;
-    //  Start magic!
-    try {
-        // getter: Fetch previous value
-        var oldIndex = dataStore.getItem(index);
-    } catch(e) {
-        // getter: Always default to first tab in error state
-        var oldIndex = 0;
-    }
-    
-    $( "#tabs4" ).tabs({
-        // The zero-based index of the panel that is active (open)
-        active : oldIndex,
-        // Triggered after a tab has been activated
-        activate : function( event, ui ){
-            //  Get future value
-            var newIndex = ui.newTab.parent().children().index(ui.newTab);
-            //  Set future value
-            dataStore.setItem( index, newIndex ) 
-        }
-    }); 
+$esc = $esc ?? static fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+?>
 
-    
-    });
-  </script>
- <aside class="right-side">
-                <!-- Content Header (Page header) -->
-                <section class="content-header">
-                    <h1>
-                        Multi Language
-                        <small>Control panel</small>
-                    </h1>
-                    <ol class="breadcrumb">
-                        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                        <li class="active">Multi Language</li>
-                    </ol>
-                </section>
+<link rel="stylesheet" href="../WITheme/WICMS/admin/css/core-admin-settings.css">
+<link rel="stylesheet" href="../WITheme/WICMS/admin/css/core-admin-language.css">
 
-                <!-- Main content -->
-                <section class="content">
+<aside class="right-side">
+    <div class="wi-settings-page wi-language-standalone-page" data-wi-language-standalone>
+        <section class="wi-settings-hero">
+            <div>
+                <p class="wi-settings-kicker">WICMS Core</p>
+                <h1>Multi Language</h1>
+                <p>Manage WICMS language mode, installed languages, translation records and language file health.</p>
+            </div>
+            <div class="wi-settings-hero-badge">
+                <span>Core Module</span>
+                <strong>Multilingual Settings</strong>
+            </div>
+        </section>
 
-                    <!-- Small boxes (Stat box) -->
-                    <div class="row">
-                        <div class="col-lg-3 col-xs-6 col-xl-12">
-                            <!-- input box's box -->
-                            <div class="modal-body">
+        <div class="wi-settings-alert wi-settings-alert--info">
+            This old Multi Language route now uses the same modern manager as Settings → Multilingual Settings.
+        </div>
 
-            <div class="well">
+        <section class="wi-settings-panel-view wi-language-standalone-panel">
+            <?php
+            $managerInclude = 'WIInc/site/Site/lang.php';
+            if (is_file($managerInclude)) {
+                include $managerInclude;
+            } else {
+                echo '<div class="wi-settings-alert wi-settings-alert--warning">Missing multilingual manager include: ' . $esc($managerInclude) . '</div>';
+            }
+            ?>
+        </section>
+    </div>
+</aside>
 
-
-                     <div id="tabs4">
-  <ul>
-    <li><a href="#tabs-1">Set Up</a></li>
-    <li><a href="#tabs-2">Add</a></li>
-  </ul>
-  <div id="tabs-1">
-<?php include_once 'WIInc/site/lang/set_up.php'; ?>  
-  </div>
-  <div id="tabs-2">
-<?php include_once 'WIInc/site/lang/add.php'; ?> 
-  </div>
-</div>
-   </div>
-   </div>
-   </div>
-   </div>
-
-   </section>
-<script type="text/javascript" src="WICore/WIJ/WICore.js"></script>
-    <script type="text/javascript" src="WICore/WIJ/WILang.js"></script>
-
-    <script type="text/javascript" src="WICore/WIJ/WIMediaCenter.js"></script>
-
-
-
-   
+<script type="text/javascript" src="../WITheme/WICMS/admin/js/core-admin-language.js"></script>

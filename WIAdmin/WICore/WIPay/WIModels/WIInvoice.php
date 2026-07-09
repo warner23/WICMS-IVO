@@ -3,17 +3,17 @@
 class WIInvoice
 {
 
-    private $WIdb;
+    private WIdb $WIdb;
 
     public function __construct()
     {
-        $this->WIdb = new PDO("mysql:host=localhost;dbname=wicms","root","");
+        $this->WIdb = WIdb::getInstance();
     }
 
     public function find($id)
     {
 
-        $stmt = $this->db->prepare("SELECT * FROM invoices WHERE id=?");
+        $stmt = $this->WIdb->prepare("SELECT * FROM invoices WHERE id=?");
         $stmt->execute([$id]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);

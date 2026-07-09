@@ -3,17 +3,17 @@
 class WIPayment
 {
 
-    private $db;
+    private WIdb $WIdb;
 
     public function __construct()
     {
-        $this->db = new PDO("mysql:host=localhost;dbname=wicms","root","");
+        $this->WIdb = WIdb::getInstance();
     }
 
     public function create($data)
     {
 
-        $stmt = $this->db->prepare("
+        $stmt = $this->WIdb->prepare("
             INSERT INTO payments
             (amount,currency,status,transaction_ref)
             VALUES

@@ -1,54 +1,45 @@
 <?php
-        $page = "upgrade";
+declare(strict_types=1);
 
-        include_once "WIInc/WI_StartUp.php";
+/*
+|--------------------------------------------------------------------------
+| File Information
+|--------------------------------------------------------------------------
+| Written By: Jules Warner
+| Company: WILabs
+| Product: WICMS / WIProfile
+| Project: WI Ecosystem
+| File: upgrade.php
+| Location: /
+| Type: Root Page Entrypoint
+| Layer: Front-Side Route
+| Purpose Area: Root-aligned WIProfile membership upgrade route
+| Version: 1.0.5
+| Created: 2026-06-09
+| Last Updated: 2026-06-11
+| Status: Active
+|--------------------------------------------------------------------------
+| Summary
+|--------------------------------------------------------------------------
+| Root-style modular page entrypoint. The database maps this page to the
+| membership module, so CSS, JS, meta tags and module resolution remain DB-led.
+*/
 
-        $ref = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "";
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+ini_set('log_errors', '1');
 
-        $agent = $_SERVER["HTTP_USER_AGENT"];
-        $ip = $_SERVER["REMOTE_ADDR"];
+require_once 'WICore/WIClass/WI.php';
 
-        $tracking_page = $_SERVER["SCRIPT_NAME"];
+$page = 'upgrade';
 
-        $country = $maint->ip_info($ip, "country");
-        $location = $maint->ip_info($ip, "location");
-        $city = $location["city"];
-        if($country === null){
-          $country = "localhost";
-        }
+$startup = new WIStartUp();
+$startup->boot($page);
+$startup->header($page);
 
-        $maint->visitors_log($page, $ip, $country, $ref, $agent, $tracking_page, $city);
+$modules = new WIModules();
+$moduleName = $modules->getModuleNameByPage($page) ?? 'notfound';
+$modules->getModMain($moduleName, $page);
 
-        $panelPower = $web->pageModPower($page, "panel");
-
-        $Panel = $web->PageMod($page, "panel");
-        if ($panelPower > 0) {
-          $mod->getMod($Panel);
-        }
-
-        $topPower = $web->pageModPower($page, "top_head");
-        $top_head = $web->PageMod($page, "top_head");
-        if ($topPower > 0) {
-          $mod->getMod($top_head);
-        }
-
-        $headerPower = $web->pageModPower($page, "header");
-        if ($headerPower > 0) {
-        $web->MainHeader();
-        }
-
-        $web->MainMenu();
-        
-        $contents = $web->pageModPower($page, "contents");
-        $mod->getModMain($contents, $page, $contents);
-
-        $footerPower = $web->pageModPower($page, "footer");
-
-        if ($footerPower >0) {
-        $web->footer();
-        }
-
-        ?>
-        </body>
-        </html>
-        
+$startup->footer();

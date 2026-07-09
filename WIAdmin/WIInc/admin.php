@@ -1,3 +1,15 @@
+<?php
+
+
+if (!function_exists('e')) {
+    function e(mixed $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+
+?>
 <div class="span9 users-wrapper">
               <a class="btn btn-primary" href="javascript:void(0);" 
                   onclick="WIAdmin.showAddUserModal()" > 
@@ -5,7 +17,7 @@
                   <?php echo WILang::get('add_user'); ?>
               </a>
              <!-- <?php  //$user_role 3 => admin ?> -->
-              <?php $admins = $WIdb->bindfree("SELECT * FROM `wi_members` WHERE `user_role` > 4  ORDER BY `register_date` DESC"); ?>
+              <?php $admins = $WIdb->select("SELECT * FROM `wi_members` WHERE `user_role` > 4  ORDER BY `register_date` DESC"); ?>
               <table cellpadding="0" cellspacing="0" border="0" class="table table-striped users-table" id="users-list" width="100%">
                   <thead>
                   <th><?php echo WILang::get('username'); ?></th>

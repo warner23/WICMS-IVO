@@ -1,276 +1,265 @@
 <?php
-include_once 'WI.php';
+declare(strict_types=1);
 
-//csrf protection
-if(empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') 
-    die("Sorry bro!");
+/** WIMembers AJAX controller with stale-CSRF repair. */
+final class WIAjax
+{
+    private array $input;
+    private int $userId;
 
-$url = parse_url( isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
-if( !isset( $url['host']) || ($url['host'] != $_SERVER['SERVER_NAME']))
-    die("Sorry bro!");
-
-//$action = $_POST['action'];
-$action = isset($_POST['action']) ? $_POST['action'] : null;
-
-switch ($action) {
-	case 'checkLogin':
-		$logged = $login->userLogin($_POST['username'], $_POST['password']);
-        if($logged === true)
-            echo json_encode(array(
-                'status' => 'success',
-                'page'   => get_redirect_page()
-            ));
-		break;
-
-    case "registerUser":
-        $register->register($_POST['User']);
-        break;
-        
-    case "resetPassword":
-        $register->resetPassword($_POST['newPass'], $_POST['key']);
-        break;
-        
-    case "forgotPassword":
-        $result = $register->forgotPassword($_POST['email']);
-        if ( $result !== TRUE )
-            echo $result;
-        break;
-        
-    case "postComment":
-        $WIComment = new WIComment();
-        echo $WIComment->insertComment(WISession::get("user_id"), $_POST['comment']);
-        break;
-        
-    case "updatePassword":
-        $user = new WIUser(WISession::get("user_id"));
-        $user->updatePassword($_POST['oldpass'], $_POST['newpass']);
-        break;
-        
-    case "updateDetails":
-        $user = new WIUser(WISession::get("user_id"));
-        $user->updateDetails($_POST['details']);
-        break;
-        
-    case "changeRole":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        echo ucfirst($user->changeRole());
-        break;
-        
-    case "deleteUser":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        $user->deleteUser();
-        break;
-    
-    case "getUserDetails":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        echo json_encode( $user->getAll() );
-        break;
-
-    case "addRole": 
-        onlyAdmin();
-
-        $role = new WIRole();
-        echo json_encode( $role->add($_POST['role']) );
-        break;
-
-    case "deleteRole":
-        onlyAdmin();
-
-        $role = new WIRole();
-        $role->delete($_POST['roleId']);
-        break;
-
-
-        case "addUser":
-        onlyAdmin();
-
-        $user = new WIUser(null);
-        echo json_encode( $user->add($_POST) );
-        break;
-
-        case "updateUser":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        $user->updateUser($_POST);
-        break;
-
-        case "banUser":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        $user->updateInfo(array( 'banned' => 'Y' ));
-        break;
-
-        case "unbanUser":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        $user->updateInfo(array( 'banned' => 'N' ));
-        break;
-
-        case "getUser":
-        onlyAdmin();
-
-        $user = new WIUser($_POST['userId']);
-        echo json_encode($user->getAll());
-        break;
-
-        // profile
-        case "showPic":
-        $profile = new WIProfile();
-        $profile->User_pic($_POST['userId']);
-        break;
-
-        case "newprofileinfo":
-        $profile = new WIProfile();
-        $profile->newprofileinfo($_POST['profile']);
-        break;
-
-         case "updateProfileInfo":
-        $profile = new WIProfile();
-        $profile->updateProfileInfo($_POST['profile'], $_POST['PersonProfile']);
-        break;
-
-        case "updateProfileContactInfo":
-        $profile = new WIProfile();
-        $profile->updateProfileContactInfo($_POST['profileInfo'], $_POST['email']);
-        break;
-
-        case "updateProfileBasicInfo":
-        $profile = new WIProfile();
-        $profile->updateProfileBasicInfo($_POST['profileInfo']);
-        break;
-
-        case "updateBio":
-        $profile = new WIProfile();
-        $profile->UpdateBio($_POST['userId'], $_POST['bio']);
-        break;
-
-         case "updateProfileDetails":
-        $profile = new WIProfile();
-        $profile->updateProfileDetails($_POST['userId'], $_POST['fname'], $_POST['lname']);
-        break;
-
-        case "updateLocation":
-        $profile = new WIProfile();
-        $profile->updateLocation($_POST['userId'], $_POST['country'], $_POST['region'], $_POST['city']);
-        break;
-
-        case "displayBio":
-        $profile = new WIProfile();
-        $profile->userDetails($_POST['userId'], "bio_body");
-        break;
-
-        case "uploadUserPhoto":
-        $profile = new WIProfile();
-        $profile->UploadProfilePic($_POST['photo']);
-        break;
-
-        case "displayLocation":
-        $profile = new WIProfile();
-        $profile->LocationInfo($_POST['userId']);
-        break;
-
-         case "displaySocial":
-        $profile = new WIProfile();
-        $profile->Social_Profile($_POST['userId']);
-        break;
-
-       case "friendProfile":
-        $profile = new WIProfile();
-        $profile->friendProfile($_POST['friend']);
-        break;
-
-     case "friendProfile0":
-        $profile = new WIProfile();
-        $profile->friendProfile0();
-        break;
-
-       case "privateMessage":
-        $profile = new WIProfile();
-        $profile->privateMessage($_POST['pmSub'], $_POST['pmText'], $_POST['senderid'],$_POST['sendername'],$_POST['rec_id'],$_POST['recName']);
-        break;
-
-        case "AddFriend":
-        $profile = new WIProfile();
-        $profile->addFriend($_POST['userId'], $_POST['friendId']);
-        break;
-
-        case "acceptrequest":
-        $profile = new WIProfile();
-        $profile->acceptRequest($_POST['req_id']);
-        break;
-
-        case "denyrequest":
-        $profile = new WIProfile();
-        $profile->denyRequest($_POST['req_id']);
-        break;
-
-         case "markAsRead":
-        $profile = new WIProfile();
-        $profile->MarkAsRead($_POST['msgID'], $_POST['user']);
-        break;
-
-        case "processReply":
-        $profile = new WIProfile();
-        $profile->reply($_POST['pmSubject'], $_POST['pmTextArea'], $_POST['sendername'], $_POST['senderid'],$_POST['recName'], $_POST['recID']);
-        break;    
-
-        //upgrade page
-        case "checkUpgrade":
-        $upgrade = new WIUpgrade();
-        $upgrade->upgrade($_POST['id']);
-        break;
-
-        case "accepted":
-        $upgrade = new WIUpgrade();
-        $upgrade->acceepted($_POST['id'],$_POST['plan'], $_POST['price'], $_POST['role'],  $_POST['createdAt']);
-        break;
-
-            default:
-        
-        break;
-};
-
-
-//$action = $_GET['action'];
-$action = isset($_GET['action']) ? $_GET['action'] : null;
-switch($action){
-    
-        
-        case 'CheckChat':
-        $debate->getChatMessages($_GET['chat_id'], $_GET['last_chat_time'], $_GET['userId']);
-        break;
-        
-        
-        case 'getChats':
-            $response = Chat::getChats($_GET['lastID']);
-        break;
-
-        case 'Pending':
-        $debate = new WIDebate();
-        $debate->checkPending();
-        break;
-
-         case "status":
-        $debate = new WIDebate();
-        $debate->status($_GET['chat_id']);
-        break;
-        
-        default:
+    public function __construct()
+    {
+        $this->input = $_POST + $_GET;
+        $this->userId = (int) WISession::get('user_id', 0);
     }
 
-function onlyAdmin() {
-    $login = new WILogin();
-    if ( ! $login->isLoggedIn() ) exit();
+    public function handle(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $login = new WILogin();
+            if (!$login->isLoggedIn()) {
+                $this->respond(['success' => false, 'message' => 'Not logged in.', 'csrf_token' => WICsrf::getToken()], 401);
+            }
 
-    $loggedUser = new WIUser(WISession::get("user_id"));
-    if( ! $loggedUser->isAdmin() ) exit();
+            $action = (string)($this->input['action'] ?? 'member_profile_payload');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && !WICsrf::validateToken((string)($this->input['csrf_token'] ?? ''))) {
+                $this->respond(['success' => false, 'message' => 'Security token refreshed. Please try again.', 'csrf_token' => WICsrf::generateToken()], 403);
+            }
+
+            $result = match ($action) {
+                'member_profile_payload' => (new WIProfile($this->userId))->dashboardPayload(),
+                'member_profile_save' => (new WIProfile($this->userId))->updateProfile($this->input),
+                'member_profile_photo_upload' => $this->profilePhotoUpload(),
+                'member_profile_photo_select' => $this->profilePhotoSelect(),
+                'member_profile_photo_remove' => $this->profilePhotoRemove(),
+                'member_profile_photo_library' => $this->profilePhotoLibrary(),
+                'member_training_list' => ['success' => true, 'training' => (new WITraining())->assignedToUser($this->userId)],
+                'member_training_start' => (new WITraining())->startAssignment($this->userId, (int)($this->input['assignment_id'] ?? 0)),
+                'member_training_complete' => (new WITraining())->completeAssignment($this->userId, (int)($this->input['assignment_id'] ?? 0), $this->input),
+                'member_forms_list' => ['success' => true, 'forms' => (new WIForms())->availableForUser($this->userId), 'documents' => (new WIForms())->documentAcknowledgementsForUser($this->userId)],
+                'member_form_submit' => (new WIForms())->submit($this->userId, $this->input),
+                'member_document_acknowledge' => (new WIForms())->acknowledgeDocument($this->userId, (int)($this->input['document_id'] ?? 0), trim((string)($this->input['notes'] ?? ''))),
+                'member_profile_tasks' => $this->profileTasks(),
+                'member_profile_task_complete' => $this->completeProfileTask(),
+                'member_profile_task_attach_evidence' => $this->attachProfileTaskEvidence(),
+                'member_account_save' => (new WIAccount($this->userId))->updateAccount($this->input),
+                'member_password_save' => (new WIAccount($this->userId))->updatePassword($this->input),
+                'member_settings_save' => (new WISettings())->saveForUser($this->userId, $this->input),
+                'member_delete_request' => $this->deleteRequest(),
+                default => ['success' => false, 'message' => 'Unknown action.'],
+            };
+
+            if (is_array($result) && !isset($result['csrf_token'])) {
+                $result['csrf_token'] = WICsrf::getToken();
+            }
+            $this->respond($result);
+        } catch (Throwable $e) {
+            $this->respond(['success' => false, 'message' => $e->getMessage(), 'csrf_token' => WICsrf::getToken()], 500);
+        }
+    }
+
+
+    private function profilePhotoUpload(): array
+    {
+        $file = $_FILES['profile_photo'] ?? $_FILES['file'] ?? $_FILES['media'] ?? null;
+        if (!is_array($file)) {
+            return ['success' => false, 'message' => 'Choose an image to upload.'];
+        }
+
+        $media = $this->wimedia();
+        $result = $media->upload($file, $this->profilePhotoMediaContext('Uploaded profile picture'));
+
+        if (($result['success'] ?? false) !== true) {
+            return $result;
+        }
+
+        $mediaId = (int)($result['media_id'] ?? ($result['media']['id'] ?? 0));
+        if ($mediaId <= 0) {
+            return ['success' => false, 'message' => 'WIMedia upload completed but no media ID was returned.'];
+        }
+
+        return $this->applyProfilePhotoMedia($mediaId, 'Profile picture uploaded.');
+    }
+
+    private function profilePhotoSelect(): array
+    {
+        $mediaId = (int)($this->input['media_id'] ?? 0);
+        if ($mediaId <= 0) {
+            return ['success' => false, 'message' => 'Choose a WIMedia image first.'];
+        }
+
+        return $this->applyProfilePhotoMedia($mediaId, 'Profile picture selected from WIMedia.');
+    }
+
+    private function profilePhotoRemove(): array
+    {
+        $result = (new WIUser($this->userId))->removeAvatar();
+        $result['csrf_token'] = WICsrf::getToken();
+        return $result;
+    }
+
+    private function profilePhotoLibrary(): array
+    {
+        $search = trim((string)($this->input['search'] ?? ''));
+        $items = $this->wimedia()->getMediaList([
+            'media_type' => 'image',
+            'status' => 1,
+            'search' => $search !== '' ? $search : null,
+            'limit' => 24,
+        ]);
+
+        $context = $this->profilePhotoMediaContext('Profile picture library');
+        foreach ($items as &$item) {
+            $mediaId = (int)($item['id'] ?? 0);
+            $safeUrl = $mediaId > 0 ? $this->wimedia()->viewUrl($mediaId, $context) : (string)($item['file_url'] ?? '');
+            $item['safe_view_url'] = $this->normaliseProfilePhotoMediaUrl($safeUrl !== '' ? $safeUrl : (string)($item['file_path'] ?? ''));
+            $item['file_url'] = $this->normaliseProfilePhotoMediaUrl((string)($item['file_url'] ?? ''));
+            $item['file_path_url'] = $this->normaliseProfilePhotoMediaUrl((string)($item['file_path'] ?? ''));
+        }
+        unset($item);
+
+        return [
+            'success' => true,
+            'message' => 'WIMedia image library loaded.',
+            'items' => $items,
+            'count' => count($items),
+        ];
+    }
+
+    private function applyProfilePhotoMedia(int $mediaId, string $message): array
+    {
+        $media = $this->wimedia();
+        $item = $media->getMediaById($mediaId);
+        if ($item === false || $item === []) {
+            return ['success' => false, 'message' => 'WIMedia image could not be found.'];
+        }
+
+        if ((string)($item['media_type'] ?? '') !== 'image' && !str_starts_with((string)($item['mime_type'] ?? ''), 'image/')) {
+            return ['success' => false, 'message' => 'Profile pictures must be image files.'];
+        }
+
+        $media->linkMedia($mediaId, $this->profilePhotoMediaContext('Active profile picture'));
+        $result = (new WIUser($this->userId))->setAvatarFromMedia($mediaId);
+        $result['message'] = $message;
+        $result['csrf_token'] = WICsrf::getToken();
+        return $result;
+    }
+
+    private function profilePhotoMediaContext(string $title): array
+    {
+        return [
+            'system_code' => 'wicms',
+            'entity_type' => 'member_profile',
+            'entity_id' => $this->userId,
+            'link_type' => 'profile_picture',
+            'folder' => 'Members/ProfilePictures',
+            'title' => $title,
+            'alt_text' => 'Member profile picture',
+            'caption' => 'Member profile picture',
+            'visibility' => 'private',
+            'access_scope' => 'user',
+            'is_private' => 1,
+            'is_sensitive' => 0,
+            'user_id' => $this->userId,
+            'uploaded_by_user_id' => $this->userId,
+            'created_by_user_id' => $this->userId,
+        ];
+    }
+
+    private function normaliseProfilePhotoMediaUrl(string $url): string
+    {
+        $url = trim($url);
+        if ($url === '' || str_starts_with($url, 'data:image/')) {
+            return $url;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+        if (is_string($path) && $path !== '' && str_contains($path, '/WIAdmin/WIMedia/')) {
+            $relative = substr($path, strpos($path, '/WIAdmin/WIMedia/') + 1);
+            return $this->memberRootUrl($relative);
+        }
+
+        if (str_starts_with($url, '/WIAdmin/WIMedia/')) {
+            return $this->memberRootUrl(ltrim($url, '/'));
+        }
+
+        if (str_starts_with($url, 'WIAdmin/WIMedia/')) {
+            return $this->memberRootUrl($url);
+        }
+
+        if (preg_match('/^(https?:)?\/\//i', $url)) {
+            return $url;
+        }
+
+        return $this->memberRootUrl($url);
+    }
+
+    private function memberRootUrl(string $path): string
+    {
+        $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+        $path = ltrim(trim($path), '/');
+        return str_contains($script, '/WIMembers/') ? '../' . $path : $path;
+    }
+
+    private function wimedia(): WIMedia
+    {
+        $root = dirname(__DIR__, 3);
+        $path = $root . '/WIAdmin/WICore/WIClass/WIMedia.php';
+        if (is_file($path) && !class_exists('WIMedia', false)) {
+            require_once $path;
+        }
+        if (!class_exists('WIMedia', false)) {
+            throw new RuntimeException('WIMedia is not available.');
+        }
+        return new WIMedia(WIdb::getInstance());
+    }
+
+    private function profileTasks(): array
+    {
+        return $this->profileTaskBridge()->dashboard([
+            'status' => (string)($this->input['status'] ?? 'all'),
+            'priority' => (string)($this->input['priority'] ?? 'all'),
+            'org_business_id' => (int)($this->input['org_business_id'] ?? 0),
+            'org_site_id' => (int)($this->input['org_site_id'] ?? 0),
+        ]);
+    }
+
+    private function completeProfileTask(): array
+    {
+        return $this->profileTaskBridge()->completeTask((int)($this->input['task_id'] ?? 0));
+    }
+
+    private function attachProfileTaskEvidence(): array
+    {
+        return $this->profileTaskBridge()->attachEvidence((int)($this->input['task_id'] ?? 0), (int)($this->input['media_id'] ?? 0), trim((string)($this->input['evidence_type'] ?? 'photo')) ?: 'photo', trim((string)($this->input['caption'] ?? '')));
+    }
+
+    private function profileTaskBridge(): WIProfileTaskEngineBridge
+    {
+        $path = __DIR__ . '/WIProfileTaskEngineBridge.php';
+        if (is_file($path) && !class_exists('WIProfileTaskEngineBridge', false)) { require_once $path; }
+        if (!class_exists('WIProfileTaskEngineBridge', false)) { throw new RuntimeException('WIProfileTaskEngineBridge is not installed.'); }
+        return new WIProfileTaskEngineBridge($this->userId);
+    }
+
+    private function deleteRequest(): array
+    {
+        $confirm = trim((string)($this->input['confirm_text'] ?? ''));
+        if (mb_strtolower($confirm) !== 'delete') { return ['success' => false, 'message' => 'Type DELETE to request profile deletion.']; }
+        $db = WIdb::getInstance();
+        if ($db->tableExists('wi_member_delete_requests')) {
+            $db->insert('wi_member_delete_requests', ['user_id'=>$this->userId, 'request_status'=>'requested', 'reason'=>trim((string)($this->input['reason'] ?? '')), 'requested_at'=>date('Y-m-d H:i:s')]);
+        }
+        (new WIUser($this->userId))->disableAccount();
+        (new WILogin())->logout();
+        return ['success' => true, 'message' => 'Profile deletion request recorded and account disabled.'];
+    }
+
+    private function respond(array $payload, int $status = 200): void
+    {
+        http_response_code($status);
+        echo json_encode($payload, JSON_THROW_ON_ERROR);
+        exit;
+    }
 }

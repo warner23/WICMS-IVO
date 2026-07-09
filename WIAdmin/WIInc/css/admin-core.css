@@ -556,3 +556,221 @@
         font-size: 15px;
     }
 }
+
+
+
+/* =========================================================
+   WICMS Admin Page Header / Breadcrumb Standard
+   ---------------------------------------------------------
+   Keeps backend page titles centred and breadcrumbs aligned
+   consistently across legacy WIAdmin pages.
+========================================================= */
+
+.right-side > .content-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 74px;
+    margin: 0 0 18px;
+    padding: 18px 280px 18px 280px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.right-side > .content-header h1 {
+    margin: 0;
+    color: #101828;
+    font-size: 26px;
+    line-height: 1.25;
+    font-weight: 850;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+.right-side > .content-header h1 small {
+    display: block;
+    margin-top: 4px;
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.right-side > .content-header > .breadcrumb {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    max-width: 250px;
+    margin: 0;
+    padding: 8px 12px;
+    transform: translateY(-50%);
+    background: #f8fafc;
+    border: 1px solid #eaecf0;
+    border-radius: 999px;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.right-side > .content-header > .breadcrumb > li {
+    display: inline-flex;
+    align-items: center;
+    color: #667085;
+}
+
+.right-side > .content-header > .breadcrumb > li + li:before {
+    content: "/";
+    padding: 0 2px 0 0;
+    color: #98a2b3;
+}
+
+.right-side > .content-header > .breadcrumb a {
+    color: #475467;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.right-side > .content-header > .breadcrumb a:hover,
+.right-side > .content-header > .breadcrumb a:focus {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.right-side > .content-header > .breadcrumb .fa,
+.right-side > .content-header > .breadcrumb i {
+    margin-right: 4px;
+}
+
+/* Do not break custom Compliance control header layouts */
+.right-side > .content-header.wi-comp-control-header {
+    display: block;
+    min-height: unset;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+    box-shadow: none;
+}
+
+.right-side > .content-header.wi-comp-control-header > .breadcrumb {
+    position: static;
+    display: block;
+    max-width: none;
+    transform: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+
+/* Responsive backend page headers */
+@media (max-width: 991px) {
+    .right-side > .content-header {
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+        padding: 18px 16px;
+    }
+
+    .right-side > .content-header h1 {
+        font-size: 23px;
+    }
+
+    .right-side > .content-header > .breadcrumb {
+        position: static;
+        justify-content: center;
+        max-width: 100%;
+        transform: none;
+    }
+}
+
+@media (max-width: 575px) {
+    .right-side > .content-header {
+        min-height: 66px;
+        margin-bottom: 12px;
+        padding: 14px 10px;
+    }
+
+    .right-side > .content-header h1 {
+        font-size: 21px;
+    }
+
+    .right-side > .content-header h1 small {
+        font-size: 11px;
+    }
+
+    .right-side > .content-header > .breadcrumb {
+        width: 100%;
+        justify-content: center;
+        border-radius: 14px;
+        white-space: normal;
+        text-align: center;
+    }
+}
+/* =========================================================
+   WIBugReporter Settings Panel
+========================================================= */
+.wi-bug-reporter-settings-panel .settings-panel-header p {
+    margin: 6px 0 0;
+    color: #667085;
+    line-height: 1.6;
+}
+
+.wi-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.wi-settings-switch-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    min-height: 78px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.wi-settings-switch-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+}
+
+.wi-settings-switch-row strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #101828;
+    font-size: 14px;
+}
+
+.wi-settings-switch-row small {
+    display: block;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.wi-bug-reporter-settings-panel .results {
+    margin-top: 12px;
+    min-height: 20px;
+    font-weight: 700;
+}
+
+@media (max-width: 767px) {
+    .wi-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -8,11 +8,11 @@ declare(strict_types=1);
 
 abstract class Migration
 {
-    protected WIdb $db;
+    protected WIdb $WIdb;
 
     public function __construct()
     {
-        $this->db = WIdb::getInstance();
+        $this->WIdb = WIdb::getInstance();
     }
 
     /**

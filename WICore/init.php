@@ -12,20 +12,30 @@ require_once __DIR__ . '/WIClass/WI.php';
 |--------------------------------------------------------------------------
 */
 
-$token = $register->socialToken();
-WISession::set('WI_social_token', $token);
-$register->botProtection();
+$register = class_exists('WIRegister') ? new WIRegister() : null;
+$login    = class_exists('WILogin') ? new WILogin() : null;
 
-$user = new WIUser((int) WISession::get('user_id', 0));
-$userInfo = $user->getInfo();
-$userDetails = $user->getDetails();
+if ($register !== null && class_exists('WISession')) {
+    $token = $register->socialToken();
+    WISession::set('WI_social_token', $token);
+    $register->botProtection();
+}
 
-$Info = new WIUserInfo();
-$web = new WIWebsite();
-$mod = new WIModules();
-$maint = new WIMaintenace();
-$calandar = new WICalendar();
-$modal = new WIModal();
+$userId = 0;
+if (class_exists('WISession')) {
+    $userId = (int) WISession::get('user_id', 0);
+}
+
+$user = class_exists('WIUser') ? new WIUser($userId) : null;
+$userInfo = $user !== null && method_exists($user, 'getInfo') ? $user->getInfo() : [];
+$userDetails = $user !== null && method_exists($user, 'getDetails') ? $user->getDetails() : [];
+
+$Info     = class_exists('WIUserInfo') ? new WIUserInfo() : null;
+$web      = class_exists('WIWebsite') ? new WIWebsite() : null;
+$mod      = class_exists('WIModules') ? new WIModules() : null;
+$maint    = class_exists('WIMaintenace') ? new WIMaintenace() : null;
+$calandar = class_exists('WICalendar') ? new WICalendar() : null;
+$modal    = class_exists('WIModal') ? new WIModal() : null;
 
 /*
 |--------------------------------------------------------------------------
